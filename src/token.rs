@@ -1,3 +1,7 @@
+use std::fmt::Debug;
+use std::fmt::Error;
+use std::fmt::Formatter;
+
 const TT_INT: &str = "TT_INT";
 const TT_FLOAT: &str = "TT_FLOAT";
 const TT_PLU: &str = "TT_PLUS";
@@ -10,6 +14,12 @@ const TT_RPAREN: &str = "TT_RPAREN";
 pub struct Token {
     type_: String,
     value: String,
+}
+
+impl Debug for Token {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        write!(f, "Lexer {{ Type: {}, Value: {} }}", self.type_, self.value)
+    }
 }
 
 impl Token {
