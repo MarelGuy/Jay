@@ -34,7 +34,6 @@ impl Lexer {
         if self.position > self.text.len() as isize {
             self.current_str = "\0".to_string();
         } else {
-
             print!("{:?}", self.text.split_whitespace().collect::<Vec<&str>>());
 
             // self.current_str = self
@@ -60,7 +59,7 @@ impl Lexer {
             return Token::new("TT_INT".to_owned(), current_string.to_string());
         }
     }
-    
+
     pub fn make_tokens(&mut self) -> Vec<Token> {
         self.advance();
         let mut tokens: Vec<Token> = Vec::new();
