@@ -36,7 +36,7 @@ impl Lexer<'_> {
         } else {
             self.current_str = self
                 .text
-                .split_whitespace()
+                .split_whitespace() // Lifetime error, must fix this later.
                 .nth(self.position.try_into().unwrap())
                 .unwrap();
         }
