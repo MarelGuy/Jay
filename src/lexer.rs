@@ -3,28 +3,28 @@ use std::fmt::Debug;
 use std::fmt::Error;
 use std::fmt::Formatter;
 
-pub struct Lexer {
+pub struct Lexer<'a> {
     text: String,
     position: isize,
-    current_char: char,
+    current_str: &'a str,
 }
 
-impl Debug for Lexer {
+impl Debug for Lexer<'_> {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         write!(
             f,
-            "Lexer {{ text: {}, position: {}, current_char: {} }}",
-            self.text, self.position, self.current_char
+            "Lexer {{ text: {}, position: {}, current_str: {} }}",
+            self.text, self.position, self.current_str
         )
     }
 }
 
-impl Lexer {
-    pub fn new(text: String) -> Lexer {
+impl Lexer<'_> {
+    pub fn new(text: String) -> Lexer<'static> {
         Lexer {
             text: text,
             position: 0,
-            current_char: '\0',
+            current_str: "\0",
         }
     }
 
@@ -32,11 +32,11 @@ impl Lexer {
         self.position += 1;
 
         if self.position > self.text.len() as isize {
-            self.current_char = '\0';
+            self.current_str = "\0";
         } else {
-            self.current_char = self
+            self.current_str = self
                 .text
-                .chars()
+                .split_whitespace()
                 .nth(self.position.try_into().unwrap())
                 .unwrap();
         }
@@ -61,29 +61,31 @@ impl Lexer {
         self.advance();
         let mut tokens: Vec<Token> = Vec::new();
 
-        while self.current_char != '\0' {
-            print!("{}", self.current_char);
+        while self.current_str != "\0" {
+            print!("{}", self.current_str);
 
-            if self.current_char.is_whitespace() {
-                self.advance();
-            } else if self.current_char.is_numeric() {
-                tokens.push(self.make_number(&self.text as &str)); // The problem is here
-            } else if self.current_char == '+' {
+            for elem in self.current_str.chars() {
+                if elem.is_numeric() {
+                    tokens.push(Token::new("TT_INT".to_owned(), elem.to_string()));
+                }
+            }
+
+            if self.current_str == "+" {
                 tokens.push(Token::new("TT_PLUS".to_owned(), "+".to_owned()));
                 self.advance();
-            } else if self.current_char == '-' {
+            } else if self.current_str == "-" {
                 tokens.push(Token::new("TT_MINUS".to_owned(), "-".to_owned()));
                 self.advance();
-            } else if self.current_char == '/' {
+            } else if self.current_str == "/" {
                 tokens.push(Token::new("TT_DIV".to_owned(), "/".to_owned()));
                 self.advance();
-            } else if self.current_char == '*' {
+            } else if self.current_str == "*" {
                 tokens.push(Token::new("TT_MUL".to_owned(), "*".to_owned()));
                 self.advance();
-            } else if self.current_char == '(' {
+            } else if self.current_str == "(" {
                 tokens.push(Token::new("TT_LPAREN".to_owned(), "(".to_owned()));
                 self.advance();
-            } else if self.current_char == ')' {
+            } else if self.current_str == ")" {
                 tokens.push(Token::new("TT_RPAREN".to_owned(), ")".to_owned()));
                 self.advance();
             } else {
