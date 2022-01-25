@@ -3,13 +3,13 @@ use std::fmt::Debug;
 use std::fmt::Error;
 use std::fmt::Formatter;
 
-pub struct Lexer<'a> {
+pub struct Lexer {
     text: String,
     position: isize,
-    current_str: &'a str,
+    current_str: String,
 }
 
-impl Debug for Lexer<'_> {
+impl Debug for Lexer {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         write!(
             f,
@@ -19,12 +19,12 @@ impl Debug for Lexer<'_> {
     }
 }
 
-impl Lexer<'_> {
-    pub fn new(text: String) -> Lexer<'static> {
+impl Lexer {
+    pub fn new(text: String) -> Lexer {
         Lexer {
             text: text,
             position: 0,
-            current_str: "\0",
+            current_str: "\0".to_string(),
         }
     }
 
@@ -32,13 +32,16 @@ impl Lexer<'_> {
         self.position += 1;
 
         if self.position > self.text.len() as isize {
-            self.current_str = "\0";
+            self.current_str = "\0".to_string();
         } else {
-            self.current_str = self
-                .text
-                .split_whitespace() // Lifetime error, must fix this later.
-                .nth(self.position.try_into().unwrap())
-                .unwrap();
+
+            print!("{:?}", self.text.split_whitespace().collect::<Vec<&str>>());
+
+            // self.current_str = self
+            //     .text
+            //     .split_whitespace()
+            //     .nth(self.position.try_into().unwrap())
+            //     .unwrap().to_string();
         }
     }
 
@@ -57,6 +60,7 @@ impl Lexer<'_> {
             return Token::new("TT_INT".to_owned(), current_string.to_string());
         }
     }
+    
     pub fn make_tokens(&mut self) -> Vec<Token> {
         self.advance();
         let mut tokens: Vec<Token> = Vec::new();
@@ -66,7 +70,7 @@ impl Lexer<'_> {
 
             for elem in self.current_str.chars() {
                 if elem.is_numeric() {
-                    tokens.push(Token::new("TT_INT".to_owned(), elem.to_string()));
+                    self.make_number(&self.current_str);
                 }
             }
 
