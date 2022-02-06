@@ -6,10 +6,6 @@ use std::path::Path;
 mod lexer;
 mod token;
 
-fn get_extension_from_filename(filename: &str) -> Option<&str> {
-    Path::new(filename).extension().and_then(OsStr::to_str)
-}
-
 fn main() {
     let args: Vec<String> = args().collect();
 
@@ -25,13 +21,14 @@ fn main() {
         return;
     }
 
-    if get_extension_from_filename(&args[1]) != Some("jay") {
-        println!("File extension must be .jay");
+    if file_path.extension().and_then(OsStr::to_str) != Some("jay") {
+        println!("File extension must be .jay: {}", args[1]);
         return;
     }
 
-    let contents: String = fs::read_to_string(&args[1]).unwrap();
-    let mut lexer: lexer::Lexer = lexer::Lexer::new(contents);
+    let mut lexer: lexer::Lexer = lexer::Lexer::new(fs::read_to_string(&args[1]).unwrap());
 
-    println!("{:?}", lexer.make_tokens());
+    for elem in lexer.make_tokens() {
+        print!("{:}", elem.get_token());
+    }
 }

@@ -5,7 +5,7 @@ use std::fmt::Formatter;
 
 pub struct Lexer {
     text: String,
-    position: isize,
+    position: usize,
     current_str: String,
 }
 
@@ -31,16 +31,17 @@ impl Lexer {
     pub fn advance(&mut self) {
         self.position += 1;
 
-        if self.position > self.text.len() as isize {
+        if self.position > self.text.len() {
             self.current_str = "\0".to_string();
         } else {
-            print!("{:?}", self.text.split_whitespace().collect::<Vec<&str>>());
+            self.current_str = String::from(
+                self.text
+                    .split_whitespace()
+                    .nth(self.position as usize)
+                    .unwrap(),
+            );
 
-            // self.current_str = self
-            //     .text
-            //     .split_whitespace()
-            //     .nth(self.position.try_into().unwrap())
-            //     .unwrap().to_string();
+            println!("{}", self.current_str);
         }
     }
 
@@ -50,6 +51,10 @@ impl Lexer {
         for elem in current_string.chars() {
             if elem == '.' {
                 dot_count += 1;
+            } else if elem.is_numeric() {
+                continue;
+            } else {
+                break;
             }
         }
 
@@ -61,40 +66,26 @@ impl Lexer {
     }
 
     pub fn make_tokens(&mut self) -> Vec<Token> {
-        self.advance();
         let mut tokens: Vec<Token> = Vec::new();
 
         while self.current_str != "\0" {
-            print!("{}", self.current_str);
-
-            for elem in self.current_str.chars() {
-                if elem.is_numeric() {
-                    self.make_number(&self.current_str);
-                }
-            }
-
             if self.current_str == "+" {
                 tokens.push(Token::new("TT_PLUS".to_owned(), "+".to_owned()));
-                self.advance();
             } else if self.current_str == "-" {
                 tokens.push(Token::new("TT_MINUS".to_owned(), "-".to_owned()));
-                self.advance();
             } else if self.current_str == "/" {
                 tokens.push(Token::new("TT_DIV".to_owned(), "/".to_owned()));
-                self.advance();
             } else if self.current_str == "*" {
                 tokens.push(Token::new("TT_MUL".to_owned(), "*".to_owned()));
-                self.advance();
             } else if self.current_str == "(" {
                 tokens.push(Token::new("TT_LPAREN".to_owned(), "(".to_owned()));
-                self.advance();
             } else if self.current_str == ")" {
                 tokens.push(Token::new("TT_RPAREN".to_owned(), ")".to_owned()));
-                self.advance();
             } else {
                 tokens.push(Token::new("\0".to_owned(), "\0".to_owned()));
-                self.advance();
             }
+
+            self.advance();
         }
 
         return tokens;
