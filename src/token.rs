@@ -1,11 +1,13 @@
 use core::fmt::{Debug, Formatter, Result};
 
+/**
+ * Token
+*/
 pub(crate) struct Token {
     token_type: String,
     value: String,
 }
 
-// implement debug in token
 impl Debug for Token {
     fn fmt(&self, f: &mut Formatter) -> Result {
         write!(

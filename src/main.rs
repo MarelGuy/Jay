@@ -5,6 +5,7 @@ use chrono::{Datelike, Utc};
 mod lexer;
 mod token;
 
+// When the interpreter is run, everything before the first whitespace.
 fn main() {
     println!("Jay version 0.0.0 (c) {}", Utc::now().date().year());
 
