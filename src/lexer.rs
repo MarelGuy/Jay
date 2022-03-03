@@ -63,17 +63,6 @@ impl Lexer {
         result
     }
 
-    // fn read_string(&mut self) -> String {
-    //     let mut result: String = String::new();
-    //     self.read_char();
-    //     while self.char != '"' {
-    //         result.push(self.char);
-    //         self.read_char();
-    //     }
-    //     self.read_char();
-    //     result
-    // }
-
     pub fn next_token(&mut self) -> Result<Token, Error> {
         self.skip_whitespace();
         let token: Token = match self.char {
