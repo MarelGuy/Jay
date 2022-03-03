@@ -25,6 +25,6 @@
     My goal right now is to create a new programming language that will be able to be used by everyone.
  - ### How can you contact me?
     There are plenty of methods, if you want a fast response, you can contact me on discord at: Marel#8077.
-    If you want to contact me via email: irertnuc-loris@gmail.com
+    If you want to contact me via email: irertnuc.loris@gmail.com
     You might find me on LinkedId but I prefer to be contacted via discord.
 
