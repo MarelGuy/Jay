@@ -1,31 +1,23 @@
-use std::fmt::Debug;
-use std::fmt::Error;
-use std::fmt::Formatter;
+use core::fmt::{Debug, Formatter, Result};
 
-pub struct Token {
-    type_: String,
+pub(crate) struct Token {
+    token_type: String,
     value: String,
 }
 
+// implement debug in token
 impl Debug for Token {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "Lexer {{ Type: {}, Value: {} }}", self.type_, self.value)
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        write!(
+            f,
+            "Token {{ token_type: {}, value: {} }}",
+            self.token_type, self.value
+        )
     }
 }
 
 impl Token {
-    pub fn get_token(self) -> String {
-        if self.value == "" {
-            return self.type_.to_owned();
-        } else {
-            return self.type_.to_owned() + ": " + &self.value.to_owned();
-        }
-    }
-
-    pub fn new(type_: String, value: String) -> Token {
-        Token {
-            type_: type_,
-            value: value,
-        }
+    pub fn new(token_type: String, value: String) -> Token {
+        Token { token_type, value }
     }
 }
