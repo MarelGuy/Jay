@@ -1,93 +1,122 @@
-use crate::token::Token;
-use std::fmt::Debug;
 use std::fmt::Error;
-use std::fmt::Formatter;
 
-pub struct Lexer {
-    text: String,
+use crate::token::Token;
+
+pub(crate) struct Lexer {
+    input: String,
     position: usize,
-    current_str: String,
-}
-
-impl Debug for Lexer {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(
-            f,
-            "Lexer {{ text: {}, position: {}, current_str: {} }}",
-            self.text, self.position, self.current_str
-        )
-    }
+    read_position: usize,
+    char: char,
 }
 
 impl Lexer {
-    pub fn new(text: String) -> Lexer {
-        Lexer {
-            text: text,
+    pub fn new(input: String) -> Lexer {
+        let mut lexer: Lexer = Lexer {
+            input,
             position: 0,
-            current_str: "\0".to_string(),
-        }
+            read_position: 0,
+            char: ' ',
+        };
+        lexer.read_char();
+        lexer
     }
 
-    pub fn advance(&mut self) {
-        self.position += 1;
-
-        if self.position > self.text.len() {
-            self.current_str = "\0".to_string();
+    fn read_char(&mut self) {
+        if self.read_position >= self.input.len() {
+            self.char = '\0';
         } else {
-            self.current_str = String::from(
-                self.text
-                    .split_whitespace()
-                    .nth(self.position as usize)
-                    .unwrap(),
-            );
-
-            println!("{}", self.current_str);
+            self.char = self.input.chars().nth(self.read_position).unwrap();
         }
+        self.position = self.read_position;
+        self.read_position += 1;
     }
 
-    pub fn make_number(&self, current_string: &str) -> Token {
-        let mut dot_count = 0;
-
-        for elem in current_string.chars() {
-            if elem == '.' {
-                dot_count += 1;
-            } else if elem.is_numeric() {
-                continue;
-            } else {
-                break;
-            }
-        }
-
-        if dot_count > 1 {
-            return Token::new("TT_FLOAT".to_owned(), current_string.to_string());
+    fn peek_char(&self) -> char {
+        if self.read_position >= self.input.len() {
+            '\0'
         } else {
-            return Token::new("TT_INT".to_owned(), current_string.to_string());
+            self.input.chars().nth(self.read_position).unwrap()
         }
     }
 
-    pub fn make_tokens(&mut self) -> Vec<Token> {
-        let mut tokens: Vec<Token> = Vec::new();
-
-        while self.current_str != "\0" {
-            if self.current_str == "+" {
-                tokens.push(Token::new("TT_PLUS".to_owned(), "+".to_owned()));
-            } else if self.current_str == "-" {
-                tokens.push(Token::new("TT_MINUS".to_owned(), "-".to_owned()));
-            } else if self.current_str == "/" {
-                tokens.push(Token::new("TT_DIV".to_owned(), "/".to_owned()));
-            } else if self.current_str == "*" {
-                tokens.push(Token::new("TT_MUL".to_owned(), "*".to_owned()));
-            } else if self.current_str == "(" {
-                tokens.push(Token::new("TT_LPAREN".to_owned(), "(".to_owned()));
-            } else if self.current_str == ")" {
-                tokens.push(Token::new("TT_RPAREN".to_owned(), ")".to_owned()));
-            } else {
-                tokens.push(Token::new("\0".to_owned(), "\0".to_owned()));
-            }
-
-            self.advance();
+    fn skip_whitespace(&mut self) {
+        while self.char == ' ' || self.char == '\t' || self.char == '\n' || self.char == '\r' {
+            self.read_char();
         }
+    }
 
-        return tokens;
+    fn read_identifier(&mut self) -> String {
+        let mut result: String = String::new();
+        while self.char.is_alphabetic() || self.char == '_' {
+            result.push(self.char);
+            self.read_char();
+        }
+        result
+    }
+
+    fn read_number(&mut self) -> String {
+        let mut result: String = String::new();
+        while self.char.is_numeric() {
+            result.push(self.char);
+            self.read_char();
+        }
+        result
+    }
+
+    // fn read_string(&mut self) -> String {
+    //     let mut result: String = String::new();
+    //     self.read_char();
+    //     while self.char != '"' {
+    //         result.push(self.char);
+    //         self.read_char();
+    //     }
+    //     self.read_char();
+    //     result
+    // }
+
+    pub fn next_token(&mut self) -> Result<Token, Error> {
+        self.skip_whitespace();
+        let token: Token = match self.char {
+            '=' => {
+                if self.peek_char() == '=' {
+                    self.read_char();
+                    Token::new("IS_EQUAL".to_string(), "==".to_string())
+                } else {
+                    Token::new("EQUALS".to_string(), "=".to_string())
+                }
+            }
+            '!' => {
+                if self.peek_char() == '=' {
+                    self.read_char();
+                    Token::new("IS_DIFFERENT".to_string(), "!=".to_string())
+                } else {
+                    Token::new("NOT".to_string(), "!".to_string())
+                }
+            }
+            '+' => Token::new("PLUS".to_string(), "+".to_string()),
+            '-' => Token::new("MINUS".to_string(), "-".to_string()),
+            '*' => Token::new("TIMES".to_string(), "*".to_string()),
+            '/' => Token::new("DIVIDED".to_string(), "/".to_string()),
+            '<' => Token::new("MINOR".to_string(), "<".to_string()),
+            '>' => Token::new("GREATER".to_string(), ">".to_string()),
+            ';' => Token::new("SEMICOLON".to_string(), ";".to_string()),
+            '(' => Token::new("RPAREN".to_string(), "(".to_string()),
+            ')' => Token::new("LPAREN".to_string(), ")".to_string()),
+            '{' => Token::new("RCURLY".to_string(), "{".to_string()),
+            '}' => Token::new("LCURLY".to_string(), "}".to_string()),
+            ',' => Token::new("COMMA".to_string(), ",".to_string()),
+            '.' => Token::new("DOT".to_string(), ".".to_string()),
+            '[' => Token::new("RSQUARE".to_string(), "[".to_string()),
+            ']' => Token::new("LSQUARE".to_string(), "]".to_string()),
+            '0'..='9' => Token::new("NUM".to_string(), self.read_number()),
+            'a'..='z' | 'A'..='Z' | '_' => {
+                Token::new("IDENTIFIER".to_string(), self.read_identifier())
+            }
+            _ => {
+                self.read_char();
+                Token::new("UNKNOWN".to_string(), "".to_string())
+            }
+        };
+        Ok(token)
     }
 }
