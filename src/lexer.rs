@@ -2,9 +2,6 @@ use std::fmt::Error;
 
 use crate::token::Token;
 
-/**
- * Lexer
- */
 pub(crate) struct Lexer {
     input: String,
     position: usize,
@@ -109,6 +106,7 @@ impl Lexer {
                 Token::new("UNKNOWN".to_string(), "".to_string())
             }
         };
+
         Ok(token) // TODO: Return error if token is unknown.
     }
 }
