@@ -1,6 +1,8 @@
-use std::{env::args, fs::read_to_string, io::Write, path::Path};
-
-use chrono::{Datelike, Utc};
+use {
+    crate::lexer::Lexer,
+    chrono::{Datelike, Utc},
+    std::{env::args, fs::read_to_string, io::Write, path::Path},
+};
 
 mod lexer;
 mod token;
@@ -23,13 +25,13 @@ fn interpreter() {
 
         std::io::stdout().flush().expect("Could not flush stdout");
 
-        let mut input = String::new();
+        let mut input: String = String::new();
 
         std::io::stdin()
             .read_line(&mut input)
             .expect("Failed to read line");
 
-        let mut lexer = lexer::Lexer::new(input);
+        let mut lexer: Lexer = lexer::Lexer::new(input);
 
         let mut tokens: Vec<token::Token> = Vec::new();
 
@@ -62,7 +64,7 @@ fn compiler() {
         return;
     }
 
-    let file_path = Path::new(&args[2]);
+    let file_path: &Path = Path::new(&args[2]);
 
     if !file_path.exists() {
         println!("Error: file does not exist");
@@ -71,7 +73,7 @@ fn compiler() {
 
     let file_content: String = read_to_string(file_path).expect("Error: failed to read file");
 
-    let mut lexer = lexer::Lexer::new(file_content);
+    let mut lexer: Lexer = lexer::Lexer::new(file_content);
 
     let mut tokens: Vec<token::Token> = Vec::new();
 
