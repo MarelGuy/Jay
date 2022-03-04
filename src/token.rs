@@ -1,8 +1,5 @@
 use core::fmt::{Debug, Formatter, Result};
 
-/**
- * Token
-*/
 pub(crate) struct Token {
     token_type: String,
     value: String,
@@ -21,5 +18,13 @@ impl Debug for Token {
 impl Token {
     pub fn new(token_type: String, value: String) -> Token {
         Token { token_type, value }
+    }
+
+    pub fn get_token_type(&self) -> &String {
+        &self.token_type
+    }
+
+    pub fn get_value(&self) -> &String {
+        &self.value
     }
 }
