@@ -9,7 +9,6 @@ fn help() {
     println!("-h, --help: show this help message");
     println!("-v, --version: show version");
     println!("-c, --compiler: use the compiler");
-    println!("-i, --interpreter: use the interpreter");
 }
 
 fn version() {
@@ -76,18 +75,14 @@ fn compiler() {
 
 fn main() {
     match args().nth(1) {
-        Some(ref arg) if arg == "--interpreter" => interpreter(),
-        Some(ref arg) if arg == "-i" => interpreter(),
         Some(ref arg) if arg == "--compiler" => compiler(),
         Some(ref arg) if arg == "-c" => compiler(),
         Some(ref arg) if arg == "--version" => version(),
         Some(ref arg) if arg == "-v" => version(),
-        Some(ref arg) if arg == "--help" => version(),
+        Some(ref arg) if arg == "--help" => help(),
         Some(ref arg) if arg == "-h" => help(),
         _ => {
-            println!("Usage: jay [--interpreter | -i]");
-            println!("       jay [--compiler | -c]");
-            println!("Use --help or -h for more information.");
+            interpreter();
         }
     }
 }
