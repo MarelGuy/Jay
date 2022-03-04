@@ -1,6 +1,4 @@
-use std::fmt::Error;
-
-use crate::token::Token;
+use {crate::token::Token, std::fmt::Error};
 
 pub(crate) struct Lexer {
     input: String,
@@ -107,7 +105,23 @@ impl Lexer {
                 self.read_char();
                 Token::new("STRING".to_string(), result)
             }
-            '0'..='9' => Token::new("NUM".to_string(), self.read_number()),
+            '|' => {
+                if self.peek_char() == '|' {
+                    self.read_char();
+                    Token::new("OR".to_string(), "||".to_string())
+                } else {
+                    Token::new("PIPE".to_string(), "|".to_string())
+                }
+            }
+            '&' => {
+                if self.peek_char() == '&' {
+                    self.read_char();
+                    Token::new("AND".to_string(), "&&".to_string())
+                } else {
+                    Token::new("AMPERSAND".to_string(), "&".to_string())
+                }
+            }
+            '0'..='9' => Token::new("INT".to_string(), self.read_number()),
             'a'..='z' | 'A'..='Z' | '_' => {
                 Token::new("IDENTIFIER".to_string(), self.read_identifier())
             }
