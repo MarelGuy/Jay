@@ -11,7 +11,7 @@ pub(crate) struct Lexer {
 
 impl Lexer {
     pub fn new(input: String) -> Lexer {
-        let mut lexer: Lexer = Lexer {
+        let lexer: Lexer = Lexer {
             input,
             position: 0,
             read_position: 0,
@@ -118,5 +118,9 @@ impl Lexer {
         };
 
         Ok(token)
+    }
+
+    pub fn input(&self) -> &str {
+        self.input.as_ref()
     }
 }
