@@ -1,4 +1,4 @@
-use std::{fmt::Error, process::exit};
+use std::fmt::Error;
 
 use crate::token::Token;
 
@@ -63,8 +63,7 @@ impl Lexer {
         }
     }
 
-    pub fn next_token(&mut self) /* -> Result<Token, Error> */
-    {
+    pub fn next_token(&mut self) -> Result<Token, Error> {
         self.skip_whitespace();
         let token: Token = match self.char {
             '=' => {
@@ -118,11 +117,6 @@ impl Lexer {
             }
         };
 
-        println!("{:#?}", token);
-
-        if token.get_token_type() == "UNKNOWN" {
-            exit(1);
-        }
-        // Ok(token) // TODO: Return error if token is unknown.
+        Ok(token)
     }
 }
