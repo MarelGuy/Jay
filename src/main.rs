@@ -20,15 +20,35 @@ fn interpreter() {
 
     loop {
         print!(">>> ");
+
         std::io::stdout().flush().expect("Could not flush stdout");
+
         let mut input = String::new();
+
         std::io::stdin()
             .read_line(&mut input)
             .expect("Failed to read line");
 
         let mut lexer = lexer::Lexer::new(input);
 
-        println!("{:?}", lexer.next_token().unwrap());
+        let mut tokens: Vec<token::Token> = Vec::new();
+
+        for _ in 0..lexer.input().len() {
+            match lexer.next_token() {
+                Ok(token) => tokens.push(token),
+                Err(error) => {
+                    println!("Error: {}", error);
+                    return;
+                }
+            }
+
+            if tokens.last().unwrap().get_token_type() == "UNKNOWN" {
+                tokens.pop();
+                break;
+            }
+        }
+
+        println!("{:#?}", tokens);
     }
 }
 
