@@ -5,3 +5,9 @@ edition = "2021"
 
 [dependencies]
 chrono = "0.4.19"
+
+[profile.release]
+opt-level = 3
+lto = true
+debug = false
+rpath = false

@@ -12,7 +12,7 @@ fn help() {
 }
 
 fn version() {
-    println!("Jay v0.0.0 (date)");
+    println!("Jay v0.0.0 (2022-03-03)");
 }
 
 fn interpreter() {
@@ -57,7 +57,7 @@ fn compiler() {
 
     println!("Jay version 0.0.0 (c) {}", Utc::now().date().year());
 
-    if args.len() < 2 {
+    if args.len() < 3 {
         println!("Error: No file specified");
         return;
     }
