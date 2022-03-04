@@ -23,8 +23,4 @@ impl Token {
     pub fn get_token_type(&self) -> &String {
         &self.token_type
     }
-
-    pub fn get_value(&self) -> &String {
-        &self.value
-    }
 }
