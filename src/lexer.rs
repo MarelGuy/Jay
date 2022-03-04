@@ -1,4 +1,4 @@
-use std::fmt::Error;
+use std::{fmt::Error, process::exit};
 
 use crate::token::Token;
 
@@ -17,7 +17,6 @@ impl Lexer {
             read_position: 0,
             char: ' ',
         };
-        lexer.read_char();
         lexer
     }
 
@@ -29,20 +28,6 @@ impl Lexer {
         }
         self.position = self.read_position;
         self.read_position += 1;
-    }
-
-    fn peek_char(&self) -> char {
-        if self.read_position >= self.input.len() {
-            '\0'
-        } else {
-            self.input.chars().nth(self.read_position).unwrap()
-        }
-    }
-
-    fn skip_whitespace(&mut self) {
-        while self.char == ' ' || self.char == '\t' || self.char == '\n' || self.char == '\r' {
-            self.read_char();
-        }
     }
 
     fn read_identifier(&mut self) -> String {
@@ -63,7 +48,23 @@ impl Lexer {
         result
     }
 
-    pub fn next_token(&mut self) -> Result<Token, Error> {
+    fn peek_char(&self) -> char {
+        if self.read_position >= self.input.len() {
+            '\0'
+        } else {
+            self.input.chars().nth(self.read_position).unwrap()
+        }
+    }
+
+    fn skip_whitespace(&mut self) {
+        self.read_char();
+        while self.char == ' ' || self.char == '\t' || self.char == '\n' || self.char == '\r' {
+            self.read_char();
+        }
+    }
+
+    pub fn next_token(&mut self) /* -> Result<Token, Error> */
+    {
         self.skip_whitespace();
         let token: Token = match self.char {
             '=' => {
@@ -97,6 +98,16 @@ impl Lexer {
             '.' => Token::new("DOT".to_string(), ".".to_string()),
             '[' => Token::new("RSQUARE".to_string(), "[".to_string()),
             ']' => Token::new("LSQUARE".to_string(), "]".to_string()),
+            '"' => {
+                let mut result: String = String::new();
+                self.read_char();
+                while self.char != '"' {
+                    result.push(self.char);
+                    self.read_char();
+                }
+                self.read_char();
+                Token::new("STRING".to_string(), result)
+            }
             '0'..='9' => Token::new("NUM".to_string(), self.read_number()),
             'a'..='z' | 'A'..='Z' | '_' => {
                 Token::new("IDENTIFIER".to_string(), self.read_identifier())
@@ -107,6 +118,11 @@ impl Lexer {
             }
         };
 
-        Ok(token) // TODO: Return error if token is unknown.
+        println!("{:#?}", token);
+
+        if token.get_token_type() == "UNKNOWN" {
+            exit(1);
+        }
+        // Ok(token) // TODO: Return error if token is unknown.
     }
 }
