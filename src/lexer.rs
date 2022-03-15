@@ -68,7 +68,6 @@ impl Lexer {
         }
     }
 
-    // TODO Need to fix a bug: see in UPDATE.md
     pub fn next_token(&mut self) -> Result<Token, Error> {
         self.skip_whitespace();
         let token: Token = match self.char {
