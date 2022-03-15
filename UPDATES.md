@@ -16,3 +16,10 @@ Basically resetting the project. I did my experiments and now I think I'm ready 
 Today I worked all day on the code (of course I took some rest too).
 I'm still working on making the parser, but the base features of the lexer is working.
 I hope I can finish the parser in the next days, still I don't have much time.
+
+## 2022-05-15
+A friend of mine found a bug:
+if we write in input: 1+1, we will get [integer, integer] as tokens.
+if we write in input: 1 + 1 or 1 +1 we will get [integer, plus, integer] as tokens.
+i think that it's intuitive what we want to happen, doesn't matter how many spaces we need to get [integer, plus, integer] as tokens.
+I'm also currently working on the bug, but since I can't always work on it, idk when it'll be fixed.
