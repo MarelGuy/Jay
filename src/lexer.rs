@@ -30,19 +30,26 @@ impl Lexer {
 
     fn read_identifier(&mut self) -> String {
         let mut result: String = String::new();
-        while self.char.is_alphabetic() || self.char == '_' {
-            result.push(self.char);
+
+        result.push(self.char);
+
+        while self.peek_char().is_alphabetic() || self.peek_char() == '_' {
             self.read_char();
+            result.push(self.char);
         }
         result
     }
 
     fn read_number(&mut self) -> String {
         let mut result: String = String::new();
-        while self.char.is_numeric() {
-            result.push(self.char);
+
+        result.push(self.char);
+
+        while self.peek_char().is_numeric() {
             self.read_char();
+            result.push(self.char);
         }
+
         result
     }
 
@@ -81,7 +88,7 @@ impl Lexer {
                     Token::new("NOT".to_string(), "!".to_string())
                 }
             }
-            '+' => Token::new("PLUS".to_string(), "+".to_string()),
+            '+' => Token::new("PLUS".to_string(), '+'.to_string()),
             '-' => Token::new("MINUS".to_string(), "-".to_string()),
             '*' => Token::new("TIMES".to_string(), "*".to_string()),
             '/' => Token::new("DIVIDED".to_string(), "/".to_string()),
