@@ -61,7 +61,7 @@ impl Lexer {
     }
 
     fn peek_char(&self) -> char {
-        // this function works exactly like read_char() only difference is that it
+        // this function works exactly like read_char(), only difference is that it
         // doesn't incrememnt read_position
 
         if self.read_position >= self.input.len() {
@@ -88,7 +88,7 @@ impl Lexer {
         // a token based on the character it read
         let token: Token = match self.char {
             '=' => {
-                // we check if the ! servers as == or =
+                // we check if the ! serves as == or =
                 if self.peek_char() == '=' {
                     self.read_char();
                     Token::new("IS_EQUAL".to_string(), "==".to_string())
@@ -97,7 +97,7 @@ impl Lexer {
                 }
             }
             '!' => {
-                // we check if the ! servers as != or !
+                // we check if the ! serves as != or !
                 if self.peek_char() == '=' {
                     self.read_char();
                     Token::new("IS_DIFFERENT".to_string(), "!=".to_string())
@@ -133,7 +133,7 @@ impl Lexer {
                 Token::new("STRING".to_string(), result)
             }
             '|' => {
-                // we check if the | ervers as | or ||
+                // we check if the | serves as | or ||
                 if self.peek_char() == '|' {
                     self.read_char();
                     Token::new("OR".to_string(), "||".to_string())
@@ -142,7 +142,7 @@ impl Lexer {
                 }
             }
             '&' => {
-                // we check if the & servers as && or &
+                // we check if the & serves as && or &
                 if self.peek_char() == '&' {
                     self.read_char();
                     Token::new("AND".to_string(), "&&".to_string())
@@ -160,7 +160,7 @@ impl Lexer {
                 Token::new("UNKNOWN".to_string(), "".to_string())
             }
         };
-        
+
         // we give back an OK result so that we are sure that there are no errors.
         Ok(token)
     }
