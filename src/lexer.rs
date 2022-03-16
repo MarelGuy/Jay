@@ -14,6 +14,8 @@ impl Lexer {
             position: 0,
             read_position: 0,
             char: ' ',
+            //    ^^^ char is initizlied with a space because we use the skip_whitespace()
+            //        at the start.
         };
         lexer
     }
@@ -22,20 +24,24 @@ impl Lexer {
         if self.read_position >= self.input.len() {
             self.char = '\0';
         } else {
+            // self.char gets assigned to the nth number of th earray that is based
+            // on read_position
             self.char = self.input.chars().nth(self.read_position).unwrap();
         }
         self.position = self.read_position;
         self.read_position += 1;
+        // read_position gets incremented by one each time the read_char() function gets called
     }
 
     fn read_identifier(&mut self) -> String {
         let mut result: String = String::new();
 
+        // We first push the first char manually
         result.push(self.char);
 
         while self.peek_char().is_alphabetic() || self.peek_char() == '_' {
-            self.read_char();
-            result.push(self.char);
+            self.read_char(); // then read another char
+            result.push(self.char); // and push it in the final string
         }
         result
     }
@@ -43,6 +49,7 @@ impl Lexer {
     fn read_number(&mut self) -> String {
         let mut result: String = String::new();
 
+        // same thing happens here
         result.push(self.char);
 
         while self.peek_char().is_numeric() {
@@ -54,6 +61,9 @@ impl Lexer {
     }
 
     fn peek_char(&self) -> char {
+        // this function works exactly like read_char() only difference is that it
+        // doesn't incrememnt read_position
+
         if self.read_position >= self.input.len() {
             '\0'
         } else {
@@ -62,16 +72,23 @@ impl Lexer {
     }
 
     fn skip_whitespace(&mut self) {
+        // we read a char
         self.read_char();
         while self.char == ' ' || self.char == '\t' || self.char == '\n' || self.char == '\r' {
+            // and as long as there is a whitespace in the char, we go on on reading
+            // until we get something else
             self.read_char();
         }
     }
 
     pub fn next_token(&mut self) -> Result<Token, Error> {
         self.skip_whitespace();
+
+        // we declare that the token is defined on a switch-like block that gives back
+        // a token based on the character it read
         let token: Token = match self.char {
             '=' => {
+                // we check if the ! servers as == or =
                 if self.peek_char() == '=' {
                     self.read_char();
                     Token::new("IS_EQUAL".to_string(), "==".to_string())
@@ -80,6 +97,7 @@ impl Lexer {
                 }
             }
             '!' => {
+                // we check if the ! servers as != or !
                 if self.peek_char() == '=' {
                     self.read_char();
                     Token::new("IS_DIFFERENT".to_string(), "!=".to_string())
@@ -115,6 +133,7 @@ impl Lexer {
                 Token::new("STRING".to_string(), result)
             }
             '|' => {
+                // we check if the | ervers as | or ||
                 if self.peek_char() == '|' {
                     self.read_char();
                     Token::new("OR".to_string(), "||".to_string())
@@ -123,6 +142,7 @@ impl Lexer {
                 }
             }
             '&' => {
+                // we check if the & servers as && or &
                 if self.peek_char() == '&' {
                     self.read_char();
                     Token::new("AND".to_string(), "&&".to_string())
@@ -140,7 +160,8 @@ impl Lexer {
                 Token::new("UNKNOWN".to_string(), "".to_string())
             }
         };
-        println!("{:?}", token);
+        
+        // we give back an OK result so that we are sure that there are no errors.
         Ok(token)
     }
 

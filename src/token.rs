@@ -5,6 +5,7 @@ pub(crate) struct Token {
     value: String,
 }
 
+// we implemented the debug just for logging
 impl Debug for Token {
     fn fmt(&self, f: &mut Formatter) -> Result {
         write!(
