@@ -44,9 +44,14 @@ fn interpreter() {
                 }
             }
 
-            if tokens.last().unwrap().get_token_type() == "UNKNOWN" {
+            if tokens.last().unwrap().get_token_type() == "EOF" {
                 tokens.pop();
                 break;
+            }
+
+            if tokens.last().unwrap().get_token_type() == "UNKNOWN" {
+                println!("Error: Unknown token");
+                return;
             }
         }
 
@@ -87,6 +92,11 @@ fn compiler() {
         }
 
         if tokens.last().unwrap().get_token_type() == "UNKNOWN" {
+            println!("Error: Unknown token");
+            return;
+        }
+
+        if tokens.last().unwrap().get_token_type() == "EOF" {
             tokens.pop();
             break;
         }
