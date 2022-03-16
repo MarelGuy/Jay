@@ -33,6 +33,8 @@ I'm also currently working on the bug, but since I can't always work on it, idk 
 
 The bug is fixed, I'll be working on the parser in the next days.
 
-# 2022-05-15
+# 2022-05-16
 
 Note: Everytime I commit something, it is just when I'm in school and lessions are not important.
+Added some comments for clarity, I usually don't so any suggestion is appreciated.
+I'll probably start working on the parser, wish me luck.
