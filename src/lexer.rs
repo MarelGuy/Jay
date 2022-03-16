@@ -104,12 +104,14 @@ impl Lexer {
             ']' => Token::new("LSQUARE".to_string(), "]".to_string()),
             '"' => {
                 let mut result: String = String::new();
+
                 self.read_char();
+
                 while self.char != '"' {
                     result.push(self.char);
                     self.read_char();
                 }
-                self.read_char();
+
                 Token::new("STRING".to_string(), result)
             }
             '|' => {
@@ -132,11 +134,13 @@ impl Lexer {
             'a'..='z' | 'A'..='Z' | '_' => {
                 Token::new("IDENTIFIER".to_string(), self.read_identifier())
             }
+            '\0' => Token::new("EOF".to_string(), "EOF".to_string()),
             _ => {
                 self.read_char();
                 Token::new("UNKNOWN".to_string(), "".to_string())
             }
         };
+        println!("{:?}", token);
         Ok(token)
     }
 
