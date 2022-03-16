@@ -40,24 +40,37 @@ impl Lexer {
         result.push(self.char);
 
         while self.peek_char().is_alphabetic() || self.peek_char() == '_' {
-            self.read_char(); // then read another char
+            self.skip_whitespace(); // then read another char
             result.push(self.char); // and push it in the final string
         }
         result
     }
 
-    fn read_number(&mut self) -> String {
+    fn read_number(&mut self) -> Token {
         let mut result: String = String::new();
 
         // same thing happens here
         result.push(self.char);
 
         while self.peek_char().is_numeric() {
-            self.read_char();
+            self.skip_whitespace();
             result.push(self.char);
         }
 
-        result
+        // if we find a dot, we know that we have a float
+        if self.peek_char() == '.' {
+            self.skip_whitespace();
+            result.push(self.char);
+
+            while self.peek_char().is_numeric() {
+                self.skip_whitespace();
+                result.push(self.char);
+            }
+
+            return Token::new("FLOAT".to_string(), result);
+        }
+
+        Token::new("INT".to_string(), result)
     }
 
     fn peek_char(&self) -> char {
@@ -68,6 +81,16 @@ impl Lexer {
             '\0'
         } else {
             self.input.chars().nth(self.read_position).unwrap()
+        }
+    }
+
+    fn peek_back_char(&self) -> char {
+        // this function is the opposite of peek_char()
+
+        if self.position == 0 {
+            '\0'
+        } else {
+            self.input.chars().nth(self.position - 1).unwrap()
         }
     }
 
@@ -90,8 +113,8 @@ impl Lexer {
             '=' => {
                 // we check if the ! serves as == or =
                 if self.peek_char() == '=' {
-                    self.read_char();
-                    Token::new("IS_EQUAL".to_string(), "==".to_string())
+                    self.skip_whitespace();
+                    Token::new("IS_EQUAL_TO".to_string(), "==".to_string())
                 } else {
                     Token::new("EQUALS".to_string(), "=".to_string())
                 }
@@ -99,35 +122,48 @@ impl Lexer {
             '!' => {
                 // we check if the ! serves as != or !
                 if self.peek_char() == '=' {
-                    self.read_char();
-                    Token::new("IS_DIFFERENT".to_string(), "!=".to_string())
+                    self.skip_whitespace();
+                    Token::new("IS_DIFFERENT_FROM".to_string(), "!=".to_string())
                 } else {
                     Token::new("NOT".to_string(), "!".to_string())
                 }
             }
             '+' => Token::new("PLUS".to_string(), '+'.to_string()),
-            '-' => Token::new("MINUS".to_string(), "-".to_string()),
+            '-' => {
+                // we check if the - is a minus sign or a negative number
+                if self.peek_char().is_numeric() {
+                    if self.peek_back_char().is_numeric() {
+                        Token::new("MINUS".to_string(), "-".to_string())
+                    } else {
+                        self.read_number()
+                    }
+                } else {
+                    Token::new("MINUS".to_string(), "-".to_string())
+                }
+            }
             '*' => Token::new("TIMES".to_string(), "*".to_string()),
             '/' => Token::new("DIVIDED".to_string(), "/".to_string()),
             '<' => Token::new("MINOR".to_string(), "<".to_string()),
             '>' => Token::new("GREATER".to_string(), ">".to_string()),
             ';' => Token::new("SEMICOLON".to_string(), ";".to_string()),
+            ',' => Token::new("COMMA".to_string(), ",".to_string()),
+            '.' => Token::new("DOT".to_string(), ".".to_string()),
             '(' => Token::new("RPAREN".to_string(), "(".to_string()),
             ')' => Token::new("LPAREN".to_string(), ")".to_string()),
             '{' => Token::new("RCURLY".to_string(), "{".to_string()),
             '}' => Token::new("LCURLY".to_string(), "}".to_string()),
-            ',' => Token::new("COMMA".to_string(), ",".to_string()),
-            '.' => Token::new("DOT".to_string(), ".".to_string()),
             '[' => Token::new("RSQUARE".to_string(), "[".to_string()),
             ']' => Token::new("LSQUARE".to_string(), "]".to_string()),
             '"' => {
+                // we read the string until we find a "
                 let mut result: String = String::new();
 
-                self.read_char();
+                self.skip_whitespace();
 
                 while self.char != '"' {
                     result.push(self.char);
-                    self.read_char();
+
+                    self.skip_whitespace();
                 }
 
                 Token::new("STRING".to_string(), result)
@@ -135,7 +171,7 @@ impl Lexer {
             '|' => {
                 // we check if the | serves as | or ||
                 if self.peek_char() == '|' {
-                    self.read_char();
+                    self.skip_whitespace();
                     Token::new("OR".to_string(), "||".to_string())
                 } else {
                     Token::new("PIPE".to_string(), "|".to_string())
@@ -144,19 +180,19 @@ impl Lexer {
             '&' => {
                 // we check if the & serves as && or &
                 if self.peek_char() == '&' {
-                    self.read_char();
+                    self.skip_whitespace();
                     Token::new("AND".to_string(), "&&".to_string())
                 } else {
                     Token::new("AMPERSAND".to_string(), "&".to_string())
                 }
             }
-            '0'..='9' => Token::new("INT".to_string(), self.read_number()),
+            '0'..='9' => self.read_number(),
             'a'..='z' | 'A'..='Z' | '_' => {
                 Token::new("IDENTIFIER".to_string(), self.read_identifier())
             }
             '\0' => Token::new("EOF".to_string(), "EOF".to_string()),
             _ => {
-                self.read_char();
+                self.skip_whitespace();
                 Token::new("UNKNOWN".to_string(), "".to_string())
             }
         };
