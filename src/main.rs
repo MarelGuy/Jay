@@ -14,7 +14,7 @@ fn help() {
 }
 
 fn version() {
-    println!("Jay v0.0.0 (2022-03-03)");
+    println!("Jay v0.0.0 (2022-016-03)");
 }
 
 fn interpreter() {
