@@ -158,12 +158,12 @@ impl Lexer {
                 // we read the string until we find a "
                 let mut result: String = String::new();
 
-                self.skip_whitespace();
+                self.read_char();
 
                 while self.char != '"' {
                     result.push(self.char);
 
-                    self.skip_whitespace();
+                    self.read_char();
                 }
 
                 Token::new("STRING".to_string(), result)
