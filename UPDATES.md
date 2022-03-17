@@ -33,8 +33,13 @@ I'm also currently working on the bug, but since I can't always work on it, idk 
 
 The bug is fixed, I'll be working on the parser in the next days.
 
-# 2022-05-16
+## 2022-05-16
 
 Note: Everytime I commit something, it is just when I'm in school and lessions are not important.
 Added some comments for clarity, I usually don't so any suggestion is appreciated.
 I'll probably start working on the parser, wish me luck.
+
+## 2022-05-17
+
+I found a bug in the lexer, another time. The strings will make both the interpreter and the compiler loop forever.
+I'll be working on it for now, I'll also add an Error struct to the lexer.
