@@ -1,4 +1,4 @@
-use {crate::token::Token, std::fmt::Error};
+use {crate::s_error::SError, crate::token::Token};
 
 pub(crate) struct Lexer {
     input: String,
@@ -24,7 +24,7 @@ impl Lexer {
         if self.read_position >= self.input.len() {
             self.char = '\0';
         } else {
-            // self.char gets assigned to the nth number of th earray that is based
+            // self.char gets assigned to the nth number of the array that is based
             // on read_position
             self.char = self.input.chars().nth(self.read_position).unwrap();
         }
@@ -104,7 +104,7 @@ impl Lexer {
         }
     }
 
-    pub fn next_token(&mut self) -> Result<Token, Error> {
+    pub fn next_token(&mut self) -> Result<Token, SError> {
         self.skip_whitespace();
 
         // we declare that the token is defined on a switch-like block that gives back
@@ -155,18 +155,35 @@ impl Lexer {
             '[' => Token::new("RSQUARE".to_string(), "[".to_string()),
             ']' => Token::new("LSQUARE".to_string(), "]".to_string()),
             '"' => {
-                // we read the string until we find a "
                 let mut result: String = String::new();
+                let mut error: bool = false;
 
                 self.read_char();
 
+                // we read the string until we find a " if we don't we throw an error
                 while self.char != '"' {
                     result.push(self.char);
 
                     self.read_char();
+
+                    if self.char == '\0' || self.char == ';' {
+                        error = true;
+
+                        SError::new(
+                            "Unterminated string".to_string(),
+                            "The string was unterminated.".to_string(),
+
+                        )
+                        .throw_error();
+                        break;
+                    }
                 }
 
-                Token::new("STRING".to_string(), result)
+                if error != true {
+                    Token::new("STRING".to_string(), result)
+                } else {
+                    Token::new("ERROR".to_string(), "".to_string())
+                }
             }
             '|' => {
                 // we check if the | serves as | or ||
@@ -192,8 +209,12 @@ impl Lexer {
             }
             '\0' => Token::new("EOF".to_string(), "EOF".to_string()),
             _ => {
-                self.skip_whitespace();
-                Token::new("UNKNOWN".to_string(), "".to_string())
+                SError::new(
+                    "Unknown token".to_string(),
+                    "Token not implemented.".to_string(),
+                )
+                .throw_error();
+                Token::new("ERROR".to_string(), "".to_string())
             }
         };
 
