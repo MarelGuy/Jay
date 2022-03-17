@@ -4,6 +4,7 @@ pub(crate) struct SError {
 }
 
 // Simple error handler
+// TODO: add a proper error handler
 impl SError {
     pub fn new(error_type: String, message: String) -> SError {
         SError {
@@ -12,7 +13,6 @@ impl SError {
         }
     }
 
-    // This functio is just a normal placeholder, we will add the actual error handling later
     pub fn throw_error(&mut self) {
         println!("Error type: {}", self.error_type);
         println!("Error message: {}", self.message);

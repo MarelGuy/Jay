@@ -33,6 +33,7 @@ impl Lexer {
         // read_position gets incremented by one each time the read_char() function gets called
     }
 
+    // TODO: Add number support for identifiers
     fn read_identifier(&mut self) -> String {
         let mut result: String = String::new();
 
