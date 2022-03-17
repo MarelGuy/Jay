@@ -33,14 +33,13 @@ impl Lexer {
         // read_position gets incremented by one each time the read_char() function gets called
     }
 
-    // TODO: Add number support for identifiers
     fn read_identifier(&mut self) -> String {
         let mut result: String = String::new();
 
         // We first push the first char manually
         result.push(self.char);
 
-        while self.peek_char().is_alphabetic() || self.peek_char() == '_' {
+        while self.peek_char().is_alphanumeric() || self.peek_char() == '_' {
             self.skip_whitespace(); // then read another char
             result.push(self.char); // and push it in the final string
         }
