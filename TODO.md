@@ -4,7 +4,7 @@
 
 - ### Features
 
-  - Rewrite tokens as enum
+  - Actual grammar in the lexer
   - Proper error handling
   - Parsing and AST generation
 
@@ -14,5 +14,4 @@
 
 ## Non-code related
 
-- Doc comments
 - EBNF grammar
