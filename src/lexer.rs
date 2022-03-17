@@ -215,8 +215,4 @@ impl Lexer {
         // we give back an OK result so that we are sure that there are no errors.
         Ok(token)
     }
-
-    pub fn input(&self) -> &str {
-        self.input.as_ref()
-    }
 }
