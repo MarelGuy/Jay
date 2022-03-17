@@ -42,4 +42,5 @@ I'll probably start working on the parser, wish me luck.
 ## 2022-05-17
 
 I found a bug in the lexer, another time. The strings will make both the interpreter and the compiler loop forever.  
-I'll be working on it for now, I'll also add an Error struct to the lexer.
+I'll be working on it for now, I'll also add an Error struct to the lexer.  
+The base for the lexer should be done, I'll now work on adding the actual grammar.
