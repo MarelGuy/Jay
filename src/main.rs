@@ -59,6 +59,7 @@ fn interpreter() {
             // if we find an error, we go on but don't give any output
             if tokens.last().unwrap().get_token_type() == "ERROR" {
                 can_output = false;
+                break;
             }
         }
         if can_output == true {
