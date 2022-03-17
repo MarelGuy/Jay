@@ -18,6 +18,40 @@ fn version() {
     println!("Jay v0.0.0 (2022-016-03)");
 }
 
+fn lex_code(input: String) {
+    let mut lexer: Lexer = lexer::Lexer::new(input);
+
+    let mut tokens: Vec<token::Token> = Vec::new();
+
+    let mut can_output: bool = true;
+
+    // we loop through the file to be sure that we
+    // don't go over the input
+    loop {
+        // match block to verify the OK or Err
+        match lexer.next_token() {
+            Ok(token) => tokens.push(token),
+            Err(_) => {}
+        }
+
+        // if the token that we get is of type EOF, then we delete it
+        // and stop the loop
+        if tokens.last().unwrap().get_token_type() == "EOF" {
+            tokens.pop();
+            break;
+        }
+
+        // if we find an error, we go on but don't give any output
+        if tokens.last().unwrap().get_token_type() == "ERROR" {
+            can_output = false;
+            break;
+        }
+    }
+    if can_output == true {
+        println!("{:#?}", tokens);
+    }
+}
+
 fn interpreter() {
     println!("Jay version 0.0.0 (c) {}", Utc::now().date().year());
 
@@ -25,46 +59,14 @@ fn interpreter() {
         print!(">>> ");
 
         // we flush the console to have a correct input
-        std::io::stdout().flush().expect("Could not flush stdout");
+        std::io::stdout().flush().expect("");
 
         let mut input: String = String::new();
 
         // we read in input and use as a buffer the variable input
-        std::io::stdin()
-            .read_line(&mut input)
-            .expect("Failed to read line");
+        std::io::stdin().read_line(&mut input).expect("");
 
-        let mut lexer: Lexer = lexer::Lexer::new(input);
-
-        let mut tokens: Vec<token::Token> = Vec::new();
-
-        let mut can_output: bool = true;
-
-        // we loop through the file to be sure that we
-        // don't go over the input
-        for _ in 0..lexer.input().len() {
-            // match block to verify the OK or Err
-            match lexer.next_token() {
-                Ok(token) => tokens.push(token),
-                Err(_) => {}
-            }
-
-            // if the token that we get is of type EOF, then we delete it
-            // and stop the loop
-            if tokens.last().unwrap().get_token_type() == "EOF" {
-                tokens.pop();
-                break;
-            }
-
-            // if we find an error, we go on but don't give any output
-            if tokens.last().unwrap().get_token_type() == "ERROR" {
-                can_output = false;
-                break;
-            }
-        }
-        if can_output == true {
-            println!("{:#?}", tokens);
-        }
+        lex_code(input);
     }
 }
 
@@ -90,33 +92,7 @@ fn compiler() {
     // we read the content to the file to string avoiding the problem of distinguishing EOL and EOF
     let file_content: String = read_to_string(file_path).expect("Error: failed to read file");
 
-    let mut lexer: Lexer = lexer::Lexer::new(file_content);
-
-    let mut tokens: Vec<token::Token> = Vec::new();
-
-    let mut can_output: bool = true;
-
-    loop {
-        // this block is the same as the one in the interpreter
-        match lexer.next_token() {
-            Ok(token) => tokens.push(token),
-            Err(_) => {}
-        }
-
-        if tokens.last().unwrap().get_token_type() == "EOF" {
-            tokens.pop();
-            break;
-        }
-
-        if tokens.last().unwrap().get_token_type() == "ERROR" {
-            can_output = false;
-            break;
-        }
-    }
-
-    if can_output == true {
-        println!("{:#?}", tokens);
-    }
+    lex_code(file_content);
 }
 
 fn main() {
