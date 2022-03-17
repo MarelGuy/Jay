@@ -1,3 +1,7 @@
+/*
+Jay lexer
+Copyright (C) 2020  Loris Cuntreri
+*/
 use {crate::s_error::SError, crate::token::Token};
 
 pub(crate) struct Lexer {
@@ -166,7 +170,7 @@ impl Lexer {
 
                     self.read_char();
 
-                    if self.char == '\0' || self.char == ';' {
+                    if self.char == '\r' || self.char == '\n' {
                         error = true;
 
                         SError::new(

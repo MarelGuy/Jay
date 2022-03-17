@@ -1,3 +1,7 @@
+/*
+Jay error handler
+Copyright (C) 2020  Loris Cuntreri
+*/
 pub(crate) struct SError {
     error_type: String,
     message: String,

@@ -1,3 +1,7 @@
+/*
+Jay main
+Copyright (C) 2020  Loris Cuntreri
+*/
 use {
     crate::lexer::Lexer,
     chrono::{Datelike, Utc},

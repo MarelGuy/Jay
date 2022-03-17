@@ -1,6 +1,9 @@
+/*
+Jay tokenizer
+Copyright (C) 2020  Loris Cuntreri
+*/
 use core::fmt::{Debug, Formatter, Result};
 
-// TODO: rewrite the tokens with an enum.
 pub(crate) struct Token {
     token_type: String,
     value: String,
