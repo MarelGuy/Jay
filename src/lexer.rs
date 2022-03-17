@@ -37,7 +37,8 @@ impl Lexer {
         // read_position gets incremented by one each time the read_char() function gets called
     }
 
-    fn read_identifier(&mut self) -> String {
+    // TODO: Grammar with identifiers
+    fn read_identifier(&mut self) -> Token {
         let mut result: String = String::new();
 
         // We first push the first char manually
@@ -47,7 +48,12 @@ impl Lexer {
             self.skip_whitespace(); // then read another char
             result.push(self.char); // and push it in the final string
         }
-        result
+
+        let token_type: String = match result.as_str() {
+            _ => "IDENTIFIER".into(),
+        };
+
+        Token::new(token_type, result)
     }
 
     fn read_number(&mut self) -> Token {
@@ -114,6 +120,23 @@ impl Lexer {
         // we declare that the token is defined on a switch-like block that gives back
         // a token based on the character it read
         let token: Token = match self.char {
+            '+' => Token::new("PLUS".into(), '+'.into()),
+            '*' => Token::new("TIMES".into(), "*".into()),
+            '/' => Token::new("DIVIDED".into(), "/".into()),
+            '<' => Token::new("MINOR".into(), "<".into()),
+            '>' => Token::new("GREATER".into(), ">".into()),
+            ';' => Token::new("SEMICOLON".into(), ";".into()),
+            ',' => Token::new("COMMA".into(), ",".into()),
+            '.' => Token::new("DOT".into(), ".".into()),
+            '(' => Token::new("RPAREN".into(), "(".into()),
+            ')' => Token::new("LPAREN".into(), ")".into()),
+            '{' => Token::new("RCURLY".into(), "{".into()),
+            '}' => Token::new("LCURLY".into(), "}".into()),
+            '[' => Token::new("RSQUARE".into(), "[".into()),
+            ']' => Token::new("LSQUARE".into(), "]".into()),
+            '0'..='9' => self.read_number(),
+            'a'..='z' | 'A'..='Z' | '_' => self.read_identifier(),
+            '\0' => Token::new("EOF".into(), "EOF".into()),
             '=' => {
                 // we check if the ! serves as == or =
                 if self.peek_char() == '=' {
@@ -132,7 +155,6 @@ impl Lexer {
                     Token::new("NOT".into(), "!".into())
                 }
             }
-            '+' => Token::new("PLUS".into(), '+'.into()),
             '-' => {
                 // we check if the - is a minus sign or a negative number
                 if self.peek_char().is_numeric() {
@@ -145,19 +167,6 @@ impl Lexer {
                     Token::new("MINUS".into(), "-".into())
                 }
             }
-            '*' => Token::new("TIMES".into(), "*".into()),
-            '/' => Token::new("DIVIDED".into(), "/".into()),
-            '<' => Token::new("MINOR".into(), "<".into()),
-            '>' => Token::new("GREATER".into(), ">".into()),
-            ';' => Token::new("SEMICOLON".into(), ";".into()),
-            ',' => Token::new("COMMA".into(), ",".into()),
-            '.' => Token::new("DOT".into(), ".".into()),
-            '(' => Token::new("RPAREN".into(), "(".into()),
-            ')' => Token::new("LPAREN".into(), ")".into()),
-            '{' => Token::new("RCURLY".into(), "{".into()),
-            '}' => Token::new("LCURLY".into(), "}".into()),
-            '[' => Token::new("RSQUARE".into(), "[".into()),
-            ']' => Token::new("LSQUARE".into(), "]".into()),
             '"' => {
                 let mut result: String = String::new();
                 let mut error: bool = false;
@@ -206,9 +215,6 @@ impl Lexer {
                     Token::new("AMPERSAND".into(), "&".into())
                 }
             }
-            '0'..='9' => self.read_number(),
-            'a'..='z' | 'A'..='Z' | '_' => Token::new("IDENTIFIER".into(), self.read_identifier()),
-            '\0' => Token::new("EOF".into(), "EOF".into()),
             _ => {
                 SError::new("Unknown token".into(), "Token not implemented.".into()).throw_error();
                 Token::new("ERROR".into(), "".into())
