@@ -5,6 +5,7 @@ use {
 };
 
 mod lexer;
+mod s_error;
 mod token;
 
 fn help() {
@@ -37,16 +38,15 @@ fn interpreter() {
 
         let mut tokens: Vec<token::Token> = Vec::new();
 
+        let mut can_output: bool = true;
+
         // we loop through the file to be sure that we
         // don't go over the input
         for _ in 0..lexer.input().len() {
             // match block to verify the OK or Err
             match lexer.next_token() {
                 Ok(token) => tokens.push(token),
-                Err(error) => {
-                    println!("Error: {}", error);
-                    return;
-                }
+                Err(_) => {}
             }
 
             // if the token that we get is of type EOF, then we delete it
@@ -56,17 +56,14 @@ fn interpreter() {
                 break;
             }
 
-            // if the token that we get is of type UNKNOWN, it means that the
-            // character that was inputted it's not implemented in the lexer
-            // meaning that it cannot be read.
-            // we return so that we don't have problems with the output
-            if tokens.last().unwrap().get_token_type() == "UNKNOWN" {
-                println!("Error: Unknown token");
-                return;
+            // if we find an error, we go on but don't give any output
+            if tokens.last().unwrap().get_token_type() == "ERROR" {
+                can_output = false;
             }
         }
-
-        println!("{:#?}", tokens);
+        if can_output == true {
+            println!("{:#?}", tokens);
+        }
     }
 }
 
@@ -96,39 +93,40 @@ fn compiler() {
 
     let mut tokens: Vec<token::Token> = Vec::new();
 
+    let mut can_output: bool = true;
+
     loop {
         // this block is the same as the one in the interpreter
         match lexer.next_token() {
             Ok(token) => tokens.push(token),
-            Err(error) => {
-                println!("Error: {}", error);
-                return;
-            }
-        }
-
-        if tokens.last().unwrap().get_token_type() == "UNKNOWN" {
-            println!("Error: Unknown token");
-            return;
+            Err(_) => {}
         }
 
         if tokens.last().unwrap().get_token_type() == "EOF" {
             tokens.pop();
             break;
         }
+
+        if tokens.last().unwrap().get_token_type() == "ERROR" {
+            can_output = false;
+            break;
+        }
     }
 
-    println!("{:#?}", tokens);
+    if can_output == true {
+        println!("{:#?}", tokens);
+    }
 }
 
 fn main() {
     // match block for the arguments
     match args().nth(1) {
-        Some(ref arg) if arg == "--compiler" => compiler(),
         Some(ref arg) if arg == "-c" => compiler(),
-        Some(ref arg) if arg == "--version" => version(),
         Some(ref arg) if arg == "-v" => version(),
-        Some(ref arg) if arg == "--help" => help(),
         Some(ref arg) if arg == "-h" => help(),
+        Some(ref arg) if arg == "--compiler" => compiler(),
+        Some(ref arg) if arg == "--version" => version(),
+        Some(ref arg) if arg == "--help" => help(),
         _ => {
             interpreter();
         }
