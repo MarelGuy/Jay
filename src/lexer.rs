@@ -67,10 +67,10 @@ impl Lexer {
                 result.push(self.char);
             }
 
-            return Token::new("FLOAT".to_string(), result);
+            return Token::new("FLOAT".into(), result);
         }
 
-        Token::new("INT".to_string(), result)
+        Token::new("INT".into(), result)
     }
 
     fn peek_char(&self) -> char {
@@ -114,46 +114,46 @@ impl Lexer {
                 // we check if the ! serves as == or =
                 if self.peek_char() == '=' {
                     self.skip_whitespace();
-                    Token::new("IS_EQUAL_TO".to_string(), "==".to_string())
+                    Token::new("IS_EQUAL_TO".into(), "==".into())
                 } else {
-                    Token::new("EQUALS".to_string(), "=".to_string())
+                    Token::new("EQUALS".into(), "=".into())
                 }
             }
             '!' => {
                 // we check if the ! serves as != or !
                 if self.peek_char() == '=' {
                     self.skip_whitespace();
-                    Token::new("IS_DIFFERENT_FROM".to_string(), "!=".to_string())
+                    Token::new("IS_DIFFERENT_FROM".into(), "!=".into())
                 } else {
-                    Token::new("NOT".to_string(), "!".to_string())
+                    Token::new("NOT".into(), "!".into())
                 }
             }
-            '+' => Token::new("PLUS".to_string(), '+'.to_string()),
+            '+' => Token::new("PLUS".into(), '+'.into()),
             '-' => {
                 // we check if the - is a minus sign or a negative number
                 if self.peek_char().is_numeric() {
                     if self.peek_back_char().is_numeric() {
-                        Token::new("MINUS".to_string(), "-".to_string())
+                        Token::new("MINUS".into(), "-".into())
                     } else {
                         self.read_number()
                     }
                 } else {
-                    Token::new("MINUS".to_string(), "-".to_string())
+                    Token::new("MINUS".into(), "-".into())
                 }
             }
-            '*' => Token::new("TIMES".to_string(), "*".to_string()),
-            '/' => Token::new("DIVIDED".to_string(), "/".to_string()),
-            '<' => Token::new("MINOR".to_string(), "<".to_string()),
-            '>' => Token::new("GREATER".to_string(), ">".to_string()),
-            ';' => Token::new("SEMICOLON".to_string(), ";".to_string()),
-            ',' => Token::new("COMMA".to_string(), ",".to_string()),
-            '.' => Token::new("DOT".to_string(), ".".to_string()),
-            '(' => Token::new("RPAREN".to_string(), "(".to_string()),
-            ')' => Token::new("LPAREN".to_string(), ")".to_string()),
-            '{' => Token::new("RCURLY".to_string(), "{".to_string()),
-            '}' => Token::new("LCURLY".to_string(), "}".to_string()),
-            '[' => Token::new("RSQUARE".to_string(), "[".to_string()),
-            ']' => Token::new("LSQUARE".to_string(), "]".to_string()),
+            '*' => Token::new("TIMES".into(), "*".into()),
+            '/' => Token::new("DIVIDED".into(), "/".into()),
+            '<' => Token::new("MINOR".into(), "<".into()),
+            '>' => Token::new("GREATER".into(), ">".into()),
+            ';' => Token::new("SEMICOLON".into(), ";".into()),
+            ',' => Token::new("COMMA".into(), ",".into()),
+            '.' => Token::new("DOT".into(), ".".into()),
+            '(' => Token::new("RPAREN".into(), "(".into()),
+            ')' => Token::new("LPAREN".into(), ")".into()),
+            '{' => Token::new("RCURLY".into(), "{".into()),
+            '}' => Token::new("LCURLY".into(), "}".into()),
+            '[' => Token::new("RSQUARE".into(), "[".into()),
+            ']' => Token::new("LSQUARE".into(), "]".into()),
             '"' => {
                 let mut result: String = String::new();
                 let mut error: bool = false;
@@ -170,9 +170,8 @@ impl Lexer {
                         error = true;
 
                         SError::new(
-                            "Unterminated string".to_string(),
-                            "The string was unterminated.".to_string(),
-
+                            "Unterminated string".into(),
+                            "The string was unterminated.".into(),
                         )
                         .throw_error();
                         break;
@@ -180,41 +179,35 @@ impl Lexer {
                 }
 
                 if error != true {
-                    Token::new("STRING".to_string(), result)
+                    Token::new("STRING".into(), result)
                 } else {
-                    Token::new("ERROR".to_string(), "".to_string())
+                    Token::new("ERROR".into(), "".into())
                 }
             }
             '|' => {
                 // we check if the | serves as | or ||
                 if self.peek_char() == '|' {
                     self.skip_whitespace();
-                    Token::new("OR".to_string(), "||".to_string())
+                    Token::new("OR".into(), "||".into())
                 } else {
-                    Token::new("PIPE".to_string(), "|".to_string())
+                    Token::new("PIPE".into(), "|".into())
                 }
             }
             '&' => {
                 // we check if the & serves as && or &
                 if self.peek_char() == '&' {
                     self.skip_whitespace();
-                    Token::new("AND".to_string(), "&&".to_string())
+                    Token::new("AND".into(), "&&".into())
                 } else {
-                    Token::new("AMPERSAND".to_string(), "&".to_string())
+                    Token::new("AMPERSAND".into(), "&".into())
                 }
             }
             '0'..='9' => self.read_number(),
-            'a'..='z' | 'A'..='Z' | '_' => {
-                Token::new("IDENTIFIER".to_string(), self.read_identifier())
-            }
-            '\0' => Token::new("EOF".to_string(), "EOF".to_string()),
+            'a'..='z' | 'A'..='Z' | '_' => Token::new("IDENTIFIER".into(), self.read_identifier()),
+            '\0' => Token::new("EOF".into(), "EOF".into()),
             _ => {
-                SError::new(
-                    "Unknown token".to_string(),
-                    "Token not implemented.".to_string(),
-                )
-                .throw_error();
-                Token::new("ERROR".to_string(), "".to_string())
+                SError::new("Unknown token".into(), "Token not implemented.".into()).throw_error();
+                Token::new("ERROR".into(), "".into())
             }
         };
 
