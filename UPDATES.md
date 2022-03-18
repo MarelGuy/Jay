@@ -50,3 +50,5 @@ The base for the lexer should be done, I'll now work on adding the actual gramma
 Yikes, late update for today.
 I'm switching to a lexer generator like Logos, this will be a lot easier and more efficient.  
 I did my experience with hand-written lexers, and I'm pretty sure i learned a lot from it.
+
+Now the time as come, I can finally start working on the parser.
