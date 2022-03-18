@@ -1,13 +1,12 @@
 /*
 Jay error handler
-Copyright (C) 2020  Loris Cuntreri
+Copyright (C) 2022  Loris Cuntreri
 */
 pub(crate) struct SError {
     error_type: String,
     message: String,
 }
 
-// Simple error handler
 // TODO: add a proper error handler
 impl SError {
     pub fn new(error_type: String, message: String) -> SError {
