@@ -64,7 +64,6 @@ impl Lexer {
         }
     }
 
-    // TODO: Grammar with identifiers
     fn read_identifier(&mut self) -> Token {
         let mut result = String::new();
 
