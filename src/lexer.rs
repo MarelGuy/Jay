@@ -84,6 +84,9 @@ impl Lexer {
             "func" => "FUNCTION",
             "return" => "RETURN",
 
+            "global" => "GLOBAL",
+            "local" => "LOCAL",
+
             "var" => "VAR",
             "let" => "LET",
             "const" => "CONST",
@@ -110,13 +113,13 @@ impl Lexer {
             "string" => "STRING",
             "char" => "CHAR",
 
-            "int[]" => "INT_ARRAY",
-            "float[]" => "FLOAT_ARRAY",
-            "bool[]" => "BOOL_ARRAY",
-            "string[]" => "STRING_ARRAY",
-            "char[]" => "CHAR_ARRAY",
-
             "type" => "TYPE",
+
+            "pub" => "PUBLIC",
+            "priv" => "PRIVATE",
+
+            "import" => "IMPORT",
+            "from" => "FROM",
             _ => "IDENTIFIER",
         };
 
