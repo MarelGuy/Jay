@@ -1,6 +1,6 @@
 /*
 Jay lexer
-Copyright (C) 2020  Loris Cuntreri
+Copyright (C) 2022  Loris Cuntreri
 */
 use {crate::s_error::SError, crate::token::Token};
 
@@ -37,6 +37,33 @@ impl Lexer {
         // read_position gets incremented by one each time the read_char() function gets called
     }
 
+    fn skip_comment(&mut self, next_char: &char) {
+        if next_char == &'/' {
+            loop {
+                self.read_char();
+                if self.char == '\0' {
+                    break;
+                }
+                if self.char == '\n' {
+                    break;
+                }
+            }
+        } else if next_char == &'*' {
+            loop {
+                self.read_char();
+                if self.char == '\0' {
+                    break;
+                }
+                if self.char == '*' {
+                    self.read_char();
+                    if self.char == '/' {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     // TODO: Grammar with identifiers
     fn read_identifier(&mut self) -> Token {
         let mut result = String::new();
@@ -44,7 +71,11 @@ impl Lexer {
         // We first push the first char manually
         result.push(self.char);
 
-        while self.peek_char().is_alphanumeric() || self.peek_char() == '_' {
+        while self.peek_char().is_alphanumeric()
+            || self.peek_char() == '_'
+            || self.peek_char() == '['
+            || self.peek_char() == ']'
+        {
             self.skip_whitespace(); // then read another char
             result.push(self.char); // and push it in the final string
         }
@@ -53,6 +84,7 @@ impl Lexer {
             "func" => "FUNCTION",
             "return" => "RETURN",
 
+            "var" => "VAR",
             "let" => "LET",
             "const" => "CONST",
 
@@ -61,6 +93,10 @@ impl Lexer {
 
             "while" => "WHILE",
             "for" => "FOR",
+
+            "switch" => "SWITCH",
+            "case" => "CASE",
+            "default" => "DEFAULT",
 
             "break" => "BREAK",
             "continue" => "CONTINUE",
@@ -73,6 +109,12 @@ impl Lexer {
             "bool" => "BOOL",
             "string" => "STRING",
             "char" => "CHAR",
+
+            "int[]" => "INT_ARRAY",
+            "float[]" => "FLOAT_ARRAY",
+            "bool[]" => "BOOL_ARRAY",
+            "string[]" => "STRING_ARRAY",
+            "char[]" => "CHAR_ARRAY",
 
             "type" => "TYPE",
             _ => "IDENTIFIER",
@@ -147,7 +189,6 @@ impl Lexer {
         let token: Token = match self.char {
             '+' => Token::new("PLUS".into(), '+'.into()),
             '*' => Token::new("TIMES".into(), '*'.into()),
-            '/' => Token::new("DIVIDED".into(), '/'.into()),
             '<' => Token::new("MINOR".into(), '<'.into()),
             '>' => Token::new("GREATER".into(), '>'.into()),
             ':' => Token::new("COLON".into(), ':'.into()),
@@ -163,6 +204,14 @@ impl Lexer {
             '0'..='9' => self.read_number(),
             'a'..='z' | 'A'..='Z' | '_' => self.read_identifier(),
             '\0' => Token::new("EOF".into(), "EOF".into()),
+            '/' => {
+                if self.peek_char() == '/' || self.peek_char() == '*' {
+                    self.skip_comment(&self.peek_char());
+                    return self.next_token();
+                } else {
+                    Token::new("DIVIDE".into(), '/'.into())
+                }
+            }
             '=' => {
                 // we check if the ! serves as == or =
                 if self.peek_char() == '=' {
@@ -209,8 +258,8 @@ impl Lexer {
                         error = true;
 
                         SError::new(
-                            "Unterminated string".into(),
-                            "The string was unterminated.".into(),
+                            "unterminated string".into(),
+                            "the string was unterminated.".into(),
                         )
                         .throw_error();
                         break;
@@ -219,6 +268,43 @@ impl Lexer {
 
                 if error != true {
                     Token::new("STRING".into(), result)
+                } else {
+                    Token::new("ERROR".into(), "".into())
+                }
+            }
+            '\'' => {
+                let mut result: String = String::new();
+                let mut error: bool = false;
+
+                self.read_char();
+
+                // we read the string until we find a ' if we don't we throw an error
+                if self.peek_char() == '\'' {
+                    result.push(self.char);
+
+                    self.read_char();
+
+                    if self.char == '\r' || self.char == '\n' {
+                        error = true;
+
+                        SError::new(
+                            "unterminated char".into(),
+                            "the char was unterminated.".into(),
+                        )
+                        .throw_error();
+                    }
+                } else {
+                    error = true;
+
+                    SError::new(
+                        "char overflow".into(),
+                        "char types may have only one character".into(),
+                    )
+                    .throw_error();
+                }
+
+                if error != true {
+                    Token::new("CHAR".into(), result)
                 } else {
                     Token::new("ERROR".into(), "".into())
                 }
@@ -242,7 +328,7 @@ impl Lexer {
                 }
             }
             _ => {
-                SError::new("Unknown token".into(), "Token not implemented.".into()).throw_error();
+                SError::new("unknown token".into(), "token not implemented.".into()).throw_error();
                 Token::new("ERROR".into(), "".into())
             }
         };
