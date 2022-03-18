@@ -3,13 +3,11 @@ Jay main
 Copyright (C) 2022  Loris Cuntreri
 */
 use {
-    token::TokenType,
     chrono::{Datelike, Utc},
     std::{env::args, fs::read_to_string, io::Write, path::Path},
 };
 
 mod lexer;
-mod token;
 
 fn help() {
     println!("-h, --help: show this help message");
@@ -22,9 +20,9 @@ fn version() {
 }
 
 fn lex_code(input: String) {
-    let lexer = lexer::Lexer::new(&input);
+    let lexer = lexer::lexer::Lexer::new(&input);
     for token in lexer {
-        if token.token_type != TokenType::Error {
+        if token.token_type != lexer::token::TokenType::Error {
             println!("{:?}", token);
         }
     }
