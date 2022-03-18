@@ -1,0 +1,79 @@
+// This is a comment
+/*
+This is a multi-line comment
+*/
+
+// type is a keyword to define custom types
+type MyType {
+    a: string;
+    b: int;
+}
+
+func example(): MyType {
+    return {
+        a: "hello",
+        b: 10
+    };
+}
+
+func main(): int {
+    // var is a variable that can change that is
+    // defined either before or after compilation
+    var a: int[] = [1, 2, 3];
+    var b: float = 2.00;
+    var c: string = "Hello";
+
+    // let is a variable that cannot change that is
+    // defined either before or after compilation
+    let d: bool = true;
+    let e: bool = false;
+    let f: char[] = ['a', 'b', 'c'];
+
+    // const is a variable that cannot change that is
+    // only defined before compilation
+    const g: MyType = example();
+
+    // you can access the fields of a struct using dot notation
+    g.a;
+    g.b;
+
+    // you can access the fields of a struct using [] notation
+
+    if (a == 1) {
+        // if statement
+    } else {
+        // else block
+    }
+
+    // while loop
+    while (a == 1) {
+        // break is used to break out of a loop
+        break;
+
+        // continue is used to continue to the next iteration
+        continue;
+    }
+
+    for (var i: int = 0; i < 10; i++) {
+        // for statement
+    }
+
+    // switch statement
+    switch (a) {
+        case 1 {
+            // case 1
+            break;
+        }
+        case 2{
+            // case 2
+            break;
+        }
+        default{
+            // default
+            break;
+        }
+    }
+
+    // return is used to return a value from a function
+    return 0;
+}
