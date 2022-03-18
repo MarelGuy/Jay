@@ -4,7 +4,6 @@
 
 - ### Features
 
-  - Actual grammar in the lexer
   - Proper error handling
   - Parsing and AST generation
 
