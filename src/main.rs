@@ -1,6 +1,6 @@
 /*
 Jay main
-Copyright (C) 2020  Loris Cuntreri
+Copyright (C) 2022  Loris Cuntreri
 */
 use {
     crate::lexer::Lexer,
@@ -51,8 +51,11 @@ fn lex_code(input: String) {
             break;
         }
     }
+
     if can_output == true {
-        println!("{:#?}", tokens);
+        for token in tokens {
+            token.output();
+        }
     }
 }
 
