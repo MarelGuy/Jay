@@ -4,7 +4,7 @@ Copyright (C) 2022  Loris Cuntreri
 */
 
 use {
-    crate::token::{Span, Token, TokenType},
+    super::token::{Span, Token, TokenType},
     logos::{Logos, SpannedIter},
     std::{iter::Peekable, ops::Range},
 };
