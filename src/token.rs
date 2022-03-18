@@ -1,25 +1,174 @@
-/*
-Jay tokenizer
-Copyright (C) 2022  Loris Cuntreri
-*/
-pub(crate) struct Token {
-    token_type: String,
-    value: String,
+// token with logos
+use logos::Logos;
+
+#[derive(Logos, Debug, PartialEq)]
+pub enum TokenType {
+    // Math operators
+    #[token("+")]
+    Plus,
+
+    #[token("-")]
+    Minus,
+
+    #[token("*")]
+    Multiply,
+
+    #[token("/")]
+    Divide,
+
+    #[token("%")]
+    Modulo,
+
+    // Logic operators
+    #[token("&&")]
+    And,
+
+    #[token("||")]
+    Or,
+
+    #[token("!")]
+    Not,
+
+    // Comparison operators
+    #[token("==")]
+    Equal,
+
+    #[token("!=")]
+    NotEqual,
+
+    #[token("<")]
+    LessThan,
+
+    #[token("<=")]
+    LessThanOrEqual,
+
+    #[token(">")]
+    GreaterThan,
+
+    #[token(">=")]
+    GreaterThanOrEqual,
+
+    // Assignment operators
+    #[token("=")]
+    Assign,
+
+    #[token("+=")]
+    PlusAssign,
+
+    #[token("-=")]
+    MinusAssign,
+
+    #[token("*=")]
+    MultiplyAssign,
+
+    #[token("/=")]
+    DivideAssign,
+
+    #[token("%=")]
+    ModuloAssign,
+
+    // Delimiters
+    #[token("(")]
+    OpenParen,
+
+    #[token(")")]
+    CloseParen,
+
+    #[token("{")]
+    OpenBrace,
+
+    #[token("}")]
+    CloseBrace,
+
+    #[token("[")]
+    OpenBracket,
+
+    #[token("]")]
+    CloseBracket,
+
+    #[token(",")]
+    Comma,
+
+    #[token(";")]
+    Semicolon,
+
+    // Keywords
+    #[token("type")]
+    Type,
+
+    #[token("if")]
+    If,
+
+    #[token("else")]
+    Else,
+
+    #[token("while")]
+    While,
+
+    #[token("return")]
+    Return,
+
+    #[token("func")]
+    Func,
+
+    #[token("let")]
+    Let,
+
+    #[token("var")]
+    Var,
+
+    #[token("const")]
+    Const,
+
+    #[token("true")]
+    True,
+
+    #[token("false")]
+    False,
+
+    // Identifiers
+    #[regex(r"[a-zA-Z_][a-zA-Z0-9_]*")]
+    Identifier,
+
+    // Numbers
+    #[regex(r"[0-9]+")]
+    Number,
+
+    // Strings
+    #[regex(r#""[^"]*""#)]
+    String,
+
+    // Punctuation
+    #[token(".")]
+    Dot,
+
+    #[token("...")]
+    Ellipsis,
+
+    #[token(":")]
+    Colon,
+
+    // Comments
+    #[regex(r"//[^\n]*")]
+    Comment,
+
+    #[regex(r"/\*[^*]*\*+(?:[^/*][^*]*\*+)*/")]
+    BlockComment,
+
+    #[error]
+    #[regex(r"[ \t\n\f]+", logos::skip)]
+    Error,
 }
 
-impl Token {
-    pub fn new(token_type: String, value: String) -> Token {
-        Token { token_type, value }
-    }
+#[derive(Debug)]
+pub struct Span {
+    pub start: usize,
+    pub end: usize,
+}
 
-    pub fn output(&self) {
-        println!(
-            "Token {{ token_type: {}, value: {} }}",
-            self.token_type, self.value
-        )
-    }
-
-    pub fn get_token_type(&self) -> &String {
-        &self.token_type
-    }
+#[derive(Debug)]
+pub struct Token<'source> {
+    pub token_type: TokenType,
+    pub slice: &'source str,
+    pub span: Span,
 }

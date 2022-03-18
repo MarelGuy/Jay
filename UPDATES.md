@@ -44,3 +44,9 @@ I'll probably start working on the parser, wish me luck.
 I found a bug in the lexer, another time. The strings will make both the interpreter and the compiler loop forever.  
 I'll be working on it for now, I'll also add an Error struct to the lexer.  
 The base for the lexer should be done, I'll now work on adding the actual grammar.
+
+## 2022-05-18
+
+Yikes, late update for today.
+I'm switching to a lexer generator like Logos, this will be a lot easier and more efficient.  
+I did my experience with hand-written lexers, and I'm pretty sure i learned a lot from it.

@@ -3,13 +3,12 @@ Jay main
 Copyright (C) 2022  Loris Cuntreri
 */
 use {
-    crate::lexer::Lexer,
+    token::TokenType,
     chrono::{Datelike, Utc},
     std::{env::args, fs::read_to_string, io::Write, path::Path},
 };
 
 mod lexer;
-mod s_error;
 mod token;
 
 fn help() {
@@ -23,38 +22,10 @@ fn version() {
 }
 
 fn lex_code(input: String) {
-    let mut lexer: Lexer = lexer::Lexer::new(input);
-
-    let mut tokens: Vec<token::Token> = Vec::new();
-
-    let mut can_output: bool = true;
-
-    // we loop through the file to be sure that we
-    // don't go over the input
-    loop {
-        // match block to verify the OK or Err
-        match lexer.next_token() {
-            Ok(token) => tokens.push(token),
-            Err(_) => {}
-        }
-
-        // if the token that we get is of type EOF, then we delete it
-        // and stop the loop
-        if tokens.last().unwrap().get_token_type() == "EOF" {
-            tokens.pop();
-            break;
-        }
-
-        // if we find an error, we go on but don't give any output
-        if tokens.last().unwrap().get_token_type() == "ERROR" {
-            can_output = false;
-            break;
-        }
-    }
-
-    if can_output == true {
-        for token in tokens {
-            token.output();
+    let lexer = lexer::Lexer::new(&input);
+    for token in lexer {
+        if token.token_type != TokenType::Error {
+            println!("{:?}", token);
         }
     }
 }
