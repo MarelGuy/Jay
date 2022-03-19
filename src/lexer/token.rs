@@ -16,6 +16,9 @@ pub enum TokenType {
     #[token("/")]
     Divide,
 
+    #[token("^")]
+    Power,
+
     #[token("%")]
     Modulo,
 
@@ -91,6 +94,25 @@ pub enum TokenType {
 
     #[token(";")]
     Semicolon,
+
+    // Types
+    #[token("int")]
+    IntType,
+
+    #[token("float")]
+    FloatType,
+
+    #[token("bool")]
+    BoolType,
+
+    #[token("string")]
+    StringType,
+
+    #[token("void")]
+    VoidType,
+
+    #[token("char")]
+    CharType,
 
     // Keywords
     #[token("type")]
