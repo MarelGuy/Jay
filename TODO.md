@@ -8,7 +8,7 @@
 
 - ### Bugs
 
-  - If an emoji is inputted in a string, the lexer crashes
+  - No bugs detected
 
 ## Non-code related
 
