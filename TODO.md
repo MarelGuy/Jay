@@ -4,7 +4,6 @@
 
 - ### Features
 
-  - Proper error handling
   - Parsing and AST generation
 
 - ### Bugs
