@@ -9,6 +9,7 @@ use {
 };
 
 mod lexer;
+mod parser;
 
 fn help() {
     println!("-h, --help: show this help message");
