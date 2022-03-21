@@ -45,7 +45,7 @@ impl<'inp> Iterator for Lexer<'inp> {
         match self.logos_iter.next() {
             Some((token_type, span)) => Some(Token {
                 token_type,
-                slice: &self.input.clone()[span.start..span.end],
+                slice: &self.input[span.start..span.end],
                 span: span.into(),
             }),
             _ => None,
