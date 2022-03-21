@@ -4,7 +4,7 @@ Copyright (C) 2022  Loris Cuntreri
 */
 use {
     chrono::{Datelike, Utc},
-    lexer::lexer::Lexer,
+    lexer::{lexer::Lexer, token::TokenType},
     std::{env::args, fs::read_to_string, io::Write, path::Path},
 };
 
@@ -39,7 +39,13 @@ fn interpreter() {
         let mut tokens = Vec::new();
 
         for token in lexer {
-            tokens.push(token);
+            if token.token_type != TokenType::CarriageReturn
+                && token.token_type != TokenType::LineFeed
+                && token.token_type != TokenType::Space
+                && token.token_type != TokenType::Tab
+            {
+                tokens.push(token);
+            }
         }
 
         println!("{:#?}", tokens);
@@ -73,7 +79,13 @@ fn compiler() {
     let mut tokens = Vec::new();
 
     for token in lexer {
-        tokens.push(token);
+        if token.token_type != TokenType::CarriageReturn
+            && token.token_type != TokenType::LineFeed
+            && token.token_type != TokenType::Space
+            && token.token_type != TokenType::Tab
+        {
+            tokens.push(token);
+        }
     }
 
     println!("{:#?}", tokens);

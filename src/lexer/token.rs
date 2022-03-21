@@ -181,6 +181,19 @@ pub enum TokenType {
     #[regex(r"/\*[^*]*\*+(?:[^/*][^*]*\*+)*/")]
     BlockComment,
 
+    // Whitespace
+    #[token("\r")]
+    CarriageReturn,
+
+    #[token("\n")]
+    LineFeed,
+
+    #[token(" ")]
+    Space,
+
+    #[token("\t")]
+    Tab,
+
     #[error]
     #[regex(r"[ \t\n\f]+", logos::skip)]
     Error,
