@@ -1,4 +1,8 @@
-// token with logos
+/*
+Jay tokens
+Copyright (C) 2022  Loris Cuntreri
+*/
+
 use logos::Logos;
 
 #[derive(Logos, Debug, PartialEq)]
