@@ -19,13 +19,18 @@ fn version() {
     println!("Jay v0.0.0 (2022-016-03)");
 }
 
-fn lex_code(input: String) {
+fn lex_code(input: String) -> Vec<lexer::token::Token<'static>> {
     let lexer = lexer::lexer::Lexer::new(&input);
+
+    let mut vet_token: Vec<lexer::token::Token> = Vec::new();
+
     for token in lexer {
         if token.token_type != lexer::token::TokenType::Error {
-            println!("{:?}", token);
+            vet_token.push(token);
         }
     }
+
+    vet_token
 }
 
 fn interpreter() {
@@ -68,7 +73,7 @@ fn compiler() {
     // we read the content to the file to string avoiding the problem of distinguishing EOL and EOF
     let file_content: String = read_to_string(file_path).expect("Error: failed to read file");
 
-    lex_code(file_content);
+    let lexed_content = lex_code(file_content);
 }
 
 fn main() {
