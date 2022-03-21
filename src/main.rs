@@ -4,6 +4,7 @@ Copyright (C) 2022  Loris Cuntreri
 */
 use {
     chrono::{Datelike, Utc},
+    lexer::lexer::Lexer,
     std::{env::args, fs::read_to_string, io::Write, path::Path},
 };
 
@@ -17,20 +18,6 @@ fn help() {
 
 fn version() {
     println!("Jay v0.0.0 (2022-016-03)");
-}
-
-fn lex_code(input: String) -> Vec<lexer::token::Token<'static>> {
-    let lexer = lexer::lexer::Lexer::new(&input);
-
-    let mut vet_token: Vec<lexer::token::Token> = Vec::new();
-
-    for token in lexer {
-        if token.token_type != lexer::token::TokenType::Error {
-            vet_token.push(token);
-        }
-    }
-
-    vet_token
 }
 
 fn interpreter() {
@@ -47,7 +34,15 @@ fn interpreter() {
         // we read in input and use as a buffer the variable input
         std::io::stdin().read_line(&mut input).expect("");
 
-        lex_code(input);
+        let lexer = Lexer::new(&input);
+
+        let mut tokens = Vec::new();
+
+        for token in lexer {
+            tokens.push(token);
+        }
+
+        println!("{:#?}", tokens);
     }
 }
 
@@ -73,7 +68,15 @@ fn compiler() {
     // we read the content to the file to string avoiding the problem of distinguishing EOL and EOF
     let file_content: String = read_to_string(file_path).expect("Error: failed to read file");
 
-    let lexed_content = lex_code(file_content);
+    let lexer = Lexer::new(&file_content);
+
+    let mut tokens = Vec::new();
+
+    for token in lexer {
+        tokens.push(token);
+    }
+
+    println!("{:#?}", tokens);
 }
 
 fn main() {
