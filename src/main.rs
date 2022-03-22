@@ -5,6 +5,7 @@ Copyright (C) 2022  Loris Cuntreri
 use {
     chrono::{Datelike, Utc},
     lexer::{lexer::Lexer, token::TokenType},
+    parser::parser::Parser,
     std::{env::args, fs::read_to_string, io::Write, path::Path},
 };
 
@@ -50,6 +51,10 @@ fn interpreter() {
         }
 
         println!("{:#?}", tokens);
+
+        let mut parser = Parser::new(tokens);
+
+        parser.parse();
     }
 }
 
