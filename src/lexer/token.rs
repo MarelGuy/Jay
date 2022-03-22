@@ -194,6 +194,9 @@ pub enum TokenType {
     #[token("\t")]
     Tab,
 
+    #[token("\0")]
+    Null,
+
     #[error]
     #[regex(r"[ \t\n\f]+", logos::skip)]
     Error,
