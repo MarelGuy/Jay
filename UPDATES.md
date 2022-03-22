@@ -56,3 +56,8 @@ Now the time as come, I can finally start working on the parser.
 ## 2022-03-19
 
 Today I just chilled it out, I didn't really want to code today.
+
+## 2020-03-22
+
+I did some research parser and AST trees are hard to code in rust. The project will be on hiatus for some time until I
+learn about ASTs. Also, I got a gig at a resturant, so I'm going to be working on that project for a while.
