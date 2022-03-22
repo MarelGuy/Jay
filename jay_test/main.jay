@@ -9,6 +9,8 @@ type MyType {
     b: int;
 }
 
+lamb(lmao: int): string -> lmao + 19;
+
 func example(): MyType {
     return {
         a: "hello",
@@ -64,7 +66,7 @@ func main(): int {
             // case 1
             break;
         }
-        case 2{
+        case 2 {
             // case 2
             break;
         }
