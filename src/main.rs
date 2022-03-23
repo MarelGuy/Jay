@@ -5,12 +5,12 @@ Copyright (C) 2022  Loris Cuntreri
 use {
     chrono::{Datelike, Utc},
     lexer::{lexer::Lexer, token::TokenType},
-    parser::parser::Parser,
+    // parser::parser::Parser,
     std::{env::args, fs::read_to_string, io::Write, path::Path},
 };
 
 mod lexer;
-mod parser;
+// mod parser;
 
 fn help() {
     println!("-h, --help: show this help message");
@@ -50,11 +50,9 @@ fn interpreter() {
             }
         }
 
-        println!("{:#?}", tokens);
-
-        let mut parser = Parser::new(tokens);
-
-        parser.parse();
+        for token in tokens {
+            println!("{:?}", token);
+        }
     }
 }
 
@@ -94,7 +92,9 @@ fn compiler() {
         }
     }
 
-    println!("{:#?}", tokens);
+    for token in tokens {
+        println!("{:?}", token);
+    }
 }
 
 fn main() {
