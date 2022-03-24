@@ -163,6 +163,9 @@ pub enum TokenType {
     #[regex(r"[0-9]+")]
     Number,
 
+    #[regex(r"[0-9]+\.[0-9]+")]
+    Float,
+
     // Strings
     #[regex(r#""[^"]*""#)]
     String,
@@ -212,8 +215,8 @@ pub struct Span {
 }
 
 #[derive(Debug)]
-pub struct Token<'source> {
+pub struct Token<'a> {
     pub token_type: TokenType,
-    pub slice: &'source str,
+    pub slice: &'a str,
     pub span: Span,
 }

@@ -9,9 +9,9 @@ use {
     std::{iter::Peekable, ops::Range},
 };
 
-pub struct Lexer<'inp> {
-    pub logos_iter: Peekable<SpannedIter<'inp, TokenType>>,
-    pub input: &'inp str,
+pub struct Lexer<'a> {
+    pub logos_iter: Peekable<SpannedIter<'a, TokenType>>,
+    pub input: &'a str,
 }
 
 impl From<Span> for Range<usize> {
@@ -29,8 +29,8 @@ impl From<Range<usize>> for Span {
     }
 }
 
-impl<'inp> Lexer<'inp> {
-    pub fn new(input: &'inp str) -> Self {
+impl<'a> Lexer<'a> {
+    pub fn new(input: &'a str) -> Self {
         Self {
             logos_iter: TokenType::lexer(&input).spanned().peekable(),
             input: &input,
@@ -38,8 +38,8 @@ impl<'inp> Lexer<'inp> {
     }
 }
 
-impl<'inp> Iterator for Lexer<'inp> {
-    type Item = Token<'inp>;
+impl<'a> Iterator for Lexer<'a> {
+    type Item = Token<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.logos_iter.next() {
