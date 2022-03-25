@@ -21,7 +21,6 @@
     | "string"
     | "void"
 
-
 # Operators
 <math_op> ::=
     "+"
@@ -41,7 +40,7 @@
 <un_op> ::=
       "!"
     | "-"
-    
+
 <logic_op> ::=
       "&&"
     | "||"
@@ -97,6 +96,13 @@
 <func_def> ::=
       "func " <identifier> <params> ":" <type_def>  ( "{" <expr>+ <return_stmt>  "}" ) 
     | "{}"
+
+<lambda> ::=
+      "lamb" <params> ":" <type_def> -> ( 
+      <expr>+
+    | "{}"
+    )
+
 
 <func_call> ::= <identifier> <params>
 
