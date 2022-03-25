@@ -166,9 +166,12 @@ pub enum TokenType {
     #[regex(r"[0-9]+\.[0-9]+")]
     Float,
 
-    // Strings
+    // Strings and Chars
     #[regex(r#""[^"]*""#)]
     String,
+
+    #[regex(r#"'.'"#)]
+    Char,
 
     // Punctuation
     #[token(".")]
