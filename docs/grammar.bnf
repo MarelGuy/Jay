@@ -1,0 +1,27 @@
+(*
+Jay grammar
+Copyright (C) 2022  Loris Cuntreri
+*)
+
+
+(* Types *)
+<int> ::= [0-9]+
+<float> ::= [0-9]+ "." [0-9]+
+<string> ::= "\"" ( ( [a-z]+ | [A-Z]+ )+ | ( [A-Z]+ | [a-z]+ )+ )+ "\""
+<char> ::= "'" ( [a-z] | [A-Z] ) "'"
+
+
+(* Type def *)
+<type> ::= "int" | "float" | "char" | "string"
+
+
+(* Variables *)
+<identifier> ::= ( [a-z]+ | [A-Z]+ )+ | ( [A-Z]+ | [a-z]+ )+
+
+<let> ::= "let"
+<var> ::= "var"
+<const> ::= "const"
+
+<var_decl> ::= ( <let> | <var> | <const> ) " " <identifier> ":" <type_def> "=" ( <int> | <float> | <string> | <char> )
+
+(* Expressions *)
