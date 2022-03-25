@@ -58,3 +58,8 @@ learn about ASTs. Also, I got a gig at a resturant, so I'm going to be working o
 I forgot to mention that I'll work on the code to make some refactorings overtime.  
 I'll also make a new release for the kind of finished lexer.  
 I must also thank some friends that helped me with the lexer and logos.
+
+## 2022-03-25
+
+In these days I studied data structures in rust, I'm pretty confident that I'll be able to work on the parser in at least a week.  
+Also, talking about the parser, I will use a PEG parser, ASTs are way too hard to code in rust, at least for me.
