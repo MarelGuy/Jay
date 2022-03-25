@@ -2,7 +2,6 @@
 # Copyright (C) 2022  Loris Cuntreri
 
 # Types
-
 <int> ::= [0-9]+
 <float> ::= [0-9]+ "." [0-9]+
 <string> ::= "\"" ( ( [a-z]+ | [A-Z]+ )+ | ( [A-Z]+ | [a-z]+ )+ )+ "\""
@@ -10,8 +9,33 @@
 
 <type_def> ::= "int" | "float" | "char" | "string"
 
+# Operators
+<math_op> ::= "+" | "-" | "*" | "/" | "%"
+<bin_op> ::= "==" | "!=" | "<" | ">" | "<=" | ">="
+<un_op> ::= "!" | "-"
+<logic_op> ::= "&&" | "||"
+
+# Expressions
+<expr> ::=
+      <expr> <bin_op> <expr> 
+    | <expr> <un_op>
+    | <expr> <logic_op> <expr>
+    | <expr> <math_op> <expr>
+    | <int>
+    | <float>
+    | <string>
+    | <char>
+    | <identifier>
+
 # Variables
 <identifier> ::= ( [a-z]+ | [A-Z]+ )+ | ( [A-Z]+ | [a-z]+ )+
 
+<ass_operator> ::= "=" | "+=" | "-=" | "*=" | "/=" | "%="
+
 <var_def> ::= ( "let" | "var" | "const" ) " "
-<var_decl> ::= <var_def>  <identifier> ":" <type_def> "=" ( <int> | <float> | <string> | <char> )
+<var_decl> ::= <var_def>  <identifier> ":" <type_def> <ass_operator> <expr>
+
+# Functions
+<params> ::= ( "(" <identifier> ":" <type_def> ( "," <identifier> ":" <type_def>)* ")" ) | "()"
+<func_def> ::= "func " <identifier> <params> ":"<type_def>  "{" <expr>+ "}"
+
