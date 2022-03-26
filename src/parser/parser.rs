@@ -1,20 +1,26 @@
-use crate::lexer::token::{Span, Token, TokenType};
+/*
+Jay PEG parser
+Copyright (C) 2022  Loris Cuntreri
+*/
+use crate::lexer::token::Token;
 
 pub struct Parser<'a> {
-    tokens: Vec<Token<'a>>,
-    current_token: Token<'a>,
+    pub token_stream: Vec<Token<'a>>,
+    pub current_token: usize,
 }
 
-impl Parser<'_> {
-    pub fn new(token_stream: Vec<Token>) -> Parser {
-        Parser {
-            tokens: token_stream,
-            current_token: Token {
-                token_type: TokenType::Null,
-                slice: "0",
-                span: Span { start: 0, end: 0 },
-            },
+impl<'a> Parser<'a> {
+    pub fn new(token_stream: Vec<Token<'a>>) -> Self {
+        Self {
+            token_stream,
+            current_token: 0,
         }
     }
-    pub fn parse(&mut self) {}
+
+    pub fn parse(&mut self) /* -> Result<(), String> */
+    {
+        for token in &self.token_stream {
+            println!("{:?}", &token)
+        }
+    }
 }

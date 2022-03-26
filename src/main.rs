@@ -2,15 +2,13 @@
 Jay main
 Copyright (C) 2022  Loris Cuntreri
 */
-use {
-    chrono::{Datelike, Utc},
-    lexer::{lexer::Lexer, token::TokenType},
-    // parser::parser::Parser,
-    std::{env::args, fs::read_to_string, io::Write, path::Path},
-};
+use chrono::{Datelike, Utc};
+use lexer::{lexer::Lexer, token::TokenType};
+use parser::parser::Parser;
+use std::{env::args, fs::read_to_string, io::Write, path::Path};
 
 mod lexer;
-// mod parser;
+mod parser;
 
 fn help() {
     println!("-h, --help: show this help message");
@@ -50,9 +48,9 @@ fn interpreter() {
             }
         }
 
-        for token in tokens {
-            println!("{:?}", token);
-        }
+        let mut parser = Parser::new(tokens);
+
+        parser.parse();
     }
 }
 
@@ -92,9 +90,9 @@ fn compiler() {
         }
     }
 
-    for token in tokens {
-        println!("{:?}", token);
-    }
+    let mut parser = Parser::new(tokens);
+
+    parser.parse();
 }
 
 fn main() {
