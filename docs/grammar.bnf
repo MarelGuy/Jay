@@ -98,7 +98,7 @@
     | "{}"
 
 <lambda> ::=
-      "lamb" <params> ":" <type_def> -> ( 
+      "lamb" <params> ":" <type_def> "->" ( 
       <expr>+
     | "{}"
     )
