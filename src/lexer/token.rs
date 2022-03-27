@@ -5,7 +5,7 @@ Copyright (C) 2022  Loris Cuntreri
 
 use logos::Logos;
 
-#[derive(Logos, Debug, PartialEq)]
+#[derive(Logos, Debug, PartialEq, Copy, Clone)]
 pub enum TokenType {
     // Math operators
     #[token("+")]
@@ -211,13 +211,13 @@ pub enum TokenType {
     Error,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Span {
     pub start: usize,
     pub end: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Token<'a> {
     pub token_type: TokenType,
     pub slice: &'a str,
