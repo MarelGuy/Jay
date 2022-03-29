@@ -9,8 +9,6 @@ type MyType {
     b: int;
 }
 
-lamb(lmao: int): string -> lmao + 19;
-
 func example(): MyType {
     return {
         a: "hello",
@@ -34,12 +32,11 @@ func main(): int {
     // const is a variable that cannot change that is
     // only defined before compilation
     const g: MyType = example();
+    let h: int = lamb(lmao: int): int -> lmao + 19;
 
     // you can access the fields of a struct using dot notation
     g.a;
     g.b;
-
-    // you can access the fields of a struct using [] notation
 
     if (a == 1) {
         // if statement
@@ -51,6 +48,10 @@ func main(): int {
     while (a == 1) {
         // break is used to break out of a loop
         break;
+
+        // breakif is used to break out of a loop if a condition is met
+        // it can be used in all the statements and block that can break
+        breakif (a == 2);
 
         // continue is used to continue to the next iteration
         continue;
@@ -78,4 +79,10 @@ func main(): int {
 
     // return is used to return a value from a function
     return 0;
+
+    // returnif can be used to execute some code when
+    // condition is met, it needs to return a value
+    returnif (a == 1) {
+
+    };
 }

@@ -134,6 +134,9 @@ pub enum TokenType {
     #[token("return")]
     Return,
 
+    #[token("returnif")]
+    ReturnIf,
+
     #[token("func")]
     Func,
 
@@ -154,6 +157,15 @@ pub enum TokenType {
 
     #[token("false")]
     False,
+
+    #[token("break")]
+    Break,
+
+    #[token("continue")]
+    Continue,
+
+    #[token("breakif")]
+    BreakIf,
 
     // Identifiers
     #[regex(r"[a-zA-Z_][a-zA-Z0-9_]*")]
