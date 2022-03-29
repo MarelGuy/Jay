@@ -34,9 +34,9 @@ fn interpreter() {
         // we read in input and use as a buffer the variable input
         std::io::stdin().read_line(&mut input).expect("");
 
-        let lexer = Lexer::new(&input);
+        let lexer: Lexer = Lexer::new(&input);
 
-        let mut tokens = Vec::new();
+        let mut tokens: Vec<lexer::token::Token> = Vec::new();
 
         for token in lexer {
             if token.token_type != TokenType::CarriageReturn
@@ -76,9 +76,9 @@ fn compiler() {
     // we read the content to the file to string avoiding the problem of distinguishing EOL and EOF
     let file_content: String = read_to_string(file_path).expect("Error: failed to read file");
 
-    let lexer = Lexer::new(&file_content);
+    let lexer: Lexer = Lexer::new(&file_content);
 
-    let mut tokens = Vec::new();
+    let mut tokens: Vec<lexer::token::Token> = Vec::new();
 
     for token in lexer {
         if token.token_type != TokenType::CarriageReturn
