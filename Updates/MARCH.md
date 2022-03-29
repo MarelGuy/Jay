@@ -63,3 +63,8 @@ I must also thank some friends that helped me with the lexer and logos.
 
 In these days I studied data structures in rust, I'm pretty confident that I'll be able to work on the parser in at least a week.  
 Also, talking about the parser, I will use a PEG parser, ASTs are way too hard to code in rust, at least for me.
+
+## 2022-03-29
+
+I forgot to mention that I starded working on the lexer, I may have found a way to do directly ASTs with a normal parser.  
+Also, this is basically going like the parser, while coding I'm choosing choosing which method to use, still i'm sure that the hardest part will be transpiling to LLVM-IR, which is pretty hardd, yikes.
