@@ -36,16 +36,14 @@ impl<'a> Parser<'a> {
     }
 
     pub fn factor(&mut self) -> Result<NumberNode, ()> {
-        if self.current_token.token_type == TokenType::Number
-            || self.current_token.token_type == TokenType::Identifier
-        {
-            self.advance();
-            Ok(
-            NumberNode {
-                token: self.current_token.clone(),
-            })
-        } else {
-            Err(())
+        match self.current_token.token_type {
+            TokenType::Number | TokenType::Float => {
+                self.advance();
+                Ok(NumberNode {
+                    token: self.current_token.clone(),
+                })
+            }
+            _ => Err(()),
         }
     }
 
