@@ -38,8 +38,15 @@ func main(): int {
     g.a;
     g.b;
 
+    // there are two types of equals in jay.
+    // the first is '==' and the second is '==='.
+    // the first check only the values in the condition, meaning that 1 == "1" is true
     if (a == 1) {
         // if statement
+        
+        // the second checks the type and value of the condition, meaning that 1 === "1" is false
+    } else if (a === 1) {
+        // else if block
     } else {
         // else block
     }

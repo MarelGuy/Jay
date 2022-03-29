@@ -39,21 +39,39 @@ pub enum TokenType {
     // Comparison operators
     #[token("==")]
     Equal,
+    
+    #[token("===")]
+    StrictEqual,
 
     #[token("!=")]
     NotEqual,
 
+    #[token("!==")]
+    NotStrictEqual,
+
     #[token("<")]
     LessThan,
+
+    #[token("<<")]
+    StrictLessThan,
 
     #[token("<=")]
     LessThanOrEqual,
 
+    #[token("<=<")]
+    StrictLessThanOrEqual,
+
     #[token(">")]
     GreaterThan,
 
+    #[token(">>")]
+    StrictGreaterThan,
+
     #[token(">=")]
     GreaterThanOrEqual,
+
+    #[token(">=>")]
+    StrictGreaterThanOrEqual,
 
     // Assignment operators
     #[token("=")]
@@ -124,6 +142,9 @@ pub enum TokenType {
 
     #[token("if")]
     If,
+
+    #[token("elif")]
+    Elif,
 
     #[token("else")]
     Else,
