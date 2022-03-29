@@ -3,7 +3,7 @@ Jay PEG parser
 Copyright (C) 2022  Loris Cuntreri
 */
 use super::ast::*;
-use crate::lexer::token::{Span, Token, TokenType};
+use crate::lexer::token::{Token, TokenType};
 
 pub struct Parser<'a> {
     pub token_stream: Vec<Token<'a>>,
