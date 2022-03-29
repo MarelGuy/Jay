@@ -3,13 +3,11 @@ Jay lexer
 Copyright (C) 2022  Loris Cuntreri
 */
 
-use {
-    super::token::{Span, Token, TokenType},
-    logos::{Logos, SpannedIter},
-    std::{iter::Peekable, ops::Range},
-};
+use super::token::{Span, Token, TokenType};
+use logos::{Logos, SpannedIter};
+use std::{iter::Peekable, ops::Range};
 
-pub struct Lexer<'a> {
+ pub struct Lexer<'a> {
     pub logos_iter: Peekable<SpannedIter<'a, TokenType>>,
     pub input: &'a str,
 }
