@@ -14,20 +14,16 @@ pub struct Parser<'a> {
 impl<'a> Parser<'a> {
     pub fn new(token_stream: Vec<Token<'a>>) -> Self {
         Self {
-            current_token: Token {
-                token_type: TokenType::Null,
-                slice: "",
-                span: Span { start: 0, end: 0 },
-            },
+            current_token: token_stream[0].clone(),
             token_stream,
             tok_i: 0,
         }
     }
 
-    pub fn parse(&mut self) /* -> Result<(), String> */
-    {
-        for token in &self.token_stream {
-            println!("{:?}", &token);
+    pub fn parse(&mut self) {
+        for _ in 0..self.token_stream.len() {
+            println!("{:?}", self.current_token);
+            self.advance();
         }
     }
 
