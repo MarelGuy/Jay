@@ -12,3 +12,9 @@ opt-level = 3
 lto = true
 debug = false
 rpath = false
+codegen-units = 1
+
+[profile.release.build-override]
+opt-level = 3
+debug = false
+codegen-units = 1
