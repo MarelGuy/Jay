@@ -223,9 +223,6 @@ pub enum TokenType {
     #[token("from")]
     From,
 
-    #[token("export")]
-    Export,
-
     // Comments
     #[regex(r"//[^\n]*")]
     Comment,
