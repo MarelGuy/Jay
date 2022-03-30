@@ -39,7 +39,7 @@ pub enum TokenType {
     // Comparison operators
     #[token("==")]
     Equal,
-    
+
     #[token("===")]
     StrictEqual,
 
@@ -215,6 +215,16 @@ pub enum TokenType {
 
     #[token(":")]
     Colon,
+
+    // Import and Export
+    #[token("import")]
+    Import,
+
+    #[token("from")]
+    From,
+
+    #[token("export")]
+    Export,
 
     // Comments
     #[regex(r"//[^\n]*")]
