@@ -23,35 +23,15 @@ impl<'a> Parser<'a> {
     pub fn parse(&mut self) {
         for _ in 0..self.token_stream.len() {
             println!("{:?}", self.current_token);
-            self.advance();
+            self.next();
         }
     }
 
-    fn advance(&mut self) {
-        self.tok_i += 1;
-
+    fn next(&mut self) {
         if self.tok_i < self.token_stream.len() {
             self.current_token = self.token_stream[self.tok_i];
         }
-    }
 
-    pub fn factor(&mut self) -> Result<NumberNode, ()> {
-        match self.current_token.token_type {
-            TokenType::Number | TokenType::Float => {
-                self.advance();
-                Ok(NumberNode {
-                    token: self.current_token.clone(),
-                })
-            }
-            _ => Err(()),
-        }
-    }
-
-    pub fn term() {
-        println!("term");
-    }
-
-    pub fn expr() {
-        println!("expr");
+        self.tok_i += 1;
     }
 }
