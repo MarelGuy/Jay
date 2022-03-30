@@ -3,6 +3,9 @@
 This is a multi-line comment
 */
 
+import thing from "./thing.jay";
+import {thing1, thing2} from "./things.jay";
+
 // type is a keyword to define custom types
 type MyType {
     a: string;
@@ -37,6 +40,11 @@ func main(): int {
     // you can access the fields of a struct using dot notation
     g.a;
     g.b;
+
+    // you can use the imported code from the other file
+    thing();
+    thing1();
+    thing2();
 
     // there are two types of equals in jay.
     // the first is '==' and the second is '==='.
