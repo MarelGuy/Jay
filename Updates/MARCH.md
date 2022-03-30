@@ -68,3 +68,8 @@ Also, talking about the parser, I will use a PEG parser, ASTs are way too hard t
 
 I forgot to mention that I starded working on the lexer, I may have found a way to do directly ASTs with a normal parser.  
 Also, this is basically going like the parser, while coding I'm choosing choosing which method to use, still i'm sure that the hardest part will be transpiling to LLVM-IR, which is pretty hardd, yikes.
+
+## 2022-03-30
+
+I was thinking about pest, it's a parser generator that works with PEG grammar, I may convert my BNF to
+PEG grammar and use pest to generate the parser.
