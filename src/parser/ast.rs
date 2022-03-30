@@ -14,10 +14,8 @@ pub struct Node<'a> {
     children: Vec<Node<'a>>,
 }
 
-pub struct BinOpNode<'a> {
+pub struct BinOpNode<'a, T> {
+    left: Box<T>,
     token: Token<'a>,
-    left: Box<Node<'a>>,
-    right: Box<Node<'a>>,
+    right: Box<T>,
 }
-
-
