@@ -29,7 +29,7 @@
 
 - ### Who am I?
 
-    My name is Loris Cuntreri, I'm 17 years old and I'm currently in High School. I started coding years ago in C++ and now i'm learning Rust with this project. I have a certification as a MERN stack developer at Strive School.
+    My name is Loris Cuntreri, I'm 17 years old and I'm currently in High School. I started coding years ago in C++ and now I'm learning Rust with this project. I have a certification as a MERN stack developer at Strive School.
 
 - ### What is my goal?
 

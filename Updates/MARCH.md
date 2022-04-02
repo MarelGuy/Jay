@@ -16,8 +16,7 @@ I hope I can finish the parser in the next days, still I don't have much time.
 
 A friend of mine found a bug:  
 if we write in input: 1+1, we will get [integer, integer] as tokens.  
-if we write in input: 1 + 1 or 1 +1 we will get [integer, plus, integer] as tokens.  
-i think that it's intuitive what we want to happen, doesn't matter how many spaces we need to get [integer, plus, integer] as tokens.  
+if we write in input: 1 + 1 or 1 +1 we will get [integer, plus, integer] as tokens.  I think that it's intuitive what we want to happen, doesn't matter how many spaces we need to get [integer, plus, integer] as tokens.  
 I'm also currently working on the bug, but since I can't always work on it, idk when it'll be fixed.
 
 - ### part 2
@@ -40,7 +39,7 @@ The base for the lexer should be done, I'll now work on adding the actual gramma
 
 Yikes, late update for today.
 I'm switching to a lexer generator like Logos, this will be a lot easier and more efficient.  
-I did my experience with hand-written lexers, and I'm pretty sure i learned a lot from it.
+I did my experience with hand-written lexers, and I'm pretty sure I learned a lot from it.
 
 Now the time as come, I can finally start working on the parser.
 
@@ -67,7 +66,7 @@ Also, talking about the parser, I will use a PEG parser, ASTs are way too hard t
 ## 2022-03-29
 
 I forgot to mention that I starded working on the lexer, I may have found a way to do directly ASTs with a normal parser.  
-Also, this is basically going like the parser, while coding I'm choosing choosing which method to use, still i'm sure that the hardest part will be transpiling to LLVM-IR, which is pretty hardd, yikes.
+Also, this is basically going like the parser, while coding I'm choosing choosing which method to use, still I'm sure that the hardest part will be transpiling to LLVM-IR, which is pretty hardd, yikes.
 
 ## 2022-03-30
 
