@@ -21,6 +21,7 @@
     | "string"
     | "void"
 
+
 # Operators
 <math_op> ::=
     "+"
@@ -87,6 +88,7 @@
 
 <var_decl> ::= <var_def>  <identifier> ":" <type_def> <ass_operator> <expr>
 <type_decl> ::= "type " <identifier> "{" (<identifier> ":" <type_def>) "}"
+
 
 # Functions
 <params> ::=
