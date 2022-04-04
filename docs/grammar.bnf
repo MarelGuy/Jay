@@ -122,13 +122,10 @@
 # Statements
 <if_stmt> ::= 
       "if" "(" <expr> ")" "{" <expr>+ "}" 
-    | "if" "(" <expr> ")" "{" <expr>+ "}" <elif_stmt>
+    | "if" "(" <expr> ")" "{" <expr>+ "}" <elif_stmt>+
     | "if" "(" <expr> ")" "{" <expr>+ "}" "else" "{" <expr>+ "}"
 
-<elif_stmt> ::= 
-      "elif" "(" <expr> ")" "{" <expr>+ "}"
-    | "elif" "(" <expr> ")" "{" <expr>+ "}" <elif_stmt>
-    | "else" "(" <expr> ")" "{" <expr>+ "}"
+<elif_stmt> ::=  "elif" "(" <expr> ")" "{" <expr>+ "}"
 
 <else_stmt> ::= "else" "{" <expr>+ "}"
 <while_stmt> ::= "while" "(" <expr> ")" "{" <expr>+ "}"
