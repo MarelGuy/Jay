@@ -86,7 +86,7 @@
     ) " "
 
 <var_decl> ::= <var_def>  <identifier> ":" <type_def> <ass_operator> <expr>
-
+<type_decl> ::= "type " <identifier> "{" (<identifier> ":" <type_def>) "}"
 
 # Functions
 <params> ::=
@@ -97,14 +97,10 @@
       "func " <identifier> <params> ":" <type_def>  ( "{" <expr>+ <return_stmt>  "}" ) 
     | "{}"
 
-<lambda> ::=
-      "lamb" <params> ":" <type_def> "->" ( 
-      <expr>+
-    | "{}"
-    )
-
-
+<anon_lambda> ::= "lamb" <params> ":" <type_def> "->" <stmt>
+<lambda> ::= "lamb" <identifier> <params> ":" <type_def> "->" <stmt>
 <func_call> ::= <identifier> <params>
+
 
 # True and False
 <true> ::= "true"
@@ -113,7 +109,6 @@
 
 # Dot notation
 <dot_expr> ::= <identifier> "." <identifier>
-
 
 
 # Comments
@@ -136,7 +131,13 @@
 <else_stmt> ::= "else" "{" <expr>+ "}"
 <while_stmt> ::= "while" "(" <expr> ")" "{" <expr>+ "}"
 <for_stmt> ::= "for" "(" <identifier> ":" <expr> ";" <expr> ";" <expr> ")" "{" <expr>+ "}"
-<return_stmt> ::= "return" <expr>
+<return_stmt> ::= "return" (<expr>)
+<returnif_stmt> ::= "returnif" "(" <expr> ")" "{" <expr>+ "}"
+<break_stmt> ::= "break"
+<breakif_stmt> ::= "breakif" "(" <expr> ")"
+<continue_stmt> ::= "continue"
+<continueif_stmt> ::= "continueif" "(" <expr> ")"
+<import_stmt> ::= "import" (<identifier> | "{" <identifier>+ "}") "from" <string>
 <stmt> ::=
       <var_decl> 
     | <func_def> 
