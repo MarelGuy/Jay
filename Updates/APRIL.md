@@ -11,3 +11,7 @@ Also, just so you know, when I accidentally deleted everything, I banged my head
 ## 2022-04-02
 
 I'm working on a school project, that's why I wasn't able to do anything for these days, I'll start working on Jay again from the 2022-04-04.
+
+## 2022-04-19
+
+I did not forget about Jay, I'm not in my best period of my life, sorry if updates and commits will be missing for a while.
