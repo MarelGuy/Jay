@@ -26,12 +26,10 @@ fn interpreter() {
     loop {
         print!(">>> ");
 
-        // we flush the console to have a correct input
         std::io::stdout().flush().expect("");
 
-        let mut input: String = String::new();
+        let mut input: String = String::new(); // we use this variable as a buffer for the input
 
-        // we read in input and use as a buffer the variable input
         std::io::stdin().read_line(&mut input).expect("");
 
         let lexer: Lexer = Lexer::new(&input);
@@ -39,10 +37,13 @@ fn interpreter() {
         let mut tokens: Vec<lexer::token::Token> = Vec::new();
 
         for token in lexer {
+            // This for loop is used to iterate over the tokens and push the items that are not whitespace or comments to the tokens vector
             if token.token_type != TokenType::CarriageReturn
                 && token.token_type != TokenType::LineFeed
                 && token.token_type != TokenType::Space
                 && token.token_type != TokenType::Tab
+                && token.token_type != TokenType::Comment
+                && token.token_type != TokenType::BlockComment
             {
                 tokens.push(token);
             }
