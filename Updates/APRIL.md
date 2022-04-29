@@ -15,3 +15,6 @@ I'm working on a school project, that's why I wasn't able to do anything for the
 ## 2022-04-19
 
 I did not forget about Jay, I'm not in my best period of my life, sorry if updates and commits will be missing for a while.
+
+## 2022-04-29
+I think that I'm good now, I'll start working on the project again.

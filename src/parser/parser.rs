@@ -22,8 +22,8 @@ impl<'a> Parser<'a> {
 
     pub fn parse(&mut self) {
         for _ in 0..self.token_stream.len() {
-            println!("{:?}", self.current_token);
             self.next();
+            println!("{:?}", self.current_token);
         }
     }
 
