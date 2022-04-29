@@ -37,7 +37,18 @@ impl<'a> Parser<'a> {
 
     fn parse_number(&mut self) -> Node<NumberNode> {
         let token: Token = self.current_token.clone();
-        self.next();
         Node::new(vec![], NumberNode::new(token))
+    }
+
+    fn parse_bin_op(&mut self) -> Node<BinOpNode<'a>> {
+        let left_node: Node<NumberNode> = self.parse_number();
+        self.next();
+
+        let op_token: Token = self.current_token.clone();
+
+        self.next();
+        let right_node: Node<NumberNode> = self.parse_number();
+        
+        Node::new(vec![], BinOpNode::new(left_node, op_token, right_node))
     }
 }
