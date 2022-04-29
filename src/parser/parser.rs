@@ -3,7 +3,7 @@ Jay PEG parser
 Copyright (C) 2022  Loris Cuntreri
 */
 use super::ast::*;
-use crate::lexer::token::{Token, TokenType};
+use crate::lexer::token::Token;
 
 pub struct Parser<'a> {
     pub token_stream: Vec<Token<'a>>,
@@ -33,5 +33,11 @@ impl<'a> Parser<'a> {
         }
 
         self.tok_i += 1;
+    }
+
+    fn parse_number(&mut self) -> Node<NumberNode> {
+        let token: Token = self.current_token.clone();
+        self.next();
+        Node::new(vec![], NumberNode::new(token))
     }
 }
