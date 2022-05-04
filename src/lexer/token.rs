@@ -7,7 +7,7 @@ use logos::Logos;
 
 #[derive(Logos, Debug, PartialEq, Copy, Clone)]
 pub enum TokenType {
-    // Math operators
+    // Binary operators
     #[token("+")]
     Plus,
 
@@ -25,6 +25,13 @@ pub enum TokenType {
 
     #[token("%")]
     Modulo,
+
+    // Unary operators
+    #[token("++")]
+    PlusPlus,
+
+    #[token("--")]
+    MinusMinus,
 
     // Logic operators
     #[token("&&")]
