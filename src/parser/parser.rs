@@ -45,10 +45,21 @@ impl<'a> Parser<'a> {
         self.next();
 
         let op_token: Token = self.current_token;
-
         self.next();
+
         let right_node: Node<NumberNode> = self.parse_number();
+        self.next();
 
         Node::new(vec![], BinOpNode::new(left_node, op_token, right_node))
+    }
+
+    fn parse_un_op(&mut self) -> Node<UnOpNode<'a>> {
+        let number_node: Node<NumberNode> = self.parse_number();
+        self.next();
+
+        let op_token: Token = self.current_token;
+        self.next();
+
+        Node::new(vec![], UnOpNode::new(op_token, number_node))
     }
 }
