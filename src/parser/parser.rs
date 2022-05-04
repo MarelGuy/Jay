@@ -3,7 +3,7 @@ Jay PEG parser
 Copyright (C) 2022  Loris Cuntreri
 */
 use super::ast::*;
-use crate::lexer::token::Token;
+use crate::lexer::token::{Span, Token, TokenType};
 
 pub struct Parser<'a> {
     pub token_stream: Vec<Token<'a>>,
@@ -20,13 +20,6 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub fn parse(&mut self) {
-        for _ in 0..self.token_stream.len() {
-            self.next();
-            println!("{:?}", self.current_token);
-        }
-    }
-
     fn next(&mut self) {
         if self.tok_i < self.token_stream.len() {
             self.current_token = self.token_stream[self.tok_i];
@@ -35,7 +28,45 @@ impl<'a> Parser<'a> {
         self.tok_i += 1;
     }
 
+    fn peek(&self) -> Token<'a> {
+        if self.tok_i < self.token_stream.len() {
+            self.token_stream[self.tok_i].clone()
+        } else {
+            Token {
+                token_type: TokenType::Null,
+                slice: "",
+                span: Span { start: 0, end: 0 },
+            }
+        }
+    }
+
+    pub fn parse(&mut self) {
+        for _ in 0..self.token_stream.len() {
+            self.next();
+            match self.current_token.token_type {
+                TokenType::Number => {
+                    if self.peek().token_type == TokenType::Plus
+                        || self.peek().token_type == TokenType::Minus
+                        || self.peek().token_type == TokenType::Multiply
+                        || self.peek().token_type == TokenType::Divide
+                        || self.peek().token_type == TokenType::Modulo
+                    {
+                        self.parse_bin_op();
+                    } else if self.peek().token_type == TokenType::PlusPlus
+                        || self.peek().token_type == TokenType::MinusMinus
+                    {
+                        self.parse_un_op();
+                    } else {
+                        self.parse_number();
+                    }
+                }
+                _ => self.next(),
+            }
+        }
+    }
+
     fn parse_number(&self) -> Node<NumberNode<'a>> {
+        println!("{:?}", self.current_token);
         let token: Token = self.current_token.clone();
         Node::new(vec![], NumberNode::new(token))
     }
@@ -45,10 +76,10 @@ impl<'a> Parser<'a> {
         self.next();
 
         let op_token: Token = self.current_token;
+        println!("{:?}", self.current_token);
         self.next();
 
         let right_node: Node<NumberNode> = self.parse_number();
-        self.next();
 
         Node::new(vec![], BinOpNode::new(left_node, op_token, right_node))
     }
@@ -58,7 +89,7 @@ impl<'a> Parser<'a> {
         self.next();
 
         let op_token: Token = self.current_token;
-        self.next();
+        println!("{:?}", self.current_token);
 
         Node::new(vec![], UnOpNode::new(op_token, number_node))
     }
