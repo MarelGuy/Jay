@@ -35,7 +35,7 @@ impl<'a> Parser<'a> {
         self.tok_i += 1;
     }
 
-    fn parse_number(&mut self) -> Node<NumberNode<'a>> {
+    fn parse_number(&self) -> Node<NumberNode<'a>> {
         let token: Token = self.current_token.clone();
         Node::new(vec![], NumberNode::new(token))
     }
