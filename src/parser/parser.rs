@@ -5,7 +5,7 @@ Copyright (C) 2022  Loris Cuntreri
 use crate::lexer::token::{Span, Token, TokenType};
 use crate::parser::ast::declarations::AssignType;
 
-use super::ast::declarations::{VarDeclNode, VarType};
+use super::ast::declarations::{ConstDeclNode, VarDeclNode, VarType};
 use super::ast::math_ops::{BinOpNode, UnOpNode};
 use super::ast::types::NumberNode;
 use super::ast::Node::Node;
@@ -112,9 +112,19 @@ impl<'a> Parser<'a> {
         Node::new(vec![], UnOpNode::new(op_token, number_node))
     }
 
-    fn parse_var(&mut self, is_mut: bool, is_const: bool) -> Node<VarDeclNode> {
+    fn parse_var(
+        &mut self,
+        is_mut: bool,
+        is_const: bool,
+    ) -> Result<Node<VarDeclNode>, Node<ConstDeclNode>> {
         self.next();
-        let name: String = self.current_token.slice.into();
+        let mut name: String = self.current_token.slice.into();
+
+        // if name starts with a number, it's an error
+        if name.chars().next().unwrap().is_numeric() {
+            name = "Error".to_string();
+        }
+
         println!("name: {:?}", name);
 
         self.next();
@@ -148,9 +158,19 @@ impl<'a> Parser<'a> {
         let value: String = self.current_token.slice.into();
         println!("value: {:?}", value);
 
-        Node::new(
-            vec![],
-            VarDeclNode::new(name, ty, assign_token, is_mut, value),
-        )
+        println!("is_mut: {:?}", is_mut);
+        println!("is_const: {:?}", is_const);
+
+        if is_const {
+            Err(Node::new(
+                vec![],
+                ConstDeclNode::new(name, ty, assign_token, value),
+            ))
+        } else {
+            Ok(Node::new(
+                vec![],
+                VarDeclNode::new(name, ty, assign_token, is_mut, value),
+            ))
+        }
     }
 }
