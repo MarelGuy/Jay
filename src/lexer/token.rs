@@ -99,6 +99,9 @@ pub enum TokenType {
     #[token("%=")]
     ModuloAssign,
 
+    #[token("^=")]
+    PowerAssign,
+
     // Delimiters
     #[token("(")]
     OpenParen,
