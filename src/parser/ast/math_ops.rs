@@ -1,30 +1,6 @@
-/*
- Jay AST
- Copyright (C) 2022 Loris Cuntreri
-*/
-
 use crate::lexer::token::Token;
 
-pub struct Node<T> {
-    children: Vec<T>,
-    node: T,
-}
-
-impl<T> Node<T> {
-    pub fn new(children: Vec<T>, node: T) -> Self {
-        Self { children, node }
-    }
-}
-
-pub struct NumberNode<'a> {
-    token: Token<'a>,
-}
-
-impl<'a> NumberNode<'a> {
-    pub fn new(token: Token<'a>) -> Self {
-        Self { token }
-    }
-}
+use super::{types::NumberNode, Node::Node};
 
 pub struct BinOpNode<'a> {
     left_node: Node<NumberNode<'a>>,

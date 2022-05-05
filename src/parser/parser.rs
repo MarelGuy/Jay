@@ -1,9 +1,12 @@
 /*
-Jay PEG parser
+Jay parser
 Copyright (C) 2022  Loris Cuntreri
 */
-use super::ast::*;
 use crate::lexer::token::{Span, Token, TokenType};
+
+use super::ast::math_ops::{BinOpNode, UnOpNode};
+use super::ast::types::NumberNode;
+use super::ast::Node::Node;
 
 pub struct Parser<'a> {
     pub token_stream: Vec<Token<'a>>,
