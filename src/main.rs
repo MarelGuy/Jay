@@ -37,7 +37,9 @@ fn interpreter() {
         let mut tokens: Vec<lexer::token::Token> = Vec::new();
 
         for token in lexer {
-            tokens.push(token);
+            if token.token_type != lexer::token::TokenType::Space {
+                tokens.push(token);
+            }
         }
 
         let mut parser: Parser = Parser::new(tokens);
