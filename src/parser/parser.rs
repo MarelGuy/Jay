@@ -52,6 +52,7 @@ impl<'a> Parser<'a> {
                         || self.peek().token_type == TokenType::Minus
                         || self.peek().token_type == TokenType::Multiply
                         || self.peek().token_type == TokenType::Divide
+                        || self.peek().token_type == TokenType::Power
                         || self.peek().token_type == TokenType::Modulo
                     {
                         self.parse_bin_op();
