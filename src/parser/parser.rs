@@ -49,7 +49,7 @@ impl<'a> Parser<'a> {
         for _ in 0..self.token_stream.len() {
             self.next();
             match self.current_token.token_type {
-                TokenType::Number => {
+                TokenType::Number | TokenType::Float => {
                     if self.peek().token_type == TokenType::Plus
                         || self.peek().token_type == TokenType::Minus
                         || self.peek().token_type == TokenType::Multiply
@@ -120,7 +120,6 @@ impl<'a> Parser<'a> {
         self.next();
         let mut name: String = self.current_token.slice.into();
 
-        // if name starts with a number, it's an error
         if name.chars().next().unwrap().is_numeric() {
             name = "Error".to_string();
         }
