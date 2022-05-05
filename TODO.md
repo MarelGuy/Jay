@@ -8,9 +8,8 @@
 
 - ### Bugs
 
-  - No bugs detected
+  - When using the compiler, it'll not parse the tokens.
 
 ## Non-code related
 
-- EBNF grammar
 - Docs

@@ -14,3 +14,8 @@ See ya.
 
 Here I am again! Not only I feel better but I've fixed some bugs and added some features.  
 Things will go kind of downhill from here.
+
+##2022-05-05
+
+Today I'll be working on parsing variables and constants, the bug about the compiler will be fixed after the 
+the whole language can be parsed correcrlt with the interpreter.
