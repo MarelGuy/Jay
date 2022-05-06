@@ -10,6 +10,8 @@ use super::ast::math_ops::{BinOpNode, UnOpNode};
 use super::ast::types::NumberNode;
 use super::ast::Node::Node;
 
+use either::Either;
+
 pub struct Parser<'a> {
     pub token_stream: Vec<Token<'a>>,
     pub current_token: Token<'a>,
@@ -116,7 +118,7 @@ impl<'a> Parser<'a> {
         &mut self,
         is_mut: bool,
         is_const: bool,
-    ) -> Result<Node<VarDeclNode>, Node<ConstDeclNode>> {
+    ) -> Either<Node<VarDeclNode>, Node<ConstDeclNode>> {
         self.next();
         let mut name: String = self.current_token.slice.into();
 
@@ -161,12 +163,12 @@ impl<'a> Parser<'a> {
         println!("is_const: {:?}", is_const);
 
         if is_const {
-            Err(Node::new(
+            either::Right(Node::new(
                 vec![],
                 ConstDeclNode::new(name, ty, assign_token, value),
             ))
         } else {
-            Ok(Node::new(
+            either::Left(Node::new(
                 vec![],
                 VarDeclNode::new(name, ty, assign_token, is_mut, value),
             ))
