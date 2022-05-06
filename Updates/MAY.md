@@ -23,4 +23,6 @@ the whole language can be parsed correctly with the interpreter.
 ## 2022-05-06
 
 Here we are again.  
-Today I'll work on the if else statement.
+Today I'll work on the if else statement.  
+Also, I'm using "Error" in a lot of places, that means that I need to make an
+actual error handler for that thing.
