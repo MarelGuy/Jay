@@ -1,7 +1,3 @@
-use crate::lexer::token::Token;
-
-use super::node::Node;
-
 #[derive(Debug)]
 pub enum VarType {
     Int,
