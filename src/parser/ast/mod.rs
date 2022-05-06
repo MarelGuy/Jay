@@ -1,4 +1,4 @@
-pub(crate) mod Node {
+pub(crate) mod node {
     pub struct Node<T> {
         children: Vec<T>,
         node: T,

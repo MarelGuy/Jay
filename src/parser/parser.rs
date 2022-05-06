@@ -7,8 +7,8 @@ use crate::parser::ast::declarations::AssignType;
 
 use super::ast::declarations::{ConstDeclNode, VarDeclNode, VarType};
 use super::ast::math_ops::{BinOpNode, UnOpNode};
+use super::ast::node::Node;
 use super::ast::types::NumberNode;
-use super::ast::Node::Node;
 
 use either::Either;
 

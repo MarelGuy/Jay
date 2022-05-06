@@ -1,6 +1,6 @@
 use crate::lexer::token::Token;
 
-use super::Node::Node;
+use super::node::Node;
 
 #[derive(Debug)]
 pub enum VarType {
