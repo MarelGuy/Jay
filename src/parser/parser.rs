@@ -6,8 +6,9 @@ use crate::lexer::token::{Span, Token, TokenType};
 use crate::parser::ast::declarations::AssignType;
 
 use super::ast::declarations::{ConstDeclNode, VarDeclNode, VarType};
+use super::ast::general::{BlockNode, ConditionNode, Node};
+use super::ast::if_else::IfNode;
 use super::ast::math_ops::{BinOpNode, UnOpNode};
-use super::ast::node::Node;
 use super::ast::types::NumberNode;
 
 use either::Either;
@@ -78,6 +79,9 @@ impl<'a> Parser<'a> {
                 }
                 TokenType::Const => {
                     self.parse_var(false, true);
+                }
+                TokenType::If => {
+                    self.parse_if_else();
                 }
                 _ => self.next(),
             };
@@ -173,5 +177,61 @@ impl<'a> Parser<'a> {
                 VarDeclNode::new(name, ty, assign_token, is_mut, value),
             ))
         }
+    }
+
+    fn parse_condition(&mut self) -> Node<ConditionNode<'a>> {
+        self.next();
+        let left_node = self.current_token.clone();
+        println!("left: {:?}", self.current_token.slice);
+
+        self.next();
+        let op_token = self.current_token.clone();
+        println!("operator: {:?}", self.current_token.token_type);
+
+        self.next();
+        let right_node = self.current_token.clone();
+        println!("right: {:?}", self.current_token.slice);
+
+        Node::new(vec![], ConditionNode::new(left_node, op_token, right_node))
+    }
+
+    fn parse_block(&mut self) -> Node<BlockNode> {
+        self.next();
+
+        let mut raw_block: Vec<String> = Vec::new();
+
+        while self.current_token.token_type != TokenType::CloseBrace {
+            raw_block.push(self.current_token.slice.into());
+            self.next();
+
+            if self.current_token.token_type == TokenType::LineFeed {
+                raw_block.clear();
+                raw_block.push("Error".to_string());
+                break;
+            }
+        }
+
+        let block: String = raw_block.join(" ");
+        println!("block: {:?}", block);
+
+        Node::new(vec![], BlockNode::new(block))
+    }
+
+    fn parse_if_else(&mut self) -> Node<IfNode> {
+        let condition: Node<ConditionNode<'a>> = self.parse_condition();
+        self.next();
+
+        let if_block: Node<BlockNode> = self.parse_block();
+        self.next();
+
+        if self.current_token.token_type == TokenType::Else {
+            self.next();
+            let else_block: Node<BlockNode> = self.parse_block();
+            return Node::new(
+                vec![],
+                IfNode::new(condition, if_block, either::Left(else_block)),
+            );
+        }
+        Node::new(vec![], IfNode::new(condition, if_block, either::Right(())))
     }
 }
