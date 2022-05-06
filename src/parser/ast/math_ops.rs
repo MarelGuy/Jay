@@ -1,6 +1,6 @@
 use crate::lexer::token::Token;
 
-use super::{node::Node, types::NumberNode};
+use super::{general::Node, types::NumberNode};
 
 pub struct BinOpNode<'a> {
     left_node: Node<NumberNode<'a>>,
