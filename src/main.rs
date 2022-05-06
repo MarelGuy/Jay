@@ -78,6 +78,7 @@ fn compiler() {
     let mut parser: Parser = Parser::new(tokens);
 
     parser.parse();
+    println!("WARNING: The compiler is kind of broken right now, if you really want to test the langauge, you can use the interpreter instead");
 }
 
 fn main() {
