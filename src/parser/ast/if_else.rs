@@ -1,18 +1,19 @@
 use either::Either;
 
-use super::general::{BlockNode, ConditionNode, Node};
+use super::general::Node;
 
+#[derive(PartialEq, Debug)]
 pub struct IfNode<'a> {
-    condition: Node<ConditionNode<'a>>,
-    if_block: Node<BlockNode>, // Storing the block as a string for now, but will probably change to a new node.,
-    else_block: Either<Node<BlockNode>, ()>, // Same thing here, but for the else block.
+    condition: Box<Node<'a>>,
+    if_block: Box<Node<'a>>,
+    else_block: Either<Box<Node<'a>>, ()>,
 }
 
 impl<'a> IfNode<'a> {
     pub fn new(
-        condition: Node<ConditionNode<'a>>,
-        if_block: Node<BlockNode>,
-        else_block: Either<Node<BlockNode>, ()>,
+        condition: Box<Node<'a>>,
+        if_block: Box<Node<'a>>,
+        else_block: Either<Box<Node<'a>>, ()>,
     ) -> Self {
         Self {
             condition,
