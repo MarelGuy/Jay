@@ -1,0 +1,9 @@
+if 1 == 1 {
+    ifstmt
+} else {
+    elsestmt
+}
+
+if 1 === "1" {
+    yay
+}

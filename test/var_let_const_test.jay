@@ -1,0 +1,3 @@
+let lmao0: int = 2;
+var lmao1: char = 'a';
+const lmao2: string = "lmao";
