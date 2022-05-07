@@ -26,3 +26,11 @@ Here we are again.
 Today I'll work on the if else statement.  
 Also, I'm using "Error" in a lot of places, that means that I need to make an
 actual error handler for that thing.
+
+## 2022-05-07
+
+Hey there!  
+Today I fixed everything i could possibliy fix.  
+I'm glad to see that everything is working fine, I never felt so happy like this just from a project.  
+This isn't over yet, but this fix is the turning point of the project.  
+Now I'll be working on some more features, like loops.
