@@ -46,7 +46,9 @@ fn interpreter() {
 
         let mut parser: Parser = Parser::new(tokens);
 
-        parser.parse();
+        let _tree: Box<parser::ast::general::Node> = parser.parse();
+
+        // println!("{:#?}", tree);
     }
 }
 

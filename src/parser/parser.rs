@@ -54,7 +54,7 @@ impl<'a> Parser<'a> {
     fn parse_token(&mut self, token_stream: &Vec<Token<'a>>) -> Box<Node<'a>> {
         let mut children: Vec<Box<Node>> = Vec::new();
 
-        token_stream.into_iter().for_each(|_token| {
+        while self.tok_i < token_stream.len() {
             self.next();
 
             let node = match self.current_token.token_type {
@@ -94,19 +94,19 @@ impl<'a> Parser<'a> {
             if node.node != Box::new(Nodes::NullNode) {
                 children.push(node);
             }
-        });
+        }
 
         Box::new(Node::new(children, Box::new(Nodes::NullNode)))
     }
 
     fn parse_number(&self) -> Box<Node<'a>> {
-        println!("  num: {:?}", self.current_token.slice);
         let token: Token = self.current_token.clone();
+        println!("  num: {:?}", self.current_token.slice);
 
-        Box::new(Node::new(
+        return Box::new(Node::new(
             vec![],
             Box::new(Nodes::NumberNode(NumberNode::new(token))),
-        ))
+        ));
     }
 
     fn parse_bin_op(&mut self) -> Box<Node<'a>> {
@@ -122,12 +122,12 @@ impl<'a> Parser<'a> {
 
         self.next();
 
-        Box::new(Node::new(
+        return Box::new(Node::new(
             vec![],
             Box::new(Nodes::BinOpNode(BinOpNode::new(
                 left_node, op_token, right_node,
             ))),
-        ))
+        ));
     }
 
     fn parse_un_op(&mut self) -> Box<Node<'a>> {
@@ -250,15 +250,6 @@ impl<'a> Parser<'a> {
         }
 
         let block_node: Box<Node> = self.parse_token(&raw_block.clone());
-
-        println!(
-            "      content: {:?}",
-            raw_block
-                .into_iter()
-                .map(|x| x.slice)
-                .collect::<Vec<_>>()
-                .join(", ")
-        );
 
         Box::new(Node::new(
             vec![],
