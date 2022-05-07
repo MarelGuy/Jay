@@ -261,13 +261,13 @@ pub enum TokenType {
     Error,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Span {
     pub start: usize,
     pub end: usize,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Token<'a> {
     pub token_type: TokenType,
     pub slice: &'a str,
