@@ -24,6 +24,7 @@ impl<'a> ConditionNode<'a> {
     }
 }
 
+#[derive(PartialEq, Debug)]
 pub struct BlockNode<'a> {
     pub block: Box<Node<'a>>,
 }
@@ -39,7 +40,7 @@ pub enum Nodes<'a> {
     VarDeclNode(VarDeclNode),
     ConstDeclNode(ConstDeclNode),
     ConditionNode(ConditionNode<'a>),
-    BlockNode(Box<Node<'a>>),
+    BlockNode(BlockNode<'a>),
     IfNode(IfNode<'a>),
     BinOpNode(BinOpNode<'a>),
     UnOpNode(UnOpNode<'a>),

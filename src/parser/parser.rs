@@ -4,7 +4,7 @@ Copyright (C) 2022  Loris Cuntreri
 */
 use crate::lexer::token::{Span, Token, TokenType};
 use crate::parser::ast::declarations::AssignType;
-use crate::parser::ast::general::Nodes;
+use crate::parser::ast::general::{BlockNode, Nodes};
 
 use super::ast::declarations::{ConstDeclNode, VarDeclNode, VarType};
 use super::ast::general::{ConditionNode, Node};
@@ -54,7 +54,7 @@ impl<'a> Parser<'a> {
     fn parse_token(&mut self, token_stream: &Vec<Token<'a>>) -> Box<Node<'a>> {
         let mut children: Vec<Box<Node>> = Vec::new();
 
-        token_stream.into_iter().for_each(|token| {
+        token_stream.into_iter().for_each(|_token| {
             self.next();
 
             let node = match self.current_token.token_type {
@@ -260,7 +260,10 @@ impl<'a> Parser<'a> {
                 .join(", ")
         );
 
-        Box::new(Node::new(vec![], Box::new(Nodes::BlockNode(block_node))))
+        Box::new(Node::new(
+            vec![],
+            Box::new(Nodes::BlockNode(BlockNode::new(block_node))),
+        ))
     }
 
     fn parse_if_else(&mut self) -> Box<Node<'a>> {
