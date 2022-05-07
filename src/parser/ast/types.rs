@@ -1,5 +1,6 @@
 use crate::lexer::token::Token;
 
+#[derive(PartialEq, Debug)]
 pub struct NumberNode<'a> {
     token: Token<'a>,
 }
