@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub enum VarType {
     Int,
     Float,
@@ -8,7 +8,7 @@ pub enum VarType {
     Error,
 }
 
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub enum AssignType {
     Assign,
     AddAssign,
@@ -20,6 +20,7 @@ pub enum AssignType {
     Error,
 }
 
+#[derive(PartialEq, Debug)]
 pub struct VarDeclNode {
     name: String,
     ty: VarType,
@@ -46,6 +47,7 @@ impl VarDeclNode {
     }
 }
 
+#[derive(PartialEq, Debug)]
 pub struct ConstDeclNode {
     name: String,
     ty: VarType,
