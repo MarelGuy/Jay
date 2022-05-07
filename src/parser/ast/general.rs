@@ -50,7 +50,7 @@ pub enum Nodes<'a> {
 
 #[derive(PartialEq, Debug)]
 pub struct Node<'a> {
-    children: Vec<Box<Node<'a>>>,
+    pub children: Vec<Box<Node<'a>>>,
     pub node: Box<Nodes<'a>>,
 }
 
