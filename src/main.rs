@@ -37,7 +37,9 @@ fn interpreter() {
         let mut tokens: Vec<lexer::token::Token> = Vec::new();
 
         for token in lexer {
-            if token.token_type != lexer::token::TokenType::Space {
+            if token.token_type != lexer::token::TokenType::Space
+                && token.token_type != lexer::token::TokenType::LineFeed
+            {
                 tokens.push(token);
             }
         }
@@ -72,7 +74,11 @@ fn compiler() {
     let mut tokens: Vec<lexer::token::Token> = Vec::new();
 
     for token in lexer {
-        tokens.push(token);
+        if token.token_type != lexer::token::TokenType::Space
+            && token.token_type != lexer::token::TokenType::LineFeed
+        {
+            tokens.push(token);
+        }
     }
 
     let mut parser: Parser = Parser::new(tokens);
