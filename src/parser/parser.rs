@@ -89,31 +89,37 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_number(&self) -> Node<NumberNode<'a>> {
-        println!("num: {:?}", self.current_token.slice);
+        println!("  num: {:?}", self.current_token.slice);
         let token: Token = self.current_token.clone();
 
         Node::new(vec![], NumberNode::new(token))
     }
 
     fn parse_bin_op(&mut self) -> Node<BinOpNode<'a>> {
+        println!("BIN_OP");
         let left_node: Node<NumberNode> = self.parse_number();
         self.next();
 
         let op_token: Token = self.current_token;
-        println!("binop_type: {:?}", self.current_token.token_type);
+        println!("  binop_type: {:?}", self.current_token.token_type);
         self.next();
 
         let right_node: Node<NumberNode> = self.parse_number();
+
+        self.next();
 
         Node::new(vec![], BinOpNode::new(left_node, op_token, right_node))
     }
 
     fn parse_un_op(&mut self) -> Node<UnOpNode<'a>> {
+        println!("UN_OP");
         let number_node: Node<NumberNode> = self.parse_number();
         self.next();
 
         let op_token: Token = self.current_token;
-        println!("unop_type: {:?}", self.current_token.token_type);
+        println!("  unop_type: {:?}", self.current_token.token_type);
+
+        self.next();
 
         Node::new(vec![], UnOpNode::new(op_token, number_node))
     }
@@ -123,6 +129,7 @@ impl<'a> Parser<'a> {
         is_mut: bool,
         is_const: bool,
     ) -> Either<Node<VarDeclNode>, Node<ConstDeclNode>> {
+        println!("LET_VAR_CONST_DECL");
         self.next();
         let mut name: String = self.current_token.slice.into();
 
@@ -130,7 +137,7 @@ impl<'a> Parser<'a> {
             name = "Error".to_string();
         }
 
-        println!("name: {:?}", name);
+        println!("  name: {:?}", name);
 
         self.next();
         self.next();
@@ -143,7 +150,7 @@ impl<'a> Parser<'a> {
             TokenType::CharType => VarType::Char,
             _ => VarType::Error,
         };
-        println!("type: {:?}", ty);
+        println!("  type: {:?}", ty);
 
         self.next();
         let assign_token: AssignType = match self.current_token.token_type {
@@ -156,15 +163,17 @@ impl<'a> Parser<'a> {
             TokenType::PowerAssign => AssignType::PowAssign,
             _ => AssignType::Error,
         };
-        println!("assign_type: {:?}", assign_token);
+        println!("  assign_type: {:?}", assign_token);
 
         self.next();
 
         let value: String = self.current_token.slice.into();
-        println!("value: {:?}", value);
+        println!("  value: {:?}", value);
 
-        println!("is_mut: {:?}", is_mut);
-        println!("is_const: {:?}", is_const);
+        println!("  is_mut: {:?}", is_mut);
+        println!("  is_const: {:?}", is_const);
+
+        self.next();
 
         if is_const {
             either::Right(Node::new(
@@ -180,22 +189,24 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_condition(&mut self) -> Node<ConditionNode<'a>> {
+        println!("  CONDITION");
         self.next();
         let left_node = self.current_token.clone();
-        println!("left: {:?}", self.current_token.slice);
+        println!("      left: {:?}", self.current_token.slice);
 
         self.next();
         let op_token = self.current_token.clone();
-        println!("operator: {:?}", self.current_token.token_type);
+        println!("      operator: {:?}", self.current_token.token_type);
 
         self.next();
         let right_node = self.current_token.clone();
-        println!("right: {:?}", self.current_token.slice);
+        println!("      right: {:?}", self.current_token.slice);
 
         Node::new(vec![], ConditionNode::new(left_node, op_token, right_node))
     }
 
     fn parse_block(&mut self) -> Node<BlockNode> {
+        println!("  BLOCK");
         self.next();
 
         let mut raw_block: Vec<String> = Vec::new();
@@ -212,12 +223,13 @@ impl<'a> Parser<'a> {
         }
 
         let block: String = raw_block.join(" ");
-        println!("block: {:?}", block);
+        println!("      content: {:?}", block);
 
         Node::new(vec![], BlockNode::new(block))
     }
 
     fn parse_if_else(&mut self) -> Node<IfNode> {
+        println!("IF_ELSE");
         let condition: Node<ConditionNode<'a>> = self.parse_condition();
         self.next();
 
