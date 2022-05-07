@@ -7,6 +7,8 @@ use lexer::lexer::Lexer;
 use parser::parser::Parser;
 use std::{env::args, fs::read_to_string, io::Write, path::Path};
 
+use crate::parser::ast::general::Node;
+
 mod lexer;
 mod parser;
 
@@ -46,7 +48,7 @@ fn interpreter() {
 
         let mut parser: Parser = Parser::new(tokens);
 
-        let _tree: Box<parser::ast::general::Node> = parser.parse();
+        let _tree: Box<Node> = parser.parse();
 
         // println!("{:#?}", tree);
     }
@@ -85,7 +87,7 @@ fn compiler() {
 
     let mut parser: Parser = Parser::new(tokens);
 
-    let _tree: Box<parser::ast::general::Node> = parser.parse();
+    let _tree: Box<Node> = parser.parse();
 
     // println!("{:#?}", tree);
 }
