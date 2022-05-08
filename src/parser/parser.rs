@@ -47,49 +47,49 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub fn parse(&mut self) -> Box<Node<'a>> {
-        self.parse_token(&self.token_stream.clone())
+    fn parse_list(&mut self, current_token: Token) -> Box<Node<'a>> {
+        match current_token.token_type {
+            TokenType::Number | TokenType::Float => {
+                if self.peek().token_type == TokenType::Plus
+                    || self.peek().token_type == TokenType::Minus
+                    || self.peek().token_type == TokenType::Multiply
+                    || self.peek().token_type == TokenType::Divide
+                    || self.peek().token_type == TokenType::Power
+                    || self.peek().token_type == TokenType::Modulo
+                {
+                    self.parse_bin_op()
+                } else if self.peek().token_type == TokenType::PlusPlus
+                    || self.peek().token_type == TokenType::MinusMinus
+                {
+                    self.parse_un_op()
+                } else {
+                    self.parse_number()
+                }
+            }
+            TokenType::Let => {
+                println!("LET_DECL");
+                self.parse_var(false, false)
+            }
+            TokenType::Var => {
+                println!("VAR_DECL");
+                self.parse_var(true, false)
+            }
+            TokenType::Const => {
+                println!("CONST_DECL");
+                self.parse_var(false, true)
+            }
+            TokenType::If => self.parse_if_else(),
+            _ => Box::new(Node::new(vec![], Box::new(Nodes::NullNode))),
+        }
     }
 
-    fn parse_token(&mut self, token_stream: &Vec<Token<'a>>) -> Box<Node<'a>> {
+    pub fn parse(&mut self) -> Box<Node<'a>> {
         let mut children: Vec<Box<Node>> = Vec::new();
 
-        while self.tok_i < token_stream.len() {
+        while self.tok_i < self.token_stream.len() {
             self.next();
 
-            let node = match self.current_token.token_type {
-                TokenType::Number | TokenType::Float => {
-                    if self.peek().token_type == TokenType::Plus
-                        || self.peek().token_type == TokenType::Minus
-                        || self.peek().token_type == TokenType::Multiply
-                        || self.peek().token_type == TokenType::Divide
-                        || self.peek().token_type == TokenType::Power
-                        || self.peek().token_type == TokenType::Modulo
-                    {
-                        self.parse_bin_op()
-                    } else if self.peek().token_type == TokenType::PlusPlus
-                        || self.peek().token_type == TokenType::MinusMinus
-                    {
-                        self.parse_un_op()
-                    } else {
-                        self.parse_number()
-                    }
-                }
-                TokenType::Let => {
-                    println!("LET_DECL");
-                    self.parse_var(false, false)
-                }
-                TokenType::Var => {
-                    println!("VAR_DECL");
-                    self.parse_var(true, false)
-                }
-                TokenType::Const => {
-                    println!("CONST_DECL");
-                    self.parse_var(false, true)
-                }
-                TokenType::If => self.parse_if_else(),
-                _ => Box::new(Node::new(vec![], Box::new(Nodes::NullNode))),
-            };
+            let node = self.parse_list(self.current_token);
 
             if node.node != Box::new(Nodes::NullNode) {
                 children.push(node);
@@ -101,7 +101,7 @@ impl<'a> Parser<'a> {
 
     fn parse_number(&self) -> Box<Node<'a>> {
         let token: Token = self.current_token.clone();
-        println!("  num: {:?}", self.current_token.slice);
+        println!("num: {:?}", self.current_token.slice);
 
         return Box::new(Node::new(
             vec![],
@@ -115,7 +115,7 @@ impl<'a> Parser<'a> {
         self.next();
 
         let op_token: Token = self.current_token;
-        println!("  binop_type: {:?}", self.current_token.token_type);
+        println!("binop_type: {:?}", self.current_token.token_type);
         self.next();
 
         let right_node: Box<Node> = self.parse_number();
@@ -136,7 +136,7 @@ impl<'a> Parser<'a> {
         self.next();
 
         let op_token: Token = self.current_token;
-        println!("  unop_type: {:?}", self.current_token.token_type);
+        println!("unop_type: {:?}", self.current_token.token_type);
 
         self.next();
 
@@ -154,7 +154,7 @@ impl<'a> Parser<'a> {
             name = "Error".to_string();
         }
 
-        println!("  name: {:?}", name);
+        println!("name: {:?}", name);
 
         self.next();
         self.next();
@@ -167,7 +167,7 @@ impl<'a> Parser<'a> {
             TokenType::CharType => VarType::Char,
             _ => VarType::Error,
         };
-        println!("  type: {:?}", ty);
+        println!("type: {:?}", ty);
 
         self.next();
         let assign_token: AssignType = match self.current_token.token_type {
@@ -180,15 +180,15 @@ impl<'a> Parser<'a> {
             TokenType::PowerAssign => AssignType::PowAssign,
             _ => AssignType::Error,
         };
-        println!("  assign_type: {:?}", assign_token);
+        println!("assign_type: {:?}", assign_token);
 
         self.next();
 
         let value: String = self.current_token.slice.into();
-        println!("  value: {:?}", value);
+        println!("value: {:?}", value);
 
-        println!("  is_mut: {:?}", is_mut);
-        println!("  is_const: {:?}", is_const);
+        println!("is_mut: {:?}", is_mut);
+        println!("is_const: {:?}", is_const);
 
         self.next();
 
@@ -217,18 +217,18 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_condition(&mut self) -> Box<Node<'a>> {
-        println!("  CONDITION");
+        println!("CONDITION");
         self.next();
         let left_node = self.current_token.clone();
-        println!("      left: {:?}", self.current_token.slice);
+        println!("left: {:?}", self.current_token.slice);
 
         self.next();
         let op_token = self.current_token.clone();
-        println!("      operator: {:?}", self.current_token.token_type);
+        println!("operator: {:?}", self.current_token.token_type);
 
         self.next();
         let right_node = self.current_token.clone();
-        println!("      right: {:?}", self.current_token.slice);
+        println!("right: {:?}", self.current_token.slice);
 
         Box::new(Node::new(
             vec![],
@@ -239,17 +239,20 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_block(&mut self) -> Box<Node<'a>> {
-        println!("  BLOCK");
+        println!("BLOCK");
+
         self.next();
 
-        let mut raw_block: Vec<Token> = Vec::new();
+        let mut block_node: Box<Node> = Box::new(Node::new(vec![], Box::new(Nodes::NullNode)));
 
         while self.current_token.token_type != TokenType::CloseBrace {
-            raw_block.push(self.current_token);
+            let node: Box<Node> = self.parse_list(self.current_token);
             self.next();
-        }
 
-        let block_node: Box<Node> = self.parse_token(&raw_block.clone());
+            if node.node != Box::new(Nodes::NullNode) {
+                block_node.children.push(node);
+            }
+        }
 
         Box::new(Node::new(
             vec![],
@@ -265,10 +268,15 @@ impl<'a> Parser<'a> {
         let if_block: Box<Node> = self.parse_block();
         self.next();
 
+        if self.current_token.token_type == TokenType::If {}
+
         if self.current_token.token_type == TokenType::Else {
             println!("ELSE");
+
             self.next();
+
             let else_block: Box<Node> = self.parse_block();
+
             return Box::new(Node::new(
                 vec![],
                 Box::new(Nodes::IfNode(IfNode::new(
@@ -278,6 +286,7 @@ impl<'a> Parser<'a> {
                 ))),
             ));
         }
+
         Box::new(Node::new(
             vec![],
             Box::new(Nodes::IfNode(IfNode::new(
