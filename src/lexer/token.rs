@@ -153,9 +153,6 @@ pub enum TokenType {
     #[token("if")]
     If,
 
-    #[token("elif")]
-    Elif,
-
     #[token("else")]
     Else,
 
