@@ -87,9 +87,9 @@ fn compiler() {
 
     let mut parser: Parser = Parser::new(tokens);
 
-    let _tree: Box<Node> = parser.parse();
+    let tree: Box<Node> = parser.parse();
 
-    // println!("{:#?}", tree);
+    println!("{:#?}", tree);
 }
 
 fn main() {

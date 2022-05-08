@@ -83,7 +83,6 @@ impl<'a> Parser<'a> {
             let node = self.parse_list(self.current_token);
 
             if node.node != Box::new(Nodes::NullNode) {
-                println!("{:#?}", node);
                 children.push(node);
             }
         }
