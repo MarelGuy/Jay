@@ -7,7 +7,10 @@ use lexer::lexer::Lexer;
 use parser::parser::Parser;
 use std::{env::args, fs::read_to_string, io::Write, path::Path};
 
-use crate::parser::ast::general::Node;
+use crate::{
+    lexer::token::{Token, TokenType},
+    parser::ast::general::Node,
+};
 
 mod lexer;
 mod parser;
@@ -22,6 +25,26 @@ fn version() {
     println!("Jay v0.0.0 (2022-016-03)");
 }
 
+fn run(input: &str) {
+    let lexer: Lexer = Lexer::new(input);
+
+    let mut tokens: Vec<Token> = Vec::new();
+
+    for token in lexer {
+        if token.token_type != TokenType::Space && token.token_type != TokenType::LineFeed {
+            tokens.push(token);
+        }
+    }
+
+    let mut parser: Parser = Parser::new(tokens);
+
+    parser.parse();
+
+    let tree: Box<Node> = parser.ast;
+
+    println!("{:#?}", tree);
+}
+
 fn interpreter() {
     println!("Jay version 0.0.0 (c) {}", Utc::now().date().year());
 
@@ -34,23 +57,7 @@ fn interpreter() {
 
         std::io::stdin().read_line(&mut input).expect("");
 
-        let lexer: Lexer = Lexer::new(&input);
-
-        let mut tokens: Vec<lexer::token::Token> = Vec::new();
-
-        for token in lexer {
-            if token.token_type != lexer::token::TokenType::Space
-                && token.token_type != lexer::token::TokenType::LineFeed
-            {
-                tokens.push(token);
-            }
-        }
-
-        let mut parser: Parser = Parser::new(tokens);
-
-        let tree: Box<Node> = parser.parse();
-
-        println!("{:#?}", tree);
+        run(&input)
     }
 }
 
@@ -73,23 +80,7 @@ fn compiler() {
 
     let file_content: String = read_to_string(file_path).expect("Error: failed to read file");
 
-    let lexer: Lexer = Lexer::new(&file_content);
-
-    let mut tokens: Vec<lexer::token::Token> = Vec::new();
-
-    for token in lexer {
-        if token.token_type != lexer::token::TokenType::Space
-            && token.token_type != lexer::token::TokenType::LineFeed
-        {
-            tokens.push(token);
-        }
-    }
-
-    let mut parser: Parser = Parser::new(tokens);
-
-    let tree: Box<Node> = parser.parse();
-
-    println!("{:#?}", tree);
+    run(&file_content)
 }
 
 fn main() {
