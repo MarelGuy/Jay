@@ -3,6 +3,7 @@ use crate::lexer::token::Token;
 use super::{
     declarations::{ConstDeclNode, VarDeclNode},
     if_else::IfNode,
+    loops::WhileNode,
     math_ops::{BinOpNode, UnOpNode},
     types::NumberNode,
 };
@@ -45,6 +46,7 @@ pub enum Nodes<'a> {
     BinOpNode(BinOpNode<'a>),
     UnOpNode(UnOpNode<'a>),
     NumberNode(NumberNode<'a>),
+    WhileNode(WhileNode<'a>),
     NullNode,
 }
 
