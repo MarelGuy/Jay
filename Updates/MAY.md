@@ -17,7 +17,7 @@ Things will go kind of downhill from here.
 
 ## 2022-05-05
 
-Today I'll be working on parsing variables and constants, the bug about the compiler will be fixed after the 
+Today I'll be working on parsing variables and constants, the bug about the compiler will be fixed after the
 the whole language can be parsed correctly with the interpreter.
 
 ## 2022-05-06
@@ -34,3 +34,7 @@ Today I fixed everything i could possibliy fix.
 I'm glad to see that everything is working fine, I never felt so happy like this just from a project.  
 This isn't over yet, but this fix is the turning point of the project.  
 Now I'll be working on some more features, like loops.
+
+## 2022-05-09
+
+Well, yeah I didn't work on the loops because I found some bugs, nothing much tho, I'll start working on the loops now.
