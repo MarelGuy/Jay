@@ -17,6 +17,7 @@ pub struct Parser<'a> {
     pub token_stream: Vec<Token<'a>>,
     pub current_token: Token<'a>,
     pub tok_i: usize,
+    pub ast: Box<Node<'a>>,
 }
 
 impl<'a> Parser<'a> {
@@ -25,6 +26,7 @@ impl<'a> Parser<'a> {
             current_token: token_stream[0].clone(),
             token_stream,
             tok_i: 0,
+            ast: Box::new(Node::new(vec![], Box::new(Nodes::NullNode))),
         }
     }
 
@@ -76,7 +78,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub fn parse(&mut self) -> Box<Node<'a>> {
+    pub fn parse(&mut self) {
         let mut children: Vec<Box<Node>> = Vec::new();
 
         while self.tok_i < self.token_stream.len() {
@@ -89,7 +91,7 @@ impl<'a> Parser<'a> {
             }
         }
 
-        Box::new(Node::new(children, Box::new(Nodes::NullNode)))
+        self.ast = Box::new(Node::new(children, Box::new(Nodes::NullNode)));
     }
 
     fn parse_number(&self) -> Box<Node<'a>> {
