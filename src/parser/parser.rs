@@ -5,6 +5,7 @@ Copyright (C) 2022  Loris Cuntreri
 use crate::lexer::token::{Span, Token, TokenType};
 use crate::parser::ast::declarations::AssignType;
 use crate::parser::ast::general::{BlockNode, Nodes};
+use crate::parser::ast::loops::WhileNode;
 
 use super::ast::declarations::{ConstDeclNode, VarDeclNode, VarType};
 use super::ast::general::{ConditionNode, Node};
@@ -70,6 +71,7 @@ impl<'a> Parser<'a> {
             TokenType::Var => self.parse_var(true, false),
             TokenType::Const => self.parse_var(false, true),
             TokenType::If => self.parse_if_else(),
+            TokenType::While => self.parse_while(),
             _ => Box::new(Node::new(vec![], Box::new(Nodes::NullNode))),
         }
     }
@@ -268,6 +270,20 @@ impl<'a> Parser<'a> {
                 if_block,
                 either::Right(()),
             ))),
+        ))
+    }
+
+    fn parse_while(&mut self) -> Box<Node<'a>> {
+        println!("WHILE");
+        let condition: Box<Node> = self.parse_condition();
+
+        self.next();
+
+        let while_block: Box<Node> = self.parse_block();
+
+        Box::new(Node::new(
+            vec![],
+            Box::new(Nodes::WhileNode(WhileNode::new(condition, while_block))),
         ))
     }
 }
