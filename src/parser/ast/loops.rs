@@ -1,7 +1,7 @@
 use super::general::Node;
 
 #[derive(Debug, PartialEq)]
-pub(crate) struct WhileNode<'a> {
+pub struct WhileNode<'a> {
     condition: Box<Node<'a>>,
     while_block: Box<Node<'a>>,
 }
