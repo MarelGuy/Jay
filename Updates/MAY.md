@@ -37,6 +37,4 @@ Now I'll be working on some more features, like loops.
 
 ## 2022-05-09
 
-Well, yeah I didn't work on the loops because I found some bugs, nothing much tho, I'll start working on the loops now.  
-I noticed that I still have to create an expression node, that is absolutely necessary for the whole language to work.  
-I'll focus on that instead.
+Well, yeah I didn't work on the loops because I found some bugs, nothing much tho, I'll start working on the loops now.
