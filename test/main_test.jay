@@ -77,7 +77,7 @@ func main(): int {
         continue;
     }
 
-    for (var i: int = 0; i < 10; i++) {
+    for i in i...10 | i++ {
         // for statement
     }
 
