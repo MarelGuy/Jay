@@ -1,5 +1,6 @@
 /target
-/.vscode
 /Jay/archive
 /Jay/target
 /Calculator/target
+/Calculator/.vscode
+.vscode/settings.json
