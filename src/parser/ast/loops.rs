@@ -1,3 +1,5 @@
+use either::Either;
+
 use super::general::Node;
 
 #[derive(Debug, PartialEq)]
@@ -11,6 +13,27 @@ impl<'a> WhileNode<'a> {
         Self {
             condition,
             while_block,
+        }
+    }
+}
+
+#[derive(PartialEq, Debug)]
+pub struct ForNode<'a> {
+    condition: Box<Node<'a>>,
+    next: Either<Box<Node<'a>>, ()>,
+    for_block: Box<Node<'a>>,
+}
+
+impl<'a> ForNode<'a> {
+    pub fn new(
+        condition: Box<Node<'a>>,
+        next: Either<Box<Node<'a>>, ()>,
+        for_block: Box<Node<'a>>,
+    ) -> Self {
+        Self {
+            condition,
+            next,
+            for_block,
         }
     }
 }

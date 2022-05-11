@@ -1,3 +1,5 @@
+use either::Either;
+
 /*
 Jay parser
 Copyright (C) 2022  Loris Cuntreri
@@ -10,6 +12,7 @@ use crate::parser::ast::loops::WhileNode;
 use super::ast::declarations::{ConstDeclNode, VarDeclNode, VarType};
 use super::ast::general::{ConditionNode, Node};
 use super::ast::if_else::IfNode;
+use super::ast::loops::ForNode;
 use super::ast::math_ops::{BinOpNode, UnOpNode};
 use super::ast::types::NumberNode;
 
@@ -74,6 +77,7 @@ impl<'a> Parser<'a> {
             TokenType::Const => self.parse_var(false, true),
             TokenType::If => self.parse_if_else(),
             TokenType::While => self.parse_while(),
+            TokenType::For => self.parse_for(),
             _ => Box::new(Node::new(vec![], Box::new(Nodes::NullNode))),
         }
     }
@@ -202,11 +206,9 @@ impl<'a> Parser<'a> {
         self.next();
 
         let left_node = self.current_token.clone();
-
         self.next();
 
         let op_token = self.current_token.clone();
-
         self.next();
 
         let right_node = self.current_token.clone();
@@ -286,6 +288,28 @@ impl<'a> Parser<'a> {
         Box::new(Node::new(
             vec![],
             Box::new(Nodes::WhileNode(WhileNode::new(condition, while_block))),
+        ))
+    }
+
+    fn parse_for(&mut self) -> Box<Node<'a>> {
+        let condition: Box<Node> = self.parse_condition();
+        self.next();
+
+        let mut next_block: Either<Box<Node<'a>>, ()> = Either::Right(());
+
+        if self.current_token.token_type == TokenType::Next {
+            self.next();
+
+            next_block = Either::Left(self.parse_un_op());
+        }
+
+        let for_block: Box<Node> = self.parse_block();
+
+        Box::new(Node::new(
+            vec![],
+            Box::new(Nodes::ForNode(ForNode::new(
+                condition, next_block, for_block,
+            ))),
         ))
     }
 }
