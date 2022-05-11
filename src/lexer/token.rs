@@ -43,6 +43,9 @@ pub enum TokenType {
     #[token("!")]
     Not,
 
+    #[token("|")]
+    Next,
+
     // Comparison operators
     #[token("==")]
     Equal,
@@ -159,6 +162,9 @@ pub enum TokenType {
     #[token("while")]
     While,
 
+    #[token("for")]
+    For,
+
     #[token("return")]
     Return,
 
@@ -195,6 +201,9 @@ pub enum TokenType {
     #[token("breakif")]
     BreakIf,
 
+    #[token("in")]
+    In,
+
     // Identifiers
     #[regex(r"[a-zA-Z_][a-zA-Z0-9_]*")]
     Identifier,
@@ -205,6 +214,9 @@ pub enum TokenType {
 
     #[regex(r"[0-9]+\.[0-9]+")]
     Float,
+
+    #[regex(r"[0-9]+\...[0-9]+")]
+    Range,
 
     // Strings and Chars
     #[regex(r#""[^"]*""#)]
