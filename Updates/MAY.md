@@ -6,7 +6,7 @@ God it's four months.
 Ok so, I may (pun not intended) have Covid-19, but I'm not sure.  
 I'm not feeling well, so for now I'm not going to work on the project.  
 When I'll feel better I'll start working on it again.  
-It's kind of unfortunate tho, when i started working on the project again, i felt motivated after a long time.  
+It's kind of unfortunate tho, when I started working on the project again, I felt motivated after a long time.  
 Wish me luck for both my health and my project.  
 See ya.
 
@@ -30,7 +30,7 @@ actual error handler for that thing.
 ## 2022-05-07
 
 Hey there!  
-Today I fixed everything i could possibliy fix.  
+Today I fixed everything I could possibliy fix.  
 I'm glad to see that everything is working fine, I never felt so happy like this just from a project.  
 This isn't over yet, but this fix is the turning point of the project.  
 Now I'll be working on some more features, like loops.
@@ -38,3 +38,15 @@ Now I'll be working on some more features, like loops.
 ## 2022-05-09
 
 Well, yeah I didn't work on the loops because I found some bugs, nothing much tho, I'll start working on the loops now.
+
+## 2022-05-11
+
+Hey there, today I finished the for loop and the while loop. They are kind of a mix between some syntaxes, I might change them.  
+I also need to change the bnf, it's not accurate anymore. But we have some news today.  
+My idea was to have a JIT interpreter and a compiler, but seeing how things are going, I think that it's not necessary.  
+What I mean is: we don't need an interpreter, we can just use the compiler to compile the code and run it.  
+There one thing tho, the interpreter won't be scrapped, instead it'll be an idea for the future.  
+Also, since the parser is getting some good pacing, I must start a sub-project with LLVM-IR.  
+The main project will be halted, and I'll update only a few bugs while working on this sub-project.  
+It's a calculator, and I'll compile basic expressions, that includes parsing and lexing of course.  
+We'll be using Inkwell, a rust-llvm wrapper, wish me luck!
