@@ -1,4 +1,5 @@
 mod lexer;
+mod parser;
 
 use std::{env::args, fs::read_to_string, path::Path};
 
@@ -6,6 +7,8 @@ use lexer::{
     lexer::Lexer,
     token::{Token, TokenType},
 };
+
+use parser::parser::Parser;
 
 fn main() {
     let args: Vec<String> = args().collect();
@@ -34,7 +37,9 @@ fn main() {
         }
     }
 
-    for token in tokens {
-        println!("{:?}", token);
-    }
+    let mut parser: Parser = Parser::new(tokens);
+
+    parser.parse();
+
+    println!("{:#?}", parser.ast);
 }
