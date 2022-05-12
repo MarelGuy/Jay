@@ -39,6 +39,10 @@ pub enum TokenType {
     #[token(" ")]
     Space,
 
+    // Null
+    #[token("\0")]
+    Null,
+
     #[error]
     #[regex(r"[ \t\n\f]+", logos::skip)]
     Error,
