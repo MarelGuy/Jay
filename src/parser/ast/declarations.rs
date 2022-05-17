@@ -5,6 +5,7 @@ pub enum VarType {
     Bool,
     String,
     Char,
+    Void,
     Error,
 }
 
