@@ -45,33 +45,33 @@ fn run(input: &str) {
     println!("{:#?}", tree);
 }
 
-fn interpreter() {
-    println!("Jay version 0.0.0 (c) {}", Utc::now().date().year());
+// fn interpreter() {
+//     println!("Jay version 0.0.0 (c) {}", Utc::now().date().year());
 
-    loop {
-        print!(">>> ");
+//     loop {
+//         print!(">>> ");
 
-        std::io::stdout().flush().expect("");
+//         std::io::stdout().flush().expect("");
 
-        let mut input: String = String::new(); // we use this variable as a buffer for the input
+//         let mut input: String = String::new();
 
-        std::io::stdin().read_line(&mut input).expect("");
+//         std::io::stdin().read_line(&mut input).expect("");
 
-        run(&input)
-    }
-}
+//         run(&input)
+//     }
+// }
 
 fn compiler() {
     let args: Vec<String> = args().collect();
 
     println!("Jay version 0.0.0 (c) {}", Utc::now().date().year());
 
-    if args.len() < 3 {
+    if args.len() < 2 {
         println!("Error: No file specified");
         return;
     }
 
-    let file_path: &Path = Path::new(&args[2]);
+    let file_path: &Path = Path::new(&args[1]);
 
     if !file_path.exists() {
         println!("Error: file does not exist");
@@ -85,14 +85,10 @@ fn compiler() {
 
 fn main() {
     match args().nth(1) {
-        Some(ref arg) if arg == "-c" => compiler(),
         Some(ref arg) if arg == "-v" => version(),
         Some(ref arg) if arg == "-h" => help(),
-        Some(ref arg) if arg == "--compiler" => compiler(),
         Some(ref arg) if arg == "--version" => version(),
         Some(ref arg) if arg == "--help" => help(),
-        _ => {
-            interpreter();
-        }
+        _ => compiler(),
     }
 }
