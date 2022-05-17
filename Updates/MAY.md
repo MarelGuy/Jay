@@ -50,3 +50,9 @@ Also, since the parser is getting some good pacing, I must start a sub-project w
 The main project will be halted, and I'll update only a few bugs while working on this sub-project.  
 It's a calculator, and I'll compile basic expressions, that includes parsing and lexing of course.  
 We'll be using Inkwell, a rust-llvm wrapper, wish me luck!
+
+## 2022-05-17
+
+Things are bad, after some research inkwell is not production ready, which means that if we use inkwell, the language won't be production ready.  
+I was now thinking about wrapping my code in c, using a self-made wrapper.  
+I'll need to test, this wrapper will also be closed source (probably, I don't know), now that I have my plans clear, I'll revert the project to my working previous state.
