@@ -5,7 +5,7 @@ Copyright (C) 2022  Loris Cuntreri
 use chrono::{Datelike, Utc};
 use lexer::lexer::Lexer;
 use parser::parser::Parser;
-use std::{env::args, fs::read_to_string, io::Write, path::Path};
+use std::{env::args, fs::read_to_string, /* io::Write, */ path::Path};
 
 use crate::{
     lexer::token::{Token, TokenType},
@@ -18,7 +18,6 @@ mod parser;
 fn help() {
     println!("-h, --help: show this help message");
     println!("-v, --version: show version");
-    println!("-c, --compiler: use the compiler");
 }
 
 fn version() {
