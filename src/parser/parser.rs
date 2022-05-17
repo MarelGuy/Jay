@@ -367,6 +367,19 @@ impl<'a> Parser<'a> {
         }
 
         self.next();
+        self.next();
+
+        let ret_ty = match self.current_token.token_type {
+            TokenType::IntType => VarType::Int,
+            TokenType::FloatType => VarType::Float,
+            TokenType::BoolType => VarType::Bool,
+            TokenType::StringType => VarType::String,
+            TokenType::CharType => VarType::Char,
+            TokenType::VoidType => VarType::Void,
+            _ => VarType::Error,
+        };
+
+        self.next();
 
         let function_block: Box<Node> = self.parse_block();
 
@@ -375,6 +388,7 @@ impl<'a> Parser<'a> {
             Box::new(Nodes::FunctionNode(FunctionNode::new(
                 name,
                 params,
+                ret_ty,
                 function_block,
             ))),
         ))
