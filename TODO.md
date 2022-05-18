@@ -8,7 +8,7 @@
 
 - ### Bugs
 
-  - Everything is working fine, but if we want to parse blocks then it crashes
+  - None! :D
 
 ## Non-code related
 
