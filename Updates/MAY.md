@@ -56,3 +56,8 @@ We'll be using Inkwell, a rust-llvm wrapper, wish me luck!
 Things are bad, after some research inkwell is not production ready, which means that if we use inkwell, the language won't be production ready.  
 I was now thinking about wrapping my code in c, using a self-made wrapper.  
 I'll need to test, this wrapper will also be closed source (probably, I don't know), now that I have my plans clear, I'll revert the project to my working previous state.
+
+## 2022-05-18
+
+Hey there! Today after working on something on the parser, I noticed that testing code without syntax highlighting is.. bad.  
+I'm starting a project following the vscode guide, which will be a full language support for the language.
