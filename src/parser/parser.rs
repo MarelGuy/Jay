@@ -14,7 +14,7 @@ use super::ast::declarations::{ConstDeclNode, VarDeclNode, VarType};
 use super::ast::functions::ParamNode;
 use super::ast::general::{ConditionNode, Node};
 use super::ast::if_else::IfNode;
-use super::ast::loops::ForNode;
+use super::ast::loops::{ForNode, LoopNode};
 use super::ast::math_ops::{BinOpNode, UnOpNode};
 use super::ast::types::NumberNode;
 
@@ -80,6 +80,7 @@ impl<'a> Parser<'a> {
             TokenType::If => self.parse_if_else(),
             TokenType::While => self.parse_while(),
             TokenType::For => self.parse_for(),
+            TokenType::Loop => self.parse_loop(),
             TokenType::Func => self.parse_function(),
             _ => Box::new(Node::new(vec![], Box::new(Nodes::NullNode))),
         }
@@ -312,6 +313,15 @@ impl<'a> Parser<'a> {
             Box::new(Nodes::ForNode(ForNode::new(
                 condition, next_block, for_block,
             ))),
+        ))
+    }
+
+    fn parse_loop(&mut self) -> Box<Node<'a>> {
+        let loop_block: Box<Node> = self.parse_block();
+
+        Box::new(Node::new(
+            vec![],
+            Box::new(Nodes::LoopNode(LoopNode::new(loop_block))),
         ))
     }
 
