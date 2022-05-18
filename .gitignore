@@ -1,6 +1,3 @@
 /target
-/Jay/archive
-/Jay/target
-/Calculator/target
-/Calculator/.vscode
-.vscode/settings.json
+/archive
+/jay-language-support
