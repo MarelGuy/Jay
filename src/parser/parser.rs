@@ -82,6 +82,7 @@ impl<'a> Parser<'a> {
             TokenType::For => self.parse_for(),
             TokenType::Loop => self.parse_loop(),
             TokenType::Func => self.parse_function(),
+            TokenType::LambFunc => self.parse_lambda(),
             _ => Box::new(Node::new(vec![], Box::new(Nodes::NullNode))),
         }
     }
@@ -400,6 +401,57 @@ impl<'a> Parser<'a> {
                 params,
                 ret_ty,
                 function_block,
+            ))),
+        ))
+    }
+
+    fn parse_lambda(&mut self) -> Box<Node<'a>> {
+        self.next();
+
+        let mut params: Vec<Box<Node>> = vec![];
+
+        self.next();
+
+        while self.current_token.token_type != TokenType::CloseParen {
+            params.push(self.parse_param());
+        }
+
+        self.next();
+
+        self.next();
+
+        let ret_ty: VarType = match self.current_token.token_type {
+            TokenType::IntType => VarType::Int,
+            TokenType::FloatType => VarType::Float,
+            TokenType::BoolType => VarType::Bool,
+            TokenType::StringType => VarType::String,
+            TokenType::CharType => VarType::Char,
+            TokenType::VoidType => VarType::Void,
+            _ => VarType::Error,
+        };
+
+        self.next();
+        self.next();
+        self.next();
+
+        let mut block_node: Box<Node> = Box::new(Node::new(vec![], Box::new(Nodes::NullNode)));
+
+        while self.current_token.token_type != TokenType::Semicolon {
+            let node: Box<Node> = self.parse_list(self.current_token);
+            self.next();
+
+            if node.node != Box::new(Nodes::NullNode) {
+                block_node.children.push(node);
+            }
+        }
+
+        Box::new(Node::new(
+            vec![],
+            Box::new(Nodes::FunctionNode(FunctionNode::new(
+                "".to_string(),
+                params,
+                ret_ty,
+                block_node,
             ))),
         ))
     }
