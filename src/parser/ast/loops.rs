@@ -37,3 +37,14 @@ impl<'a> ForNode<'a> {
         }
     }
 }
+
+#[derive(Debug, PartialEq)]
+pub struct LoopNode<'a> {
+    loop_block: Box<Node<'a>>,
+}
+
+impl<'a> LoopNode<'a> {
+    pub fn new(loop_block: Box<Node<'a>>) -> Self {
+        Self { loop_block }
+    }
+}

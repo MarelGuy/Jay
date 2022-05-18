@@ -4,7 +4,7 @@ use super::{
     declarations::{ConstDeclNode, VarDeclNode},
     functions::{FunctionNode, ParamNode},
     if_else::IfNode,
-    loops::{ForNode, WhileNode},
+    loops::{ForNode, LoopNode, WhileNode},
     math_ops::{BinOpNode, UnOpNode},
     types::NumberNode,
 };
@@ -39,18 +39,34 @@ impl<'a> BlockNode<'a> {
 
 #[derive(PartialEq, Debug)]
 pub enum Nodes<'a> {
+    // Declarations
     VarDeclNode(VarDeclNode),
     ConstDeclNode(ConstDeclNode),
+
+    // General
     ConditionNode(ConditionNode<'a>),
     BlockNode(BlockNode<'a>),
+
+    // If-else
     IfNode(IfNode<'a>),
+
+    // Ops
     BinOpNode(BinOpNode<'a>),
     UnOpNode(UnOpNode<'a>),
+
+    // Types
     NumberNode(NumberNode<'a>),
+
+    // Loops
     WhileNode(WhileNode<'a>),
     ForNode(ForNode<'a>),
+    LoopNode(LoopNode<'a>),
+
+    // Functions
     FunctionNode(FunctionNode<'a>),
     ParamNode(ParamNode),
+
+    // Misc
     NullNode,
 }
 
