@@ -165,6 +165,9 @@ pub enum TokenType {
     #[token("for")]
     For,
 
+    #[token("loop")]
+    Loop,
+
     #[token("return")]
     Return,
 
