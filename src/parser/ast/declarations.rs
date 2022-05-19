@@ -1,13 +1,13 @@
-use super::general::ParamNode;
+use super::general::{Node, ParamNode};
 
 #[derive(PartialEq, Debug)]
-pub struct TypeNode {
+pub struct TypeNode<'a> {
     name: String,
-    fields: Vec<ParamNode>,
+    fields: Vec<Box<Node<'a>>>,
 }
 
-impl TypeNode {
-    pub fn new(name: String, fields: Vec<ParamNode>) -> Self {
+impl<'a> TypeNode<'a> {
+    pub fn new(name: String, fields: Vec<Box<Node<'a>>>) -> Self {
         Self { name, fields }
     }
 }
@@ -20,7 +20,7 @@ pub enum VarType {
     String,
     Char,
     Void,
-    Type(TypeNode),
+    Type,
     Error,
 }
 
@@ -45,7 +45,7 @@ pub struct VarDeclNode {
     value: String, // Values are stored in string just for debugging purposes, i'll add a prover value handling when the parser is done
 }
 
-impl VarDeclNode {
+impl<'a> VarDeclNode {
     pub fn new(
         name: String,
         ty: VarType,
@@ -71,7 +71,7 @@ pub struct ConstDeclNode {
     value: String, // Values are stored in string just for debugging purposes, i'll add a prover value handling when the parser is done
 }
 
-impl ConstDeclNode {
+impl<'a> ConstDeclNode {
     pub fn new(name: String, ty: VarType, assign_op: AssignType, value: String) -> Self {
         Self {
             name,

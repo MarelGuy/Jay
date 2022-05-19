@@ -1,7 +1,7 @@
 use crate::lexer::token::Token;
 
 use super::{
-    declarations::{ConstDeclNode, VarDeclNode, VarType},
+    declarations::{ConstDeclNode, TypeNode, VarDeclNode, VarType},
     functions::FunctionNode,
     if_else::IfNode,
     loops::{ForNode, LoopNode, WhileNode},
@@ -43,7 +43,7 @@ pub struct ParamNode {
     pub ty: VarType,
 }
 
-impl ParamNode {
+impl<'a> ParamNode {
     pub fn new(name: String, ty: VarType) -> Self {
         Self { name, ty }
     }
@@ -68,6 +68,7 @@ pub enum Nodes<'a> {
 
     // Types
     NumberNode(NumberNode<'a>),
+    TypeNode(TypeNode<'a>),
 
     // Loops
     WhileNode(WhileNode<'a>),
