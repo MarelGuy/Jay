@@ -145,6 +145,17 @@ impl<'a> Parser<'a> {
         ))
     }
 
+    fn parse_ty(&mut self) -> VarType {
+        match self.current_token.token_type {
+            TokenType::IntType => VarType::Int,
+            TokenType::FloatType => VarType::Float,
+            TokenType::BoolType => VarType::Bool,
+            TokenType::StringType => VarType::String,
+            TokenType::CharType => VarType::Char,
+            _ => VarType::Error,
+        }
+    }
+
     fn parse_var(&mut self, is_mut: bool, is_const: bool) -> Box<Node<'a>> {
         self.next();
         let mut name: String = self.current_token.slice.into();
@@ -156,14 +167,7 @@ impl<'a> Parser<'a> {
         self.next();
         self.next();
 
-        let ty: VarType = match self.current_token.token_type {
-            TokenType::IntType => VarType::Int,
-            TokenType::FloatType => VarType::Float,
-            TokenType::BoolType => VarType::Bool,
-            TokenType::StringType => VarType::String,
-            TokenType::CharType => VarType::Char,
-            _ => VarType::Error,
-        };
+        let ty: VarType = self.parse_ty();
 
         self.next();
         let assign_token: AssignType = match self.current_token.token_type {
@@ -361,15 +365,7 @@ impl<'a> Parser<'a> {
 
         self.next();
 
-        let ty: VarType = match self.current_token.token_type {
-            TokenType::IntType => VarType::Int,
-            TokenType::FloatType => VarType::Float,
-            TokenType::BoolType => VarType::Bool,
-            TokenType::StringType => VarType::String,
-            TokenType::CharType => VarType::Char,
-            TokenType::Type => VarType::Type,
-            _ => VarType::Error,
-        };
+        let ty: VarType = self.parse_ty();
 
         self.next();
 
@@ -401,15 +397,7 @@ impl<'a> Parser<'a> {
         self.next();
         self.next();
 
-        let ret_ty = match self.current_token.token_type {
-            TokenType::IntType => VarType::Int,
-            TokenType::FloatType => VarType::Float,
-            TokenType::BoolType => VarType::Bool,
-            TokenType::StringType => VarType::String,
-            TokenType::CharType => VarType::Char,
-            TokenType::VoidType => VarType::Void,
-            _ => VarType::Error,
-        };
+        let ret_ty = self.parse_ty();
 
         self.next();
 
@@ -441,15 +429,7 @@ impl<'a> Parser<'a> {
 
         self.next();
 
-        let ret_ty: VarType = match self.current_token.token_type {
-            TokenType::IntType => VarType::Int,
-            TokenType::FloatType => VarType::Float,
-            TokenType::BoolType => VarType::Bool,
-            TokenType::StringType => VarType::String,
-            TokenType::CharType => VarType::Char,
-            TokenType::VoidType => VarType::Void,
-            _ => VarType::Error,
-        };
+        let ret_ty: VarType = self.parse_ty();
 
         self.next();
         self.next();
