@@ -152,6 +152,8 @@ impl<'a> Parser<'a> {
             TokenType::BoolType => VarType::Bool,
             TokenType::StringType => VarType::String,
             TokenType::CharType => VarType::Char,
+            TokenType::VoidType => VarType::Void,
+            TokenType::Type => VarType::Type,
             _ => VarType::Error,
         }
     }
