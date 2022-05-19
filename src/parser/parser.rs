@@ -10,7 +10,7 @@ use crate::parser::ast::functions::FunctionNode;
 use crate::parser::ast::general::{BlockNode, Nodes};
 use crate::parser::ast::loops::WhileNode;
 
-use super::ast::declarations::{ConstDeclNode, VarDeclNode, VarType};
+use super::ast::declarations::{ConstDeclNode, TypeNode, VarDeclNode, VarType};
 use super::ast::general::{ConditionNode, Node, ParamNode};
 use super::ast::if_else::IfNode;
 use super::ast::loops::{ForNode, LoopNode};
@@ -208,7 +208,23 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_type(&mut self) -> Box<Node<'a>> {
-        todo!()
+        self.next();
+        let name: String = self.current_token.slice.into();
+
+        let mut fields: Vec<Box<Node>> = vec![];
+
+        self.next();
+        self.next();
+
+        while self.current_token.token_type != TokenType::CloseBrace {
+            fields.push(self.parse_param());
+            self.next();
+        }
+
+        Box::new(Node::new(
+            vec![],
+            Box::new(Nodes::TypeNode(TypeNode::new(name, fields))),
+        ))
     }
 
     fn parse_condition(&mut self) -> Box<Node<'a>> {
@@ -351,6 +367,7 @@ impl<'a> Parser<'a> {
             TokenType::BoolType => VarType::Bool,
             TokenType::StringType => VarType::String,
             TokenType::CharType => VarType::Char,
+            TokenType::Type => VarType::Type,
             _ => VarType::Error,
         };
 
