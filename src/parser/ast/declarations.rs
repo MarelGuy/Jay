@@ -1,3 +1,17 @@
+use super::general::ParamNode;
+
+#[derive(PartialEq, Debug)]
+struct TypeNode {
+    name: String,
+    fields: Vec<ParamNode>,
+}
+
+impl TypeNode {
+    fn new(name: String, fields: Vec<ParamNode>) -> Self {
+        Self { name, fields }
+    }
+}
+
 #[derive(PartialEq, Debug)]
 pub enum VarType {
     Int,
@@ -6,6 +20,7 @@ pub enum VarType {
     String,
     Char,
     Void,
+    Type(TypeNode),
     Error,
 }
 

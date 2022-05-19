@@ -1,8 +1,8 @@
 use crate::lexer::token::Token;
 
 use super::{
-    declarations::{ConstDeclNode, VarDeclNode},
-    functions::{FunctionNode, ParamNode},
+    declarations::{ConstDeclNode, VarDeclNode, VarType},
+    functions::FunctionNode,
     if_else::IfNode,
     loops::{ForNode, LoopNode, WhileNode},
     math_ops::{BinOpNode, UnOpNode},
@@ -34,6 +34,18 @@ pub struct BlockNode<'a> {
 impl<'a> BlockNode<'a> {
     pub fn new(block: Box<Node<'a>>) -> Self {
         Self { block }
+    }
+}
+
+#[derive(PartialEq, Debug)]
+pub struct ParamNode {
+    pub name: String,
+    pub ty: VarType,
+}
+
+impl ParamNode {
+    pub fn new(name: String, ty: VarType) -> Self {
+        Self { name, ty }
     }
 }
 

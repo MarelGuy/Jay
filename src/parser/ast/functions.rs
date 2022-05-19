@@ -23,15 +23,3 @@ impl<'a> FunctionNode<'a> {
         }
     }
 }
-
-#[derive(PartialEq, Debug)]
-pub struct ParamNode {
-    pub name: String,
-    pub ty: VarType,
-}
-
-impl ParamNode {
-    pub fn new(name: String, ty: VarType) -> Self {
-        Self { name, ty }
-    }
-}
