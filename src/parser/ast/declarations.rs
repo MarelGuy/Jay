@@ -1,4 +1,4 @@
-use super::general::{Node, ParamNode};
+use super::general::Node;
 
 #[derive(PartialEq, Debug)]
 pub struct TypeNode<'a> {
