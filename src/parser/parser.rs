@@ -11,8 +11,7 @@ use crate::parser::ast::general::{BlockNode, Nodes};
 use crate::parser::ast::loops::WhileNode;
 
 use super::ast::declarations::{ConstDeclNode, VarDeclNode, VarType};
-use super::ast::functions::ParamNode;
-use super::ast::general::{ConditionNode, Node};
+use super::ast::general::{ConditionNode, Node, ParamNode};
 use super::ast::if_else::IfNode;
 use super::ast::loops::{ForNode, LoopNode};
 use super::ast::math_ops::{BinOpNode, UnOpNode};
@@ -33,6 +32,22 @@ impl<'a> Parser<'a> {
             tok_i: 0,
             ast: Box::new(Node::new(vec![], Box::new(Nodes::NullNode))),
         }
+    }
+
+    pub fn parse(&mut self) {
+        let mut children: Vec<Box<Node>> = Vec::new();
+
+        while self.tok_i < self.token_stream.len() {
+            self.next();
+
+            let node = self.parse_list(self.current_token);
+
+            if node.node != Box::new(Nodes::NullNode) {
+                children.push(node);
+            }
+        }
+
+        self.ast = Box::new(Node::new(children, Box::new(Nodes::NullNode)));
     }
 
     fn next(&mut self) {
@@ -77,6 +92,7 @@ impl<'a> Parser<'a> {
             TokenType::Let => self.parse_var(false, false),
             TokenType::Var => self.parse_var(true, false),
             TokenType::Const => self.parse_var(false, true),
+            TokenType::Type => self.parse_type(),
             TokenType::If => self.parse_if_else(),
             TokenType::While => self.parse_while(),
             TokenType::For => self.parse_for(),
@@ -85,22 +101,6 @@ impl<'a> Parser<'a> {
             TokenType::LambFunc => self.parse_lambda(),
             _ => Box::new(Node::new(vec![], Box::new(Nodes::NullNode))),
         }
-    }
-
-    pub fn parse(&mut self) {
-        let mut children: Vec<Box<Node>> = Vec::new();
-
-        while self.tok_i < self.token_stream.len() {
-            self.next();
-
-            let node = self.parse_list(self.current_token);
-
-            if node.node != Box::new(Nodes::NullNode) {
-                children.push(node);
-            }
-        }
-
-        self.ast = Box::new(Node::new(children, Box::new(Nodes::NullNode)));
     }
 
     fn parse_number(&self) -> Box<Node<'a>> {
@@ -205,6 +205,10 @@ impl<'a> Parser<'a> {
                 ))),
             ))
         }
+    }
+
+    fn parse_type(&mut self) -> Box<Node<'a>> {
+        todo!()
     }
 
     fn parse_condition(&mut self) -> Box<Node<'a>> {
