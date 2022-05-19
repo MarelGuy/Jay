@@ -1,0 +1,9 @@
+type MyType {
+    a: string;
+    b: int;
+}
+
+let lmao: MyType = {
+    a: "lmao",
+    b: 5
+};
