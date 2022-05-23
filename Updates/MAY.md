@@ -61,3 +61,8 @@ I'll need to test, this wrapper will also be closed source (probably, I don't kn
 
 Hey there! Today after working on something on the parser, I noticed that testing code without syntax highlighting is.. bad.  
 I'm starting a project following the vscode guide, which will be a full language support for the language.
+
+## 2022-05-23
+
+I didn't really work on much sadly, since school is finishing I can't really only work on the code.  
+I'm still gonna push a buggy code, I'll fix it in the next hours while in school.
