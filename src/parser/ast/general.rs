@@ -1,12 +1,12 @@
 use crate::lexer::token::Token;
 
 use super::{
-    declarations::{ConstDeclNode, TypeNode, VarDeclNode, VarType},
+    declarations::{ConstDeclNode, VarDeclNode, VarType},
     functions::FunctionNode,
     if_else::IfNode,
     loops::{ForNode, LoopNode, WhileNode},
     math_ops::{BinOpNode, UnOpNode},
-    types::NumberNode,
+    types::{CharNode, NumberNode, StringNode, TypeNode},
 };
 
 #[derive(PartialEq, Debug)]
@@ -52,8 +52,8 @@ impl<'a> ParamNode {
 #[derive(PartialEq, Debug)]
 pub enum Nodes<'a> {
     // Declarations
-    VarDeclNode(VarDeclNode),
-    ConstDeclNode(ConstDeclNode),
+    VarDeclNode(VarDeclNode<'a>),
+    ConstDeclNode(ConstDeclNode<'a>),
 
     // General
     ConditionNode(ConditionNode<'a>),
@@ -68,6 +68,8 @@ pub enum Nodes<'a> {
 
     // Types
     NumberNode(NumberNode<'a>),
+    StringNode(StringNode<'a>),
+    CharNode(CharNode<'a>),
     TypeNode(TypeNode<'a>),
 
     // Loops
