@@ -1,18 +1,6 @@
 use super::general::Node;
 
 #[derive(PartialEq, Debug)]
-pub struct TypeNode<'a> {
-    name: String,
-    fields: Vec<Box<Node<'a>>>,
-}
-
-impl<'a> TypeNode<'a> {
-    pub fn new(name: String, fields: Vec<Box<Node<'a>>>) -> Self {
-        Self { name, fields }
-    }
-}
-
-#[derive(PartialEq, Debug)]
 pub enum VarType {
     Int,
     Float,
@@ -37,21 +25,21 @@ pub enum AssignType {
 }
 
 #[derive(PartialEq, Debug)]
-pub struct VarDeclNode {
+pub struct VarDeclNode<'a> {
     name: String,
     ty: VarType,
     assign_op: AssignType,
     mutable: bool,
-    value: String, // Values are stored in string just for debugging purposes, i'll add a prover value handling when the parser is done
+    value: Vec<Box<Node<'a>>>,
 }
 
-impl<'a> VarDeclNode {
+impl<'a> VarDeclNode<'a> {
     pub fn new(
         name: String,
         ty: VarType,
         assign_op: AssignType,
         mutable: bool,
-        value: String,
+        value: Vec<Box<Node<'a>>>,
     ) -> Self {
         Self {
             name,
@@ -64,15 +52,20 @@ impl<'a> VarDeclNode {
 }
 
 #[derive(PartialEq, Debug)]
-pub struct ConstDeclNode {
+pub struct ConstDeclNode<'a> {
     name: String,
     ty: VarType,
     assign_op: AssignType,
-    value: String, // Values are stored in string just for debugging purposes, i'll add a prover value handling when the parser is done
+    value: Vec<Box<Node<'a>>>,
 }
 
-impl<'a> ConstDeclNode {
-    pub fn new(name: String, ty: VarType, assign_op: AssignType, value: String) -> Self {
+impl<'a> ConstDeclNode<'a> {
+    pub fn new(
+        name: String,
+        ty: VarType,
+        assign_op: AssignType,
+        value: Vec<Box<Node<'a>>>,
+    ) -> Self {
         Self {
             name,
             ty,
