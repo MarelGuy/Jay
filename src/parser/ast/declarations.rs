@@ -11,10 +11,6 @@ impl TypeName {
     pub fn new(name: String) -> Self {
         Self { name }
     }
-
-    pub fn name(&self) -> &str {
-        self.name.as_ref()
-    }
 }
 
 #[derive(PartialEq, Debug)]
