@@ -1,4 +1,5 @@
 use either::Either;
+use Either::{Left, Right};
 
 /*
 Jay parser
@@ -11,17 +12,18 @@ use crate::parser::ast::general::{BlockNode, Nodes};
 use crate::parser::ast::loops::WhileNode;
 use crate::parser::ast::types::TypeNode;
 
-use super::ast::declarations::{ConstDeclNode, VarDeclNode, VarType};
+use super::ast::declarations::{ConstDeclNode, TypeName, VarDeclNode, VarType};
 use super::ast::general::{ConditionNode, Node, ParamNode};
 use super::ast::if_else::IfNode;
 use super::ast::loops::{ForNode, LoopNode};
 use super::ast::math_ops::{BinOpNode, UnOpNode};
-use super::ast::types::{CharNode, NumberNode, StringNode};
+use super::ast::types::{BlockTypeNode, CharNode, NumberNode, StringNode};
 
 pub struct Parser<'a> {
     pub token_stream: Vec<Token<'a>>,
     pub current_token: Token<'a>,
     pub tok_i: usize,
+    pub types: Vec<String>,
     pub ast: Box<Node<'a>>,
 }
 
@@ -31,6 +33,7 @@ impl<'a> Parser<'a> {
             current_token: token_stream[0].clone(),
             token_stream,
             tok_i: 0,
+            types: Vec::new(),
             ast: Box::new(Node::new(vec![], Box::new(Nodes::NullNode))),
         }
     }
@@ -135,16 +138,21 @@ impl<'a> Parser<'a> {
         ));
     }
 
-    fn parse_ty(&mut self) -> VarType {
+    fn parse_ty(&mut self) -> Either<VarType, TypeName> {
         match self.current_token.token_type {
-            TokenType::IntType => VarType::Int,
-            TokenType::FloatType => VarType::Float,
-            TokenType::BoolType => VarType::Bool,
-            TokenType::StringType => VarType::String,
-            TokenType::CharType => VarType::Char,
-            TokenType::VoidType => VarType::Void,
-            TokenType::Type => VarType::Type,
-            _ => VarType::Error,
+            TokenType::IntType => Left(VarType::Int),
+            TokenType::FloatType => Left(VarType::Float),
+            TokenType::BoolType => Left(VarType::Bool),
+            TokenType::StringType => Left(VarType::String),
+            TokenType::CharType => Left(VarType::Char),
+            TokenType::VoidType => Left(VarType::Void),
+            _ => {
+                if self.types.contains(&self.current_token.slice.to_string()) {
+                    Right(TypeName::new(self.current_token.slice.to_string()))
+                } else {
+                    Left(VarType::Error)
+                }
+            }
         }
     }
 
@@ -194,7 +202,7 @@ impl<'a> Parser<'a> {
         self.next();
         self.next();
 
-        let ty: VarType = self.parse_ty();
+        let ty: Either<VarType, TypeName> = self.parse_ty();
 
         self.next();
         let assign_token: AssignType = match self.current_token.token_type {
@@ -212,15 +220,14 @@ impl<'a> Parser<'a> {
 
         let mut value: Vec<Box<Node>> = vec![];
 
-        while self.current_token.token_type != TokenType::Semicolon {
-            value.push(self.parse_list(self.current_token));
-            self.next();
+        if ty.is_left() {
+            value = self.parse_value(false, &ty);
+        } else {
+            value = self.parse_value(true, &ty);
         }
 
-        self.next();
-
         if is_const {
-            Box::new(Node::new(
+            return Box::new(Node::new(
                 vec![],
                 Box::new(Nodes::ConstDeclNode(ConstDeclNode::new(
                     name,
@@ -228,9 +235,9 @@ impl<'a> Parser<'a> {
                     assign_token,
                     value,
                 ))),
-            ))
+            ));
         } else {
-            Box::new(Node::new(
+            return Box::new(Node::new(
                 vec![],
                 Box::new(Nodes::VarDeclNode(VarDeclNode::new(
                     name,
@@ -239,7 +246,7 @@ impl<'a> Parser<'a> {
                     is_mut,
                     value,
                 ))),
-            ))
+            ));
         }
     }
 
@@ -257,10 +264,38 @@ impl<'a> Parser<'a> {
             self.next();
         }
 
+        self.types.push(name.clone());
+
         Box::new(Node::new(
             vec![],
             Box::new(Nodes::TypeNode(TypeNode::new(name, fields))),
         ))
+    }
+
+    fn parse_value(
+        &mut self,
+        is_type_block: bool,
+        ty: &Either<VarType, TypeName>,
+    ) -> Vec<Box<Node<'a>>> {
+        let mut value: Vec<Box<Node>> = vec![];
+
+        if ty.is_right() {
+            if is_type_block == true {
+                while self.current_token.token_type != TokenType::Comma {
+                    println!("2");
+                    value.push(self.parse_type_param());
+                    self.next();
+                }
+            }
+        } else {
+            while self.current_token.token_type != TokenType::Semicolon {
+                println!("1");
+                value.push(self.parse_list(self.current_token));
+                self.next();
+            }
+        }
+
+        value
     }
 
     // Statements
@@ -384,30 +419,6 @@ impl<'a> Parser<'a> {
     }
 
     // Functions
-    fn parse_param(&mut self) -> Box<Node<'a>> {
-        if self.current_token.token_type == TokenType::Comma {
-            self.next();
-        }
-
-        let mut name: String = self.current_token.slice.into();
-
-        self.next();
-
-        if name.chars().next().unwrap().is_numeric() {
-            name = "Error".to_string();
-        }
-
-        self.next();
-
-        let ty: VarType = self.parse_ty();
-
-        self.next();
-
-        Box::new(Node::new(
-            vec![],
-            Box::new(Nodes::ParamNode(ParamNode::new(name, ty))),
-        ))
-    }
 
     fn parse_function(&mut self) -> Box<Node<'a>> {
         self.next();
@@ -431,7 +442,7 @@ impl<'a> Parser<'a> {
         self.next();
         self.next();
 
-        let ret_ty = self.parse_ty();
+        let ret_ty: Either<VarType, TypeName> = self.parse_ty();
 
         self.next();
 
@@ -463,7 +474,7 @@ impl<'a> Parser<'a> {
 
         self.next();
 
-        let ret_ty: VarType = self.parse_ty();
+        let ret_ty: Either<VarType, TypeName> = self.parse_ty();
 
         self.next();
         self.next();
@@ -488,6 +499,53 @@ impl<'a> Parser<'a> {
                 ret_ty,
                 block_node,
             ))),
+        ))
+    }
+
+    // Params
+    fn parse_param(&mut self) -> Box<Node<'a>> {
+        if self.current_token.token_type == TokenType::Comma {
+            self.next();
+        }
+
+        let mut name: String = self.current_token.slice.into();
+
+        self.next();
+
+        if name.chars().next().unwrap().is_numeric() {
+            name = "Error".to_string();
+        }
+
+        self.next();
+
+        let ty: Either<VarType, TypeName> = self.parse_ty();
+
+        self.next();
+
+        Box::new(Node::new(
+            vec![],
+            Box::new(Nodes::ParamNode(ParamNode::new(name, ty))),
+        ))
+    }
+
+    fn parse_type_param(&mut self) -> Box<Node<'a>> {
+        let mut name: String = self.current_token.slice.into();
+
+        self.next();
+
+        if name.chars().next().unwrap().is_numeric() {
+            name = "Error".to_string();
+        }
+
+        self.next();
+
+        let value: Vec<Box<Node>> = self.parse_value(true, &Left(VarType::Void));
+
+        self.next();
+
+        Box::new(Node::new(
+            vec![],
+            Box::new(Nodes::BlockTypeNode(BlockTypeNode::new(name, value))),
         ))
     }
 }
