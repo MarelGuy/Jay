@@ -1,12 +1,14 @@
+use either::Either;
+
 use crate::lexer::token::Token;
 
 use super::{
-    declarations::{ConstDeclNode, VarDeclNode, VarType},
+    declarations::{ConstDeclNode, TypeName, VarDeclNode, VarType},
     functions::FunctionNode,
     if_else::IfNode,
     loops::{ForNode, LoopNode, WhileNode},
     math_ops::{BinOpNode, UnOpNode},
-    types::{CharNode, NumberNode, StringNode, TypeNode},
+    types::{BlockTypeNode, CharNode, NumberNode, StringNode, TypeNode},
 };
 
 #[derive(PartialEq, Debug)]
@@ -40,11 +42,11 @@ impl<'a> BlockNode<'a> {
 #[derive(PartialEq, Debug)]
 pub struct ParamNode {
     pub name: String,
-    pub ty: VarType,
+    pub ty: Either<VarType, TypeName>,
 }
 
 impl<'a> ParamNode {
-    pub fn new(name: String, ty: VarType) -> Self {
+    pub fn new(name: String, ty: Either<VarType, TypeName>) -> Self {
         Self { name, ty }
     }
 }
@@ -57,7 +59,10 @@ pub enum Nodes<'a> {
 
     // General
     ConditionNode(ConditionNode<'a>),
+
+    // Blocks
     BlockNode(BlockNode<'a>),
+    BlockTypeNode(BlockTypeNode<'a>),
 
     // If-else
     IfNode(IfNode<'a>),
