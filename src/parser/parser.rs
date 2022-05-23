@@ -9,13 +9,14 @@ use crate::parser::ast::declarations::AssignType;
 use crate::parser::ast::functions::FunctionNode;
 use crate::parser::ast::general::{BlockNode, Nodes};
 use crate::parser::ast::loops::WhileNode;
+use crate::parser::ast::types::TypeNode;
 
-use super::ast::declarations::{ConstDeclNode, TypeNode, VarDeclNode, VarType};
+use super::ast::declarations::{ConstDeclNode, VarDeclNode, VarType};
 use super::ast::general::{ConditionNode, Node, ParamNode};
 use super::ast::if_else::IfNode;
 use super::ast::loops::{ForNode, LoopNode};
 use super::ast::math_ops::{BinOpNode, UnOpNode};
-use super::ast::types::NumberNode;
+use super::ast::types::{CharNode, NumberNode, StringNode};
 
 pub struct Parser<'a> {
     pub token_stream: Vec<Token<'a>>,
@@ -50,6 +51,7 @@ impl<'a> Parser<'a> {
         self.ast = Box::new(Node::new(children, Box::new(Nodes::NullNode)));
     }
 
+    // Utils
     fn next(&mut self) {
         if self.tok_i < self.token_stream.len() {
             self.current_token = self.token_stream[self.tok_i];
@@ -89,6 +91,8 @@ impl<'a> Parser<'a> {
                     self.parse_number()
                 }
             }
+            TokenType::String => self.parse_string(),
+            TokenType::Char => self.parse_char(),
             TokenType::Let => self.parse_var(false, false),
             TokenType::Var => self.parse_var(true, false),
             TokenType::Const => self.parse_var(false, true),
@@ -103,6 +107,7 @@ impl<'a> Parser<'a> {
         }
     }
 
+    // Types
     fn parse_number(&self) -> Box<Node<'a>> {
         let token: Token = self.current_token.clone();
 
@@ -112,6 +117,38 @@ impl<'a> Parser<'a> {
         ));
     }
 
+    fn parse_string(&self) -> Box<Node<'a>> {
+        let token: Token = self.current_token.clone();
+
+        return Box::new(Node::new(
+            vec![],
+            Box::new(Nodes::StringNode(StringNode::new(token, token.slice.len()))),
+        ));
+    }
+
+    fn parse_char(&self) -> Box<Node<'a>> {
+        let token: Token = self.current_token.clone();
+
+        return Box::new(Node::new(
+            vec![],
+            Box::new(Nodes::CharNode(CharNode::new(token))),
+        ));
+    }
+
+    fn parse_ty(&mut self) -> VarType {
+        match self.current_token.token_type {
+            TokenType::IntType => VarType::Int,
+            TokenType::FloatType => VarType::Float,
+            TokenType::BoolType => VarType::Bool,
+            TokenType::StringType => VarType::String,
+            TokenType::CharType => VarType::Char,
+            TokenType::VoidType => VarType::Void,
+            TokenType::Type => VarType::Type,
+            _ => VarType::Error,
+        }
+    }
+
+    // Ops
     fn parse_bin_op(&mut self) -> Box<Node<'a>> {
         let left_node: Box<Node> = self.parse_number();
         self.next();
@@ -145,19 +182,7 @@ impl<'a> Parser<'a> {
         ))
     }
 
-    fn parse_ty(&mut self) -> VarType {
-        match self.current_token.token_type {
-            TokenType::IntType => VarType::Int,
-            TokenType::FloatType => VarType::Float,
-            TokenType::BoolType => VarType::Bool,
-            TokenType::StringType => VarType::String,
-            TokenType::CharType => VarType::Char,
-            TokenType::VoidType => VarType::Void,
-            TokenType::Type => VarType::Type,
-            _ => VarType::Error,
-        }
-    }
-
+    // Declarations
     fn parse_var(&mut self, is_mut: bool, is_const: bool) -> Box<Node<'a>> {
         self.next();
         let mut name: String = self.current_token.slice.into();
@@ -185,7 +210,12 @@ impl<'a> Parser<'a> {
 
         self.next();
 
-        let value: String = self.current_token.slice.into();
+        let mut value: Vec<Box<Node>> = vec![];
+
+        while self.current_token.token_type != TokenType::Semicolon {
+            value.push(self.parse_list(self.current_token));
+            self.next();
+        }
 
         self.next();
 
@@ -233,6 +263,7 @@ impl<'a> Parser<'a> {
         ))
     }
 
+    // Statements
     fn parse_condition(&mut self) -> Box<Node<'a>> {
         self.next();
 
@@ -352,6 +383,7 @@ impl<'a> Parser<'a> {
         ))
     }
 
+    // Functions
     fn parse_param(&mut self) -> Box<Node<'a>> {
         if self.current_token.token_type == TokenType::Comma {
             self.next();
