@@ -3,7 +3,4 @@ type MyType {
     b: int;
 }
 
-let lmao: MyType = {
-    a: "lmao",
-    b: 5 + 2
-};
+let lmao: MyType = { "lmao", 5 + 2 };
