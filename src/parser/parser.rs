@@ -17,7 +17,7 @@ use super::ast::general::{ConditionNode, Node, ParamNode};
 use super::ast::if_else::IfNode;
 use super::ast::loops::{ForNode, LoopNode};
 use super::ast::math_ops::{BinOpNode, UnOpNode};
-use super::ast::types::{BlockTypeNode, CharNode, NumberNode, StringNode};
+use super::ast::types::{CharNode, NumberNode, StringNode};
 
 pub struct Parser<'a> {
     pub token_stream: Vec<Token<'a>>,
@@ -219,7 +219,7 @@ impl<'a> Parser<'a> {
         self.next();
 
         let mut value: Vec<Box<Node>> = vec![];
-
+        
         if ty.is_left() {
             value = self.parse_value(false, &ty);
         } else {
@@ -280,11 +280,8 @@ impl<'a> Parser<'a> {
         let mut value: Vec<Box<Node>> = vec![];
 
         if ty.is_right() {
-            println!("1");
             if is_type_block == true {
-                println!("2");
                 while self.current_token.token_type != TokenType::Comma {
-                    println!("2-1");
                     self.next();
                     value.push(self.parse_list(self.current_token));
                 }
@@ -292,10 +289,7 @@ impl<'a> Parser<'a> {
         } else {
             println!("3");
             while self.current_token.token_type != TokenType::Semicolon {
-                println!("3-1");
                 value.push(self.parse_list(self.current_token));
-                println!("{:?}", self.current_token);
-                // self.next();
             }
         }
 
@@ -529,27 +523,6 @@ impl<'a> Parser<'a> {
         Box::new(Node::new(
             vec![],
             Box::new(Nodes::ParamNode(ParamNode::new(name, ty))),
-        ))
-    }
-
-    fn parse_type_param(&mut self) -> Box<Node<'a>> {
-        let mut name: String = self.current_token.slice.into();
-
-        self.next();
-
-        if name.chars().next().unwrap().is_numeric() {
-            name = "Error".to_string();
-        }
-
-        self.next();
-
-        let value: Vec<Box<Node>> = self.parse_value(true, &Left(VarType::Void));
-
-        self.next();
-
-        Box::new(Node::new(
-            vec![],
-            Box::new(Nodes::BlockTypeNode(BlockTypeNode::new(name, value))),
         ))
     }
 }
