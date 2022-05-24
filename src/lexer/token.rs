@@ -207,6 +207,16 @@ pub enum TokenType {
     #[token("in")]
     In,
 
+    // Switch
+    #[token("switch")]
+    Switch,
+
+    #[token("case")]
+    Case,
+
+    #[token("default")]
+    Default,
+
     // Identifiers
     #[regex(r"[a-zA-Z_][a-zA-Z0-9_]*")]
     Identifier,
