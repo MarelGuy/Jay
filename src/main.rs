@@ -2,7 +2,6 @@
 Jay main
 Copyright (C) 2022  Loris Cuntreri
 */
-use chrono::{Datelike, Utc};
 use lexer::lexer::Lexer;
 use parser::parser::Parser;
 use std::{env::args, fs::read_to_string, /* io::Write, */ path::Path};
