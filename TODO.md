@@ -1,15 +1,33 @@
 # TODO
 
-## Code related
+## Parser
 
-- ### Features
+  ### Done
+    - Variables
+    - Constants
+    - Functions
+    - Lambdas
+    - Binary operators
+    - Unary operators
+    - If Else
+    - While
+    - For
+    - Integer
+    - Float
+    - String
+    - Char
+    - Type
+  
+  ### Doing
+    - Switch
+    - Boolean
 
-  - Parsing and AST generation
-
-- ### Bugs
-
-  - None! :D
-
-## Non-code related
-
-- Docs
+  ### To do
+    - Return
+    - Array
+    - Return_if
+    - Import
+    - Export
+    - Dot notation
+    - Function call
+    
