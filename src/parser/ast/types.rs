@@ -15,18 +15,6 @@ impl<'a> TypeNode<'a> {
 }
 
 #[derive(PartialEq, Debug)]
-pub struct BlockTypeNode<'a> {
-    pub name: String,
-    pub fields: Vec<Box<Node<'a>>>,
-}
-
-impl<'a> BlockTypeNode<'a> {
-    pub fn new(name: String, fields: Vec<Box<Node<'a>>>) -> Self {
-        Self { name, fields }
-    }
-}
-
-#[derive(PartialEq, Debug)]
 pub struct NumberNode<'a> {
     token: Token<'a>,
 }

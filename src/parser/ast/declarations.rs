@@ -21,7 +21,6 @@ pub enum VarType {
     String,
     Char,
     Void,
-    Type(TypeName),
     Error,
 }
 

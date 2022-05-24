@@ -8,7 +8,7 @@ use super::{
     if_else::IfNode,
     loops::{ForNode, LoopNode, WhileNode},
     math_ops::{BinOpNode, UnOpNode},
-    types::{BlockTypeNode, CharNode, NumberNode, StringNode, TypeNode},
+    types::{CharNode, NumberNode, StringNode, TypeNode},
 };
 
 #[derive(PartialEq, Debug)]
@@ -62,7 +62,6 @@ pub enum Nodes<'a> {
 
     // Blocks
     BlockNode(BlockNode<'a>),
-    BlockTypeNode(BlockTypeNode<'a>),
 
     // If-else
     IfNode(IfNode<'a>),
