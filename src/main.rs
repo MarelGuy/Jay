@@ -45,7 +45,7 @@ fn run(input: &str) {
 }
 
 // fn interpreter() {
-//     println!("Jay version 0.0.0 (c) {}", Utc::now().date().year());
+// println!("Jay version 0.0.0 (c) 2022");
 
 //     loop {
 //         print!(">>> ");
@@ -63,7 +63,7 @@ fn run(input: &str) {
 fn compiler() {
     let args: Vec<String> = args().collect();
 
-    println!("Jay version 0.0.0 (c) {}", Utc::now().date().year());
+    println!("Jay version 0.0.0 (c) 2022");
 
     if args.len() < 2 {
         println!("Error: No file specified");
