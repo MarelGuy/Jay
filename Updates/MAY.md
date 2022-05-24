@@ -66,3 +66,8 @@ I'm starting a project following the vscode guide, which will be a full language
 
 I didn't really work on much sadly, since school is finishing I can't really only work on the code.  
 I'm still gonna push a buggy code, I'll fix it in the next hours while in school.
+
+## 2022-05-24
+
+Nice, I fixed everything. I got a problem though, my current todo list isn't really great, and I can't keep track of
+the things I'm doing rn, I'll create another one just for the sake of it (I'll probably do a trello, maybe).
