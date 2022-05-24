@@ -17,7 +17,7 @@ use super::ast::general::{ConditionNode, Node, ParamNode};
 use super::ast::if_else::IfNode;
 use super::ast::loops::{ForNode, LoopNode};
 use super::ast::math_ops::{BinOpNode, UnOpNode};
-use super::ast::types::{CharNode, NumberNode, StringNode};
+use super::ast::types::{BoolNode, CharNode, NumberNode, StringNode};
 
 pub struct Parser<'a> {
     pub token_stream: Vec<Token<'a>>,
@@ -96,6 +96,7 @@ impl<'a> Parser<'a> {
             }
             TokenType::String => self.parse_string(),
             TokenType::Char => self.parse_char(),
+            TokenType::BoolType => self.parse_bool(),
             TokenType::Let => self.parse_var(false, false),
             TokenType::Var => self.parse_var(true, false),
             TokenType::Const => self.parse_var(false, true),
@@ -135,6 +136,15 @@ impl<'a> Parser<'a> {
         return Box::new(Node::new(
             vec![],
             Box::new(Nodes::CharNode(CharNode::new(token))),
+        ));
+    }
+
+    fn parse_bool(&self) -> Box<Node<'a>> {
+        let token: Token = self.current_token.clone();
+
+        return Box::new(Node::new(
+            vec![],
+            Box::new(Nodes::BoolNode(BoolNode::new(token))),
         ));
     }
 
