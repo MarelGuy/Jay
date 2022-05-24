@@ -82,7 +82,7 @@ func main(): int {
     }
 
     // switch statement
-    switch (a) {
+    switch a {
         case 1 {
             // case 1
             break;
