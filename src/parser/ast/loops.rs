@@ -1,15 +1,15 @@
 use either::Either;
 
-use super::general::Node;
+use super::general::{BlockNode, ConditionNode, Node};
 
 #[derive(Debug, PartialEq)]
 pub struct WhileNode<'a> {
-    condition: Box<Node<'a>>,
-    while_block: Box<Node<'a>>,
+    condition: Box<ConditionNode<'a>>,
+    while_block: Box<BlockNode<'a>>,
 }
 
 impl<'a> WhileNode<'a> {
-    pub fn new(condition: Box<Node<'a>>, while_block: Box<Node<'a>>) -> Self {
+    pub fn new(condition: Box<ConditionNode<'a>>, while_block: Box<BlockNode<'a>>) -> Self {
         Self {
             condition,
             while_block,
@@ -19,16 +19,16 @@ impl<'a> WhileNode<'a> {
 
 #[derive(PartialEq, Debug)]
 pub struct ForNode<'a> {
-    condition: Box<Node<'a>>,
+    condition: Box<ConditionNode<'a>>,
     next: Either<Box<Node<'a>>, ()>,
-    for_block: Box<Node<'a>>,
+    for_block: Box<BlockNode<'a>>,
 }
 
 impl<'a> ForNode<'a> {
     pub fn new(
-        condition: Box<Node<'a>>,
+        condition: Box<ConditionNode<'a>>,
         next: Either<Box<Node<'a>>, ()>,
-        for_block: Box<Node<'a>>,
+        for_block: Box<BlockNode<'a>>,
     ) -> Self {
         Self {
             condition,
@@ -40,11 +40,11 @@ impl<'a> ForNode<'a> {
 
 #[derive(Debug, PartialEq)]
 pub struct LoopNode<'a> {
-    loop_block: Box<Node<'a>>,
+    loop_block: Box<BlockNode<'a>>,
 }
 
 impl<'a> LoopNode<'a> {
-    pub fn new(loop_block: Box<Node<'a>>) -> Self {
+    pub fn new(loop_block: Box<BlockNode<'a>>) -> Self {
         Self { loop_block }
     }
 }

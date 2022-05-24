@@ -5,6 +5,7 @@ use crate::lexer::token::Token;
 use super::{
     declarations::{ConstDeclNode, TypeName, VarDeclNode, VarType},
     functions::FunctionNode,
+    identifier::IdentifierNode,
     if_else::IfNode,
     loops::{ForNode, LoopNode, WhileNode},
     math_ops::{BinOpNode, UnOpNode},
@@ -31,12 +32,13 @@ impl<'a> ConditionNode<'a> {
 
 #[derive(PartialEq, Debug)]
 pub struct BlockNode<'a> {
+    pub children: Vec<Box<Node<'a>>>,
     pub block: Box<Node<'a>>,
 }
 
 impl<'a> BlockNode<'a> {
-    pub fn new(block: Box<Node<'a>>) -> Self {
-        Self { block }
+    pub fn new(children: Vec<Box<Node<'a>>>, block: Box<Node<'a>>) -> Self {
+        Self { children, block }
     }
 }
 
@@ -58,11 +60,8 @@ pub enum Nodes<'a> {
     VarDeclNode(VarDeclNode<'a>),
     ConstDeclNode(ConstDeclNode<'a>),
 
-    // General
-    ConditionNode(ConditionNode<'a>),
-
-    // Blocks
-    BlockNode(BlockNode<'a>),
+    // Identifiers
+    IdentifierNode(IdentifierNode<'a>),
 
     // If-else
     IfNode(IfNode<'a>),
