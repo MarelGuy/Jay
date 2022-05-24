@@ -5,6 +5,7 @@ use Either::{Left, Right};
 Jay parser
 Copyright (C) 2022  Loris Cuntreri
 */
+
 use crate::lexer::token::{Span, Token, TokenType};
 use crate::parser::ast::declarations::AssignType;
 use crate::parser::ast::functions::FunctionNode;
@@ -424,6 +425,10 @@ impl<'a> Parser<'a> {
             vec![],
             Box::new(Nodes::LoopNode(LoopNode::new(loop_block))),
         ))
+    }
+
+    fn parse_switch(&mut self) -> Box<Node<'a>> {
+        todo!()
     }
 
     // Functions
