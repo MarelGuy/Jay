@@ -8,7 +8,7 @@ use super::{
     if_else::IfNode,
     loops::{ForNode, LoopNode, WhileNode},
     math_ops::{BinOpNode, UnOpNode},
-    types::{CharNode, NumberNode, StringNode, TypeNode},
+    types::{BoolNode, CharNode, NumberNode, StringNode, TypeNode},
 };
 
 #[derive(PartialEq, Debug)]
@@ -74,6 +74,7 @@ pub enum Nodes<'a> {
     NumberNode(NumberNode<'a>),
     StringNode(StringNode<'a>),
     CharNode(CharNode<'a>),
+    BoolNode(BoolNode<'a>),
     TypeNode(TypeNode<'a>),
 
     // Loops

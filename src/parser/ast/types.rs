@@ -37,6 +37,17 @@ impl<'a> CharNode<'a> {
 }
 
 #[derive(PartialEq, Debug)]
+pub struct BoolNode<'a> {
+    token: Token<'a>,
+}
+
+impl<'a> BoolNode<'a> {
+    pub fn new(token: Token<'a>) -> Self {
+        Self { token }
+    }
+}
+
+#[derive(PartialEq, Debug)]
 pub struct StringNode<'a> {
     token: Token<'a>,
     length: usize,
