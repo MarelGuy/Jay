@@ -221,9 +221,9 @@ impl<'a> Parser<'a> {
         let mut value: Vec<Box<Node>> = vec![];
 
         if ty.is_left() {
-            value = self.parse_value(false, &ty);
+            value.append(&mut self.parse_value(false, &ty));
         } else {
-            value = self.parse_value(true, &ty);
+            value.append(&mut self.parse_value(true, &ty));
         }
 
         if is_const {
