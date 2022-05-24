@@ -287,7 +287,6 @@ impl<'a> Parser<'a> {
                 }
             }
         } else {
-            println!("3");
             while self.current_token.token_type != TokenType::Semicolon {
                 value.push(self.parse_list(self.current_token));
             }
