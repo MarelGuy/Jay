@@ -17,10 +17,10 @@
     - String
     - Char
     - Type
+    - Boolean
   
   ### Doing
     - Switch
-    - Boolean
 
   ### To do
     - Return
