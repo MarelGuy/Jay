@@ -219,7 +219,7 @@ impl<'a> Parser<'a> {
         self.next();
 
         let mut value: Vec<Box<Node>> = vec![];
-        
+
         if ty.is_left() {
             value = self.parse_value(false, &ty);
         } else {
@@ -289,6 +289,7 @@ impl<'a> Parser<'a> {
         } else {
             while self.current_token.token_type != TokenType::Semicolon {
                 value.push(self.parse_list(self.current_token));
+                self.next();
             }
         }
 
