@@ -8,6 +8,7 @@ use super::{
     if_else::IfNode,
     loops::{ForNode, LoopNode, WhileNode},
     math_ops::{BinOpNode, UnOpNode},
+    switch::SwitchNode,
     types::{BoolNode, CharNode, NumberNode, StringNode, TypeNode},
 };
 
@@ -65,6 +66,9 @@ pub enum Nodes<'a> {
 
     // If-else
     IfNode(IfNode<'a>),
+
+    // Switch
+    SwitchNode(SwitchNode<'a>),
 
     // Ops
     BinOpNode(BinOpNode<'a>),
