@@ -18,14 +18,14 @@
     - Char
     - Type
     - Boolean
+    - Switch
   
   ### Doing
-    - Switch
+    - Return
+    - Return_if
 
   ### To do
-    - Return
     - Array
-    - Return_if
     - Import
     - Export
     - Dot notation
