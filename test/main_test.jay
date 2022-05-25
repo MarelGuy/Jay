@@ -36,8 +36,6 @@ func main(): int {
     // it's value defined before compilation
     const g: MyType = example();
     
-    // lambda functions are a thing
-    let h: int = lamb(lmao: int): int -> lmao + 19;
 
     // you can access the fields of a struct using dot notation
     g.a;
@@ -47,9 +45,6 @@ func main(): int {
     thing();
     thing1();
     thing2();
-    
-    // lambda functions can be used as a normal function
-    h(88);
 
     // there are two types of equals in jay.
     // the first is '==' and the second is '==='.
