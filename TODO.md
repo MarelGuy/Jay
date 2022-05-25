@@ -30,4 +30,9 @@
     - Export
     - Dot notation
     - Function call
-    
+
+## Bugs
+
+  ### Parser
+    - Variables with bin ops are not parsed correctly
+    - Switch and Types when parsed, they will give a NullNode in return
