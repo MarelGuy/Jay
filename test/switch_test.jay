@@ -16,4 +16,8 @@ switch a {
     case 4 {
         4;
     }
+
+    default {
+        default;
+    }
 }

@@ -78,19 +78,26 @@ func main(): int {
 
     // switch statement
     switch a {
-        case 1 {
-            // case 1
-            break;
-        }
-        case 2 {
-            // case 2
-            break;
-        }
-        default{
-            // default
-            break;
-        }
+    case 1 {
+        1;
     }
+
+    case 2 {
+        2;
+    }
+
+    case 3 {
+        3;
+    }
+
+    case 4 {
+        4;
+    }
+
+    default {
+        default;
+    }
+}
 
     // return is used to return a value from a function
     return 0;
