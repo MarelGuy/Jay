@@ -46,10 +46,6 @@ impl<'a> Parser<'a> {
             self.next();
 
             self.ast = self.parse_list(self.current_token);
-
-            //     if node.node != Box::new(Nodes::NullNode) {
-            //         children.push(node);
-            //     }
         }
     }
 
@@ -264,7 +260,6 @@ impl<'a> Parser<'a> {
 
         self.next();
         self.next();
-
         while self.current_token.token_type != TokenType::CloseBrace {
             fields.push(self.parse_param());
             self.next();
