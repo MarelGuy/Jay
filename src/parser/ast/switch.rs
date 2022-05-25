@@ -1,17 +1,20 @@
 use either::Either;
 
-use super::general::{BlockNode, ConditionNode, Node};
+use super::{
+    general::{BlockNode, ConditionNode},
+    identifier::IdentifierNode,
+};
 
 #[derive(Debug, PartialEq)]
 pub struct SwitchNode<'a> {
-    pub condition: Box<Node<'a>>,
+    pub condition: Box<IdentifierNode<'a>>,
     pub cases: Vec<Box<CaseNode<'a>>>,
     pub default_block: Either<Box<DefaultNode<'a>>, ()>,
 }
 
 impl<'a> SwitchNode<'a> {
     pub fn new(
-        condition: Box<Node<'a>>,
+        condition: Box<IdentifierNode<'a>>,
         cases: Vec<Box<CaseNode<'a>>>,
         default_block: Either<Box<DefaultNode<'a>>, ()>,
     ) -> Self {
@@ -37,11 +40,11 @@ impl<'a> CaseNode<'a> {
 
 #[derive(Debug, PartialEq)]
 pub struct DefaultNode<'a> {
-    pub block: Box<Node<'a>>,
+    pub block: Box<BlockNode<'a>>,
 }
 
 impl<'a> DefaultNode<'a> {
-    pub fn new(block: Box<Node<'a>>) -> Self {
+    pub fn new(block: Box<BlockNode<'a>>) -> Self {
         Self { block }
     }
 }

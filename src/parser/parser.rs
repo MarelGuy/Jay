@@ -433,27 +433,26 @@ impl<'a> Parser<'a> {
     fn parse_switch(&mut self) -> Box<Node<'a>> {
         self.next();
 
-        let condition: Box<Node> = self.parse_list(self.current_token);
+        let condition: Box<IdentifierNode> = self.parse_identifier();
 
         self.next();
         self.next();
 
         let mut cases: Vec<Box<CaseNode>> = vec![];
-        let mut default_node: Box<DefaultNode> = Box::new(DefaultNode::new(Box::new(Node::new(
-            vec![],
-            Box::new(Nodes::NullNode),
-        ))));
+        let mut default_node: Box<DefaultNode> =
+            Box::new(DefaultNode::new(Box::new(BlockNode::new(
+                vec![],
+                Box::new(Node::new(vec![], Box::new(Nodes::NullNode))),
+            ))));
         let mut is_default: bool = false;
 
         while self.current_token.token_type != TokenType::CloseBrace {
-            cases.push(self.parse_case());
-
             if self.current_token.token_type == TokenType::Default {
                 is_default = true;
                 default_node = self.parse_default();
+            } else {
+                cases.push(self.parse_case());
             }
-
-            self.next();
         }
 
         if is_default == true {
@@ -483,15 +482,18 @@ impl<'a> Parser<'a> {
         let condition: Box<ConditionNode> = self.parse_condition();
 
         self.next();
-        self.next();
 
         let case_block: Box<BlockNode> = self.parse_block();
 
         Box::new(CaseNode::new(condition, case_block))
     }
 
-    fn parse_default(&self) -> Box<DefaultNode<'a>> {
-        todo!()
+    fn parse_default(&mut self) -> Box<DefaultNode<'a>> {
+        self.next();
+
+        let case_block: Box<BlockNode> = self.parse_block();
+
+        Box::new(DefaultNode::new(case_block))
     }
 
     // Functions
