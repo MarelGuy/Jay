@@ -177,9 +177,6 @@ pub enum TokenType {
     #[token("func")]
     Func,
 
-    #[token("lamb")]
-    LambFunc,
-
     #[token("let")]
     Let,
 

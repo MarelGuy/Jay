@@ -160,10 +160,6 @@ impl<'a> Parser<'a> {
                 vec![],
                 Box::new(Nodes::FunctionNode(*self.parse_function())),
             )),
-            TokenType::LambFunc => Box::new(Node::new(
-                vec![],
-                Box::new(Nodes::FunctionNode(*self.parse_lambda())),
-            )),
             TokenType::Switch => self.parse_switch(),
             TokenType::Identifier => Box::new(Node::new(
                 vec![],
@@ -529,47 +525,6 @@ impl<'a> Parser<'a> {
         let function_block: Box<BlockNode> = self.parse_block();
 
         Box::new(FunctionNode::new(name, params, ret_ty, function_block))
-    }
-
-    fn parse_lambda(&mut self) -> Box<FunctionNode<'a>> {
-        self.next();
-
-        let mut params: Vec<Box<ParamNode>> = vec![];
-
-        self.next();
-
-        while self.current_token.token_type != TokenType::CloseParen {
-            params.push(self.parse_param());
-        }
-
-        self.next();
-
-        self.next();
-
-        let ret_ty: Either<VarType, TypeName> = self.parse_ty();
-
-        self.next();
-        self.next();
-        self.next();
-
-        let mut block_node: Box<BlockNode> = Box::new(BlockNode::new(
-            vec![],
-            Box::new(Node::new(vec![], Box::new(Nodes::NullNode))),
-        ));
-
-        while self.current_token.token_type != TokenType::Semicolon {
-            let node: Box<Node> = self.parse_list(self.current_token);
-            self.next();
-
-            block_node.children.push(node);
-        }
-
-        Box::new(FunctionNode::new(
-            "".to_string(),
-            params,
-            ret_ty,
-            block_node,
-        ))
     }
 
     // Params
