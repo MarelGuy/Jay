@@ -32,13 +32,12 @@ impl<'a> ConditionNode<'a> {
 
 #[derive(PartialEq, Debug)]
 pub struct BlockNode<'a> {
-    pub children: Vec<Box<Node<'a>>>,
     pub block: Box<Node<'a>>,
 }
 
 impl<'a> BlockNode<'a> {
-    pub fn new(children: Vec<Box<Node<'a>>>, block: Box<Node<'a>>) -> Self {
-        Self { children, block }
+    pub fn new(block: Box<Node<'a>>) -> Self {
+        Self { block }
     }
 }
 
@@ -94,12 +93,11 @@ pub enum Nodes<'a> {
 
 #[derive(PartialEq, Debug)]
 pub struct Node<'a> {
-    pub children: Vec<Box<Node<'a>>>,
     pub node: Box<Nodes<'a>>,
 }
 
 impl<'a> Node<'a> {
-    pub fn new(children: Vec<Box<Node<'a>>>, node: Box<Nodes<'a>>) -> Self {
-        Self { children, node }
+    pub fn new(node: Box<Nodes<'a>>) -> Self {
+        Self { node }
     }
 }
