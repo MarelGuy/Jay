@@ -1,16 +1,20 @@
 use crate::lexer::token::Token;
 
-use super::general::Node;
+use super::types::NumberNode;
 
 #[derive(PartialEq, Debug)]
 pub struct BinOpNode<'a> {
-    left_node: Box<Node<'a>>,
+    left_node: Box<NumberNode<'a>>,
     op_token: Token<'a>,
-    right_node: Box<Node<'a>>,
+    right_node: Box<NumberNode<'a>>,
 }
 
 impl<'a> BinOpNode<'a> {
-    pub fn new(left_node: Box<Node<'a>>, op_token: Token<'a>, right_node: Box<Node<'a>>) -> Self {
+    pub fn new(
+        left_node: Box<NumberNode<'a>>,
+        op_token: Token<'a>,
+        right_node: Box<NumberNode<'a>>,
+    ) -> Self {
         Self {
             left_node,
             op_token,
@@ -22,11 +26,11 @@ impl<'a> BinOpNode<'a> {
 #[derive(PartialEq, Debug)]
 pub struct UnOpNode<'a> {
     op_token: Token<'a>,
-    node: Box<Node<'a>>,
+    node: Box<NumberNode<'a>>,
 }
 
 impl<'a> UnOpNode<'a> {
-    pub fn new(op_token: Token<'a>, node: Box<Node<'a>>) -> Self {
+    pub fn new(op_token: Token<'a>, node: Box<NumberNode<'a>>) -> Self {
         Self { op_token, node }
     }
 }

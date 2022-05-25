@@ -78,7 +78,7 @@ pub enum Nodes<'a> {
     StringNode(StringNode<'a>),
     CharNode(CharNode<'a>),
     BoolNode(BoolNode<'a>),
-    TypeNode(TypeNode<'a>),
+    TypeNode(TypeNode),
 
     // Loops
     WhileNode(WhileNode<'a>),
@@ -87,7 +87,6 @@ pub enum Nodes<'a> {
 
     // Functions
     FunctionNode(FunctionNode<'a>),
-    ParamNode(ParamNode),
 
     // Misc
     NullNode,

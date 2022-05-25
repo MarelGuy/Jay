@@ -1,6 +1,9 @@
 use either::Either;
 
-use super::general::{BlockNode, ConditionNode, Node};
+use super::{
+    general::{BlockNode, ConditionNode},
+    math_ops::UnOpNode,
+};
 
 #[derive(Debug, PartialEq)]
 pub struct WhileNode<'a> {
@@ -20,14 +23,14 @@ impl<'a> WhileNode<'a> {
 #[derive(PartialEq, Debug)]
 pub struct ForNode<'a> {
     condition: Box<ConditionNode<'a>>,
-    next: Either<Box<Node<'a>>, ()>,
+    next: Either<Box<UnOpNode<'a>>, ()>,
     for_block: Box<BlockNode<'a>>,
 }
 
 impl<'a> ForNode<'a> {
     pub fn new(
         condition: Box<ConditionNode<'a>>,
-        next: Either<Box<Node<'a>>, ()>,
+        next: Either<Box<UnOpNode<'a>>, ()>,
         for_block: Box<BlockNode<'a>>,
     ) -> Self {
         Self {

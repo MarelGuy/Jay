@@ -2,13 +2,13 @@ use either::Either;
 
 use super::{
     declarations::{TypeName, VarType},
-    general::{BlockNode, Node},
+    general::{BlockNode, ParamNode},
 };
 
 #[derive(PartialEq, Debug)]
 pub struct FunctionNode<'a> {
     pub name: String,
-    pub args: Vec<Box<Node<'a>>>,
+    pub args: Vec<Box<ParamNode>>,
     pub ret_ty: Either<VarType, TypeName>,
     pub block: Box<BlockNode<'a>>,
 }
@@ -16,7 +16,7 @@ pub struct FunctionNode<'a> {
 impl<'a> FunctionNode<'a> {
     pub fn new(
         name: String,
-        args: Vec<Box<Node<'a>>>,
+        args: Vec<Box<ParamNode>>,
         ret_ty: Either<VarType, TypeName>,
         block: Box<BlockNode<'a>>,
     ) -> Self {
