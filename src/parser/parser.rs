@@ -88,69 +88,114 @@ impl<'a> Parser<'a> {
                     || self.peek().token_type == TokenType::Power
                     || self.peek().token_type == TokenType::Modulo
                 {
-                    self.parse_bin_op()
+                    Box::new(Node::new(
+                        vec![],
+                        Box::new(Nodes::BinOpNode(*self.parse_bin_op())),
+                    ))
                 } else if self.peek().token_type == TokenType::PlusPlus
                     || self.peek().token_type == TokenType::MinusMinus
                 {
-                    self.parse_un_op()
+                    Box::new(Node::new(
+                        vec![],
+                        Box::new(Nodes::UnOpNode(*self.parse_un_op())),
+                    ))
                 } else {
-                    self.parse_number()
+                    Box::new(Node::new(
+                        vec![],
+                        Box::new(Nodes::NumberNode(*self.parse_number())),
+                    ))
                 }
             }
-            TokenType::String => self.parse_string(),
-            TokenType::Char => self.parse_char(),
-            TokenType::BoolType => self.parse_bool(),
-            TokenType::Let => self.parse_var(false, false),
-            TokenType::Var => self.parse_var(true, false),
-            TokenType::Const => self.parse_var(false, true),
-            TokenType::Type => self.parse_type(),
-            TokenType::If => self.parse_if_else(),
-            TokenType::While => self.parse_while(),
-            TokenType::For => self.parse_for(),
-            TokenType::Loop => self.parse_loop(),
-            TokenType::Func => self.parse_function(),
-            TokenType::LambFunc => self.parse_lambda(),
+            TokenType::String => Box::new(Node::new(
+                vec![],
+                Box::new(Nodes::StringNode(*self.parse_string())),
+            )),
+            TokenType::Char => Box::new(Node::new(
+                vec![],
+                Box::new(Nodes::CharNode(*self.parse_char())),
+            )),
+            TokenType::BoolType => Box::new(Node::new(
+                vec![],
+                Box::new(Nodes::BoolNode(*self.parse_bool())),
+            )),
+            TokenType::Let => Box::new(Node::new(
+                vec![],
+                Box::new(Nodes::VarDeclNode(
+                    *self.parse_var(false, false).left().unwrap(),
+                )),
+            )),
+            TokenType::Var => Box::new(Node::new(
+                vec![],
+                Box::new(Nodes::VarDeclNode(
+                    *self.parse_var(true, false).left().unwrap(),
+                )),
+            )),
+            TokenType::Const => Box::new(Node::new(
+                vec![],
+                Box::new(Nodes::ConstDeclNode(
+                    *self.parse_var(false, true).right().unwrap(),
+                )),
+            )),
+            TokenType::Type => Box::new(Node::new(
+                vec![],
+                Box::new(Nodes::TypeNode(*self.parse_type())),
+            )),
+            TokenType::If => Box::new(Node::new(
+                vec![],
+                Box::new(Nodes::IfNode(*self.parse_if_else())),
+            )),
+            TokenType::While => Box::new(Node::new(
+                vec![],
+                Box::new(Nodes::WhileNode(*self.parse_while())),
+            )),
+            TokenType::For => Box::new(Node::new(
+                vec![],
+                Box::new(Nodes::ForNode(*self.parse_for())),
+            )),
+            TokenType::Loop => Box::new(Node::new(
+                vec![],
+                Box::new(Nodes::LoopNode(*self.parse_loop())),
+            )),
+            TokenType::Func => Box::new(Node::new(
+                vec![],
+                Box::new(Nodes::FunctionNode(*self.parse_function())),
+            )),
+            TokenType::LambFunc => Box::new(Node::new(
+                vec![],
+                Box::new(Nodes::FunctionNode(*self.parse_lambda())),
+            )),
             TokenType::Switch => self.parse_switch(),
-            TokenType::Identifier => self.parse_identifier(),
+            TokenType::Identifier => Box::new(Node::new(
+                vec![],
+                Box::new(Nodes::IdentifierNode(*self.parse_identifier())),
+            )),
             _ => Box::new(Node::new(vec![], Box::new(Nodes::NullNode))),
         }
     }
 
     // Types
-    fn parse_number(&self) -> Box<Node<'a>> {
+    fn parse_number(&self) -> Box<NumberNode<'a>> {
         let token: Token = self.current_token.clone();
 
-        return Box::new(Node::new(
-            vec![],
-            Box::new(Nodes::NumberNode(NumberNode::new(token))),
-        ));
+        return Box::new(NumberNode::new(token));
     }
 
-    fn parse_string(&self) -> Box<Node<'a>> {
+    fn parse_string(&self) -> Box<StringNode<'a>> {
         let token: Token = self.current_token.clone();
 
-        return Box::new(Node::new(
-            vec![],
-            Box::new(Nodes::StringNode(StringNode::new(token, token.slice.len()))),
-        ));
+        return Box::new(StringNode::new(token, token.slice.len()));
     }
 
-    fn parse_char(&self) -> Box<Node<'a>> {
+    fn parse_char(&self) -> Box<CharNode<'a>> {
         let token: Token = self.current_token.clone();
 
-        return Box::new(Node::new(
-            vec![],
-            Box::new(Nodes::CharNode(CharNode::new(token))),
-        ));
+        return Box::new(CharNode::new(token));
     }
 
-    fn parse_bool(&self) -> Box<Node<'a>> {
+    fn parse_bool(&self) -> Box<BoolNode<'a>> {
         let token: Token = self.current_token.clone();
 
-        return Box::new(Node::new(
-            vec![],
-            Box::new(Nodes::BoolNode(BoolNode::new(token))),
-        ));
+        return Box::new(BoolNode::new(token));
     }
 
     fn parse_ty(&mut self) -> Either<VarType, TypeName> {
@@ -172,51 +217,44 @@ impl<'a> Parser<'a> {
     }
 
     // Identifiers
-    fn parse_identifier(&self) -> Box<Node<'a>> {
+    fn parse_identifier(&self) -> Box<IdentifierNode<'a>> {
         let token: Token = self.current_token.clone();
 
-        return Box::new(Node::new(
-            vec![],
-            Box::new(Nodes::IdentifierNode(IdentifierNode::new(token))),
-        ));
+        return Box::new(IdentifierNode::new(token));
     }
 
     // Ops
-    fn parse_bin_op(&mut self) -> Box<Node<'a>> {
-        let left_node: Box<Node> = self.parse_number();
+    fn parse_bin_op(&mut self) -> Box<BinOpNode<'a>> {
+        let left_node: Box<NumberNode> = self.parse_number();
         self.next();
 
         let op_token: Token = self.current_token;
         self.next();
 
-        let right_node: Box<Node> = self.parse_number();
+        let right_node: Box<NumberNode> = self.parse_number();
 
         self.next();
 
-        return Box::new(Node::new(
-            vec![],
-            Box::new(Nodes::BinOpNode(BinOpNode::new(
-                left_node, op_token, right_node,
-            ))),
-        ));
+        return Box::new(BinOpNode::new(left_node, op_token, right_node));
     }
 
-    fn parse_un_op(&mut self) -> Box<Node<'a>> {
-        let number_node: Box<Node> = self.parse_number();
+    fn parse_un_op(&mut self) -> Box<UnOpNode<'a>> {
+        let number_node: Box<NumberNode> = self.parse_number();
         self.next();
 
         let op_token: Token = self.current_token;
 
         self.next();
 
-        Box::new(Node::new(
-            vec![],
-            Box::new(Nodes::UnOpNode(UnOpNode::new(op_token, number_node))),
-        ))
+        Box::new(UnOpNode::new(op_token, number_node))
     }
 
     // Declarations
-    fn parse_var(&mut self, is_mut: bool, is_const: bool) -> Box<Node<'a>> {
+    fn parse_var(
+        &mut self,
+        is_mut: bool,
+        is_const: bool,
+    ) -> Either<Box<VarDeclNode<'a>>, Box<ConstDeclNode<'a>>> {
         self.next();
         let mut name: String = self.current_token.slice.into();
 
@@ -252,34 +290,23 @@ impl<'a> Parser<'a> {
         }
 
         if is_const {
-            return Box::new(Node::new(
-                vec![],
-                Box::new(Nodes::ConstDeclNode(ConstDeclNode::new(
-                    name,
-                    ty,
-                    assign_token,
-                    value,
-                ))),
-            ));
+            return Right(Box::new(ConstDeclNode::new(name, ty, assign_token, value)));
         } else {
-            return Box::new(Node::new(
-                vec![],
-                Box::new(Nodes::VarDeclNode(VarDeclNode::new(
-                    name,
-                    ty,
-                    assign_token,
-                    is_mut,
-                    value,
-                ))),
-            ));
+            return Left(Box::new(VarDeclNode::new(
+                name,
+                ty,
+                assign_token,
+                is_mut,
+                value,
+            )));
         }
     }
 
-    fn parse_type(&mut self) -> Box<Node<'a>> {
+    fn parse_type(&mut self) -> Box<TypeNode> {
         self.next();
         let name: String = self.current_token.slice.into();
 
-        let mut fields: Vec<Box<Node>> = vec![];
+        let mut fields: Vec<Box<ParamNode>> = vec![];
 
         self.next();
         self.next();
@@ -291,10 +318,7 @@ impl<'a> Parser<'a> {
 
         self.types.push(name.clone());
 
-        Box::new(Node::new(
-            vec![],
-            Box::new(Nodes::TypeNode(TypeNode::new(name, fields))),
-        ))
+        Box::new(TypeNode::new(name, fields))
     }
 
     fn parse_value(
@@ -353,7 +377,7 @@ impl<'a> Parser<'a> {
         Box::new(BlockNode::new(vec![], block_node))
     }
 
-    fn parse_if_else(&mut self) -> Box<Node<'a>> {
+    fn parse_if_else(&mut self) -> Box<IfNode<'a>> {
         let condition: Box<ConditionNode> = self.parse_condition();
 
         self.next();
@@ -369,44 +393,27 @@ impl<'a> Parser<'a> {
 
             let else_block: Box<BlockNode> = self.parse_block();
 
-            return Box::new(Node::new(
-                vec![],
-                Box::new(Nodes::IfNode(IfNode::new(
-                    condition,
-                    if_block,
-                    either::Left(else_block),
-                ))),
-            ));
+            return Box::new(IfNode::new(condition, if_block, either::Left(else_block)));
         }
 
-        Box::new(Node::new(
-            vec![],
-            Box::new(Nodes::IfNode(IfNode::new(
-                condition,
-                if_block,
-                either::Right(()),
-            ))),
-        ))
+        Box::new(IfNode::new(condition, if_block, either::Right(())))
     }
 
-    fn parse_while(&mut self) -> Box<Node<'a>> {
+    fn parse_while(&mut self) -> Box<WhileNode<'a>> {
         let condition: Box<ConditionNode> = self.parse_condition();
 
         self.next();
 
         let while_block: Box<BlockNode> = self.parse_block();
 
-        Box::new(Node::new(
-            vec![],
-            Box::new(Nodes::WhileNode(WhileNode::new(condition, while_block))),
-        ))
+        Box::new(WhileNode::new(condition, while_block))
     }
 
-    fn parse_for(&mut self) -> Box<Node<'a>> {
+    fn parse_for(&mut self) -> Box<ForNode<'a>> {
         let condition: Box<ConditionNode> = self.parse_condition();
         self.next();
 
-        let mut next_block: Either<Box<Node<'a>>, ()> = Either::Right(());
+        let mut next_block: Either<Box<UnOpNode<'a>>, ()> = Either::Right(());
 
         if self.current_token.token_type == TokenType::Next {
             self.next();
@@ -416,21 +423,13 @@ impl<'a> Parser<'a> {
 
         let for_block: Box<BlockNode> = self.parse_block();
 
-        Box::new(Node::new(
-            vec![],
-            Box::new(Nodes::ForNode(ForNode::new(
-                condition, next_block, for_block,
-            ))),
-        ))
+        Box::new(ForNode::new(condition, next_block, for_block))
     }
 
-    fn parse_loop(&mut self) -> Box<Node<'a>> {
+    fn parse_loop(&mut self) -> Box<LoopNode<'a>> {
         let loop_block: Box<BlockNode> = self.parse_block();
 
-        Box::new(Node::new(
-            vec![],
-            Box::new(Nodes::LoopNode(LoopNode::new(loop_block))),
-        ))
+        Box::new(LoopNode::new(loop_block))
     }
 
     // Switch
@@ -501,7 +500,7 @@ impl<'a> Parser<'a> {
 
     // Functions
 
-    fn parse_function(&mut self) -> Box<Node<'a>> {
+    fn parse_function(&mut self) -> Box<FunctionNode<'a>> {
         self.next();
 
         let mut name: String = self.current_token.slice.into();
@@ -512,7 +511,7 @@ impl<'a> Parser<'a> {
 
         self.next();
 
-        let mut params: Vec<Box<Node>> = vec![];
+        let mut params: Vec<Box<ParamNode>> = vec![];
 
         self.next();
 
@@ -529,21 +528,13 @@ impl<'a> Parser<'a> {
 
         let function_block: Box<BlockNode> = self.parse_block();
 
-        Box::new(Node::new(
-            vec![],
-            Box::new(Nodes::FunctionNode(FunctionNode::new(
-                name,
-                params,
-                ret_ty,
-                function_block,
-            ))),
-        ))
+        Box::new(FunctionNode::new(name, params, ret_ty, function_block))
     }
 
-    fn parse_lambda(&mut self) -> Box<Node<'a>> {
+    fn parse_lambda(&mut self) -> Box<FunctionNode<'a>> {
         self.next();
 
-        let mut params: Vec<Box<Node>> = vec![];
+        let mut params: Vec<Box<ParamNode>> = vec![];
 
         self.next();
 
@@ -573,19 +564,16 @@ impl<'a> Parser<'a> {
             block_node.children.push(node);
         }
 
-        Box::new(Node::new(
-            vec![],
-            Box::new(Nodes::FunctionNode(FunctionNode::new(
-                "".to_string(),
-                params,
-                ret_ty,
-                block_node,
-            ))),
+        Box::new(FunctionNode::new(
+            "".to_string(),
+            params,
+            ret_ty,
+            block_node,
         ))
     }
 
     // Params
-    fn parse_param(&mut self) -> Box<Node<'a>> {
+    fn parse_param(&mut self) -> Box<ParamNode> {
         if self.current_token.token_type == TokenType::Comma {
             self.next();
         }
@@ -604,9 +592,6 @@ impl<'a> Parser<'a> {
 
         self.next();
 
-        Box::new(Node::new(
-            vec![],
-            Box::new(Nodes::ParamNode(ParamNode::new(name, ty))),
-        ))
+        Box::new(ParamNode::new(name, ty))
     }
 }
