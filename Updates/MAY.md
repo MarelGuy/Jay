@@ -71,3 +71,8 @@ I'm still gonna push a buggy code, I'll fix it in the next hours while in school
 
 Nice, I fixed everything. I got a problem though, my current todo list isn't really great, and I can't keep track of
 the things I'm doing rn, I'll create another one just for the sake of it (I'll probably do a trello, maybe).
+
+## 2022-05-29
+
+Yeah... I didn't do anything in some days, Ace Combat 7 is a great game though.  
+But jokes off, I really can't do much right now, I'm still in school, when the tests are done, I'll start working on the project again.
