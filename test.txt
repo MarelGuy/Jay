@@ -6,5 +6,4 @@ cargo run ./test/type_test.jay &&
 cargo run ./test/un_bin_op_test.jay &&
 cargo run ./test/var_let_const_test.jay
 
-switch doesn't work
 type doesn't work
