@@ -38,7 +38,7 @@ fn run(input: &str) {
 
     parser.parse();
 
-    let tree: Box<Node> = parser.ast;
+    let tree: Vec<Box<Node>> = parser.ast;
 
     println!("{:#?}", tree);
 }

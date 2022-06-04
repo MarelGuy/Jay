@@ -32,11 +32,11 @@ impl<'a> ConditionNode<'a> {
 
 #[derive(PartialEq, Debug)]
 pub struct BlockNode<'a> {
-    pub block: Box<Node<'a>>,
+    pub block: Vec<Box<Node<'a>>>,
 }
 
 impl<'a> BlockNode<'a> {
-    pub fn new(block: Box<Node<'a>>) -> Self {
+    pub fn new(block: Vec<Box<Node<'a>>>) -> Self {
         Self { block }
     }
 }

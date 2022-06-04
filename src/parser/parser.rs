@@ -27,7 +27,7 @@ pub struct Parser<'a> {
     pub current_token: Token<'a>,
     pub tok_i: usize,
     pub types: Vec<String>,
-    pub ast: Box<Node<'a>>,
+    pub ast: Vec<Box<Node<'a>>>,
 }
 
 impl<'a> Parser<'a> {
@@ -37,7 +37,7 @@ impl<'a> Parser<'a> {
             token_stream,
             tok_i: 0,
             types: Vec::new(),
-            ast: Box::new(Node::new(Box::new(Nodes::NullNode))),
+            ast: vec![],
         }
     }
 
@@ -48,7 +48,7 @@ impl<'a> Parser<'a> {
             let new_node = self.parse_list(self.current_token);
 
             if new_node != Box::new(Node::new(Box::new(Nodes::NullNode))) {
-                self.ast = new_node;
+                self.ast.push(new_node);
             }
         }
     }
@@ -318,13 +318,13 @@ impl<'a> Parser<'a> {
     fn parse_block(&mut self) -> Box<BlockNode<'a>> {
         self.next();
 
-        let mut block_node: Box<Node> = Box::new(Node::new(Box::new(Nodes::NullNode)));
+        let mut block_node: Vec<Box<Node>> = vec![];
 
         while self.current_token.token_type != TokenType::CloseBrace {
             let new_node = self.parse_list(self.current_token);
 
             if new_node != Box::new(Node::new(Box::new(Nodes::NullNode))) {
-                block_node = new_node;
+                block_node.push(new_node);
             }
 
             self.next();
@@ -394,9 +394,8 @@ impl<'a> Parser<'a> {
         self.next();
 
         let mut cases: Vec<Box<CaseNode>> = vec![];
-        let mut default_node: Box<DefaultNode> = Box::new(DefaultNode::new(Box::new(
-            BlockNode::new(Box::new(Node::new(Box::new(Nodes::NullNode)))),
-        )));
+        let mut default_node: Box<DefaultNode> =
+            Box::new(DefaultNode::new(Box::new(BlockNode::new(vec![]))));
         let mut is_default: bool = false;
 
         self.next();
