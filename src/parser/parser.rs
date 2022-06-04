@@ -45,7 +45,11 @@ impl<'a> Parser<'a> {
         while self.tok_i < self.token_stream.len() {
             self.next();
 
-            self.ast = self.parse_list(self.current_token);
+            let new_node = self.parse_list(self.current_token);
+
+            if new_node != Box::new(Node::new(Box::new(Nodes::NullNode))) {
+                self.ast = new_node;
+            }
         }
     }
 
@@ -115,7 +119,9 @@ impl<'a> Parser<'a> {
             TokenType::Func => Box::new(Node::new(Box::new(Nodes::FunctionNode(
                 *self.parse_function(),
             )))),
-            TokenType::Switch => self.parse_switch(),
+            TokenType::Switch => {
+                Box::new(Node::new(Box::new(Nodes::SwitchNode(*self.parse_switch()))))
+            }
             TokenType::Identifier => Box::new(Node::new(Box::new(Nodes::IdentifierNode(
                 *self.parse_identifier(),
             )))),
@@ -315,7 +321,12 @@ impl<'a> Parser<'a> {
         let mut block_node: Box<Node> = Box::new(Node::new(Box::new(Nodes::NullNode)));
 
         while self.current_token.token_type != TokenType::CloseBrace {
-            block_node = self.parse_list(self.current_token);
+            let new_node = self.parse_list(self.current_token);
+
+            if new_node != Box::new(Node::new(Box::new(Nodes::NullNode))) {
+                block_node = new_node;
+            }
+
             self.next();
         }
 
@@ -379,12 +390,7 @@ impl<'a> Parser<'a> {
 
     // Switch
 
-    fn parse_switch(&mut self) -> Box<Node<'a>> {
-        self.next();
-
-        let condition: Box<IdentifierNode> = self.parse_identifier();
-
-        self.next();
+    fn parse_switch(&mut self) -> Box<SwitchNode<'a>> {
         self.next();
 
         let mut cases: Vec<Box<CaseNode>> = vec![];
@@ -393,6 +399,8 @@ impl<'a> Parser<'a> {
         )));
         let mut is_default: bool = false;
 
+        self.next();
+
         while self.current_token.token_type != TokenType::CloseBrace {
             if self.current_token.token_type == TokenType::Default {
                 is_default = true;
@@ -400,26 +408,25 @@ impl<'a> Parser<'a> {
             } else {
                 cases.push(self.parse_case());
             }
+            self.next();
         }
 
         if is_default == true {
-            Box::new(Node::new(Box::new(Nodes::SwitchNode(SwitchNode::new(
-                condition,
-                cases,
-                Left(default_node),
-            )))))
+            let debug = Box::new(SwitchNode::new(cases, Left(default_node)));
+
+            // println!("{:#?}", &debug);
+
+            return debug;
         } else {
-            Box::new(Node::new(Box::new(Nodes::SwitchNode(SwitchNode::new(
-                condition,
-                cases,
-                Right(()),
-            )))))
+            let debug = Box::new(SwitchNode::new(cases, Right(())));
+
+            // println!("{:#?}", &debug);
+
+            return debug;
         }
     }
 
     fn parse_case(&mut self) -> Box<CaseNode<'a>> {
-        self.next();
-
         let condition: Box<ConditionNode> = self.parse_condition();
 
         self.next();
@@ -430,8 +437,6 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_default(&mut self) -> Box<DefaultNode<'a>> {
-        self.next();
-
         let case_block: Box<BlockNode> = self.parse_block();
 
         Box::new(DefaultNode::new(case_block))
