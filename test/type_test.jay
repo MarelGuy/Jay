@@ -1,6 +1,9 @@
 type MyType {
     a: string;
     b: int;
+    c: func new(a: string, b: int): MyType {
+        return { a, b};
+    };
 }
 
-let lmao: MyType = { "lmao", 5 + 2 };
+let lmao: MyType = MyType::new("lmao", 5);
