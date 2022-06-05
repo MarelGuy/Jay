@@ -1,9 +1,11 @@
 type MyType {
     a: string;
     b: int;
-    c: func new(a: string, b: int): MyType {
-        return { a, b};
-    };
+    func new(a: string, b: int): MyType;
+}
+
+MyType:::new(a: string, b: int): MyType {
+    return MyType{ a, b };
 }
 
 let lmao: MyType = MyType::new("lmao", 5);

@@ -29,7 +29,10 @@ fn run(input: &str) {
     let mut tokens: Vec<Token> = Vec::new();
 
     for token in lexer {
-        if token.token_type != TokenType::Space && token.token_type != TokenType::LineFeed {
+        if token.token_type != TokenType::Space
+            && token.token_type != TokenType::LineFeed
+            && token.token_type != TokenType::CarriageReturn
+        {
             tokens.push(token);
         }
     }
@@ -38,9 +41,7 @@ fn run(input: &str) {
 
     parser.parse();
 
-    let tree: Vec<Box<Node>> = parser.ast;
-
-    println!("{:#?}", tree);
+    println!("{:#?}", parser.ast);
 }
 
 // fn interpreter() {
