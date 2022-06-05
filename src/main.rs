@@ -6,10 +6,7 @@ use lexer::lexer::Lexer;
 use parser::parser::Parser;
 use std::{env::args, fs::read_to_string, /* io::Write, */ path::Path};
 
-use crate::{
-    lexer::token::{Token, TokenType},
-    parser::ast::general::Node,
-};
+use crate::lexer::token::{Token, TokenType};
 
 mod lexer;
 mod parser;
