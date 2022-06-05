@@ -1,9 +1,11 @@
+// working
 type MyType {
     a: string;
     b: int;
     func new(a: string, b: int): MyType;
 }
 
+// not working
 MyType:::new(a: string, b: int): MyType {
     return MyType{ a, b };
 }
