@@ -4,7 +4,7 @@ use crate::lexer::token::Token;
 
 use super::{
     declarations::{ConstDeclNode, TypeName, VarDeclNode, VarType},
-    functions::FunctionNode,
+    functions::{FunctionDeclNode, FunctionNode},
     identifier::IdentifierNode,
     if_else::IfNode,
     loops::{ForNode, LoopNode, WhileNode},
@@ -44,11 +44,11 @@ impl<'a> BlockNode<'a> {
 #[derive(PartialEq, Debug)]
 pub struct ParamNode {
     pub name: String,
-    pub ty: Either<VarType, TypeName>,
+    pub ty: Either<FunctionDeclNode, Either<VarType, TypeName>>,
 }
 
-impl<'a> ParamNode {
-    pub fn new(name: String, ty: Either<VarType, TypeName>) -> Self {
+impl ParamNode {
+    pub fn new(name: String, ty: Either<FunctionDeclNode, Either<VarType, TypeName>>) -> Self {
         Self { name, ty }
     }
 }
