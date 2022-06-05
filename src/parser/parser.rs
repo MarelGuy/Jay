@@ -1,17 +1,9 @@
 use either::Either;
 use Either::{Left, Right};
-
 /*
-Jay parser
-Copyright (C) 2022  Loris Cuntreri
+    Jay parser
+    Copyright (C) 2022  Loris Cuntreri
 */
-
-use crate::lexer::token::{Span, Token, TokenType};
-use crate::parser::ast::declarations::AssignType;
-use crate::parser::ast::functions::FunctionNode;
-use crate::parser::ast::general::{BlockNode, Nodes};
-use crate::parser::ast::loops::WhileNode;
-use crate::parser::ast::types::TypeNode;
 
 use super::ast::declarations::{ConstDeclNode, TypeName, VarDeclNode, VarType};
 use super::ast::general::{ConditionNode, Node, ParamNode};
@@ -21,6 +13,13 @@ use super::ast::loops::{ForNode, LoopNode};
 use super::ast::math_ops::{BinOpNode, UnOpNode};
 use super::ast::switch::{CaseNode, DefaultNode, SwitchNode};
 use super::ast::types::{BoolNode, CharNode, NumberNode, StringNode};
+
+use crate::lexer::token::{Span, Token, TokenType};
+use crate::parser::ast::declarations::AssignType;
+use crate::parser::ast::functions::FunctionNode;
+use crate::parser::ast::general::{BlockNode, Nodes};
+use crate::parser::ast::loops::WhileNode;
+use crate::parser::ast::types::TypeNode;
 
 pub struct Parser<'a> {
     pub token_stream: Vec<Token<'a>>,
@@ -188,7 +187,6 @@ impl<'a> Parser<'a> {
         self.next();
 
         let right_node: Box<NumberNode> = self.parse_number();
-
         self.next();
 
         return Box::new(BinOpNode::new(left_node, op_token, right_node));
@@ -199,7 +197,6 @@ impl<'a> Parser<'a> {
         self.next();
 
         let op_token: Token = self.current_token;
-
         self.next();
 
         Box::new(UnOpNode::new(op_token, number_node))
@@ -212,6 +209,7 @@ impl<'a> Parser<'a> {
         is_const: bool,
     ) -> Either<Box<VarDeclNode<'a>>, Box<ConstDeclNode<'a>>> {
         self.next();
+
         let mut name: String = self.current_token.slice.into();
 
         if name.chars().next().unwrap().is_numeric() {
@@ -222,8 +220,8 @@ impl<'a> Parser<'a> {
         self.next();
 
         let ty: Either<VarType, TypeName> = self.parse_ty();
-
         self.next();
+
         let assign_token: AssignType = match self.current_token.token_type {
             TokenType::Assign => AssignType::Assign,
             TokenType::PlusAssign => AssignType::AddAssign,
@@ -234,7 +232,6 @@ impl<'a> Parser<'a> {
             TokenType::PowerAssign => AssignType::PowAssign,
             _ => AssignType::Error,
         };
-
         self.next();
 
         let mut value: Vec<Box<Node>> = vec![];
@@ -260,12 +257,14 @@ impl<'a> Parser<'a> {
 
     fn parse_type(&mut self) -> Box<TypeNode> {
         self.next();
+
         let name: String = self.current_token.slice.into();
 
         let mut fields: Vec<Box<ParamNode>> = vec![];
 
         self.next();
         self.next();
+
         while self.current_token.token_type != TokenType::CloseBrace {
             fields.push(self.parse_param());
             self.next();
@@ -299,8 +298,8 @@ impl<'a> Parser<'a> {
 
         value
     }
-
     // Statements
+
     fn parse_condition(&mut self) -> Box<ConditionNode<'a>> {
         self.next();
 
@@ -322,7 +321,6 @@ impl<'a> Parser<'a> {
 
         while self.current_token.token_type != TokenType::CloseBrace {
             let new_node = self.parse_list(self.current_token);
-
             if new_node != Box::new(Node::new(Box::new(Nodes::NullNode))) {
                 block_node.push(new_node);
             }
@@ -335,14 +333,10 @@ impl<'a> Parser<'a> {
 
     fn parse_if_else(&mut self) -> Box<IfNode<'a>> {
         let condition: Box<ConditionNode> = self.parse_condition();
-
         self.next();
 
         let if_block: Box<BlockNode> = self.parse_block();
-
         self.next();
-
-        if self.current_token.token_type == TokenType::If {}
 
         if self.current_token.token_type == TokenType::Else {
             self.next();
@@ -357,7 +351,6 @@ impl<'a> Parser<'a> {
 
     fn parse_while(&mut self) -> Box<WhileNode<'a>> {
         let condition: Box<ConditionNode> = self.parse_condition();
-
         self.next();
 
         let while_block: Box<BlockNode> = self.parse_block();
@@ -373,7 +366,6 @@ impl<'a> Parser<'a> {
 
         if self.current_token.token_type == TokenType::Next {
             self.next();
-
             next_block = Either::Left(self.parse_un_op());
         }
 
@@ -384,20 +376,19 @@ impl<'a> Parser<'a> {
 
     fn parse_loop(&mut self) -> Box<LoopNode<'a>> {
         let loop_block: Box<BlockNode> = self.parse_block();
-
         Box::new(LoopNode::new(loop_block))
     }
 
     // Switch
-
     fn parse_switch(&mut self) -> Box<SwitchNode<'a>> {
         self.next();
 
         let mut cases: Vec<Box<CaseNode>> = vec![];
+
         let mut default_node: Box<DefaultNode> =
             Box::new(DefaultNode::new(Box::new(BlockNode::new(vec![]))));
-        let mut is_default: bool = false;
 
+        let mut is_default: bool = false;
         self.next();
 
         while self.current_token.token_type != TokenType::CloseBrace {
@@ -407,27 +398,19 @@ impl<'a> Parser<'a> {
             } else {
                 cases.push(self.parse_case());
             }
+
             self.next();
         }
 
         if is_default == true {
-            let debug = Box::new(SwitchNode::new(cases, Left(default_node)));
-
-            // println!("{:#?}", &debug);
-
-            return debug;
+            Box::new(SwitchNode::new(cases, Left(default_node)))
         } else {
-            let debug = Box::new(SwitchNode::new(cases, Right(())));
-
-            // println!("{:#?}", &debug);
-
-            return debug;
+            Box::new(SwitchNode::new(cases, Right(())))
         }
     }
 
     fn parse_case(&mut self) -> Box<CaseNode<'a>> {
         let condition: Box<ConditionNode> = self.parse_condition();
-
         self.next();
 
         let case_block: Box<BlockNode> = self.parse_block();
@@ -442,7 +425,6 @@ impl<'a> Parser<'a> {
     }
 
     // Functions
-
     fn parse_function(&mut self) -> Box<FunctionNode<'a>> {
         self.next();
 
@@ -455,7 +437,6 @@ impl<'a> Parser<'a> {
         self.next();
 
         let mut params: Vec<Box<ParamNode>> = vec![];
-
         self.next();
 
         while self.current_token.token_type != TokenType::CloseParen {
@@ -466,7 +447,6 @@ impl<'a> Parser<'a> {
         self.next();
 
         let ret_ty: Either<VarType, TypeName> = self.parse_ty();
-
         self.next();
 
         let function_block: Box<BlockNode> = self.parse_block();
@@ -481,7 +461,6 @@ impl<'a> Parser<'a> {
         }
 
         let mut name: String = self.current_token.slice.into();
-
         self.next();
 
         if name.chars().next().unwrap().is_numeric() {
@@ -491,7 +470,6 @@ impl<'a> Parser<'a> {
         self.next();
 
         let ty: Either<VarType, TypeName> = self.parse_ty();
-
         self.next();
 
         Box::new(ParamNode::new(name, ty))
