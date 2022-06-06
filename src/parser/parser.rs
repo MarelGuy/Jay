@@ -6,7 +6,7 @@ use Either::{Left, Right};
 */
 
 use super::ast::declarations::{ConstDeclNode, TypeName, VarDeclNode, VarType};
-use super::ast::functions::FunctionDeclNode;
+use super::ast::functions::{ArgNode, FunctionDeclNode, UseFunctionNode};
 use super::ast::general::{ConditionNode, Node, ParamNode};
 use super::ast::identifier::IdentifierNode;
 use super::ast::if_else::IfNode;
@@ -27,6 +27,8 @@ pub struct Parser<'a> {
     pub current_token: Token<'a>,
     pub tok_i: usize,
     pub types: Vec<String>,
+    pub functions: Vec<String>,
+    pub variables: Vec<String>,
     pub ast: Vec<Box<Node<'a>>>,
 }
 
@@ -37,6 +39,8 @@ impl<'a> Parser<'a> {
             token_stream,
             tok_i: 0,
             types: Vec::new(),
+            functions: Vec::new(),
+            variables: Vec::new(),
             ast: vec![],
         }
     }
@@ -122,9 +126,24 @@ impl<'a> Parser<'a> {
             TokenType::Switch => {
                 Box::new(Node::new(Box::new(Nodes::SwitchNode(*self.parse_switch()))))
             }
-            TokenType::Identifier => Box::new(Node::new(Box::new(Nodes::IdentifierNode(
-                *self.parse_identifier(),
-            )))),
+            TokenType::Identifier => match self.peek().token_type {
+                TokenType::TripleColon =>
+                /* self.parse_def_function_ft() */
+                {
+                    todo!()
+                }
+                TokenType::DoubleColon =>
+                /* self.parse_use_function_ft() */
+                {
+                    todo!()
+                }
+                TokenType::OpenParen => Box::new(Node::new(Box::new(Nodes::UseFunctionNode(
+                    *self.parse_use_function(),
+                )))),
+                _ => Box::new(Node::new(Box::new(Nodes::IdentifierNode(
+                    *self.parse_identifier(),
+                )))),
+            },
             _ => Box::new(Node::new(Box::new(Nodes::NullNode))),
         }
     }
@@ -212,6 +231,7 @@ impl<'a> Parser<'a> {
         self.next();
 
         let mut name: String = self.current_token.slice.into();
+        self.variables.push(name.clone());
 
         if name.chars().next().unwrap().is_numeric() {
             name = "Error".to_string();
@@ -269,7 +289,6 @@ impl<'a> Parser<'a> {
         self.next();
 
         while self.current_token.token_type != TokenType::CloseBrace {
-            println!("{:?}", self.current_token);
             if self.current_token.token_type == TokenType::Func {
                 fields.push(self.parse_param(true));
             } else {
@@ -304,8 +323,8 @@ impl<'a> Parser<'a> {
 
         value
     }
-    // Statements
 
+    // Statements
     fn parse_condition(&mut self) -> Box<ConditionNode<'a>> {
         self.next();
 
@@ -436,6 +455,7 @@ impl<'a> Parser<'a> {
         self.next();
 
         let mut name: String = self.current_token.slice.into();
+        self.functions.push(name.clone());
 
         if name.chars().next().unwrap().is_numeric() {
             name = "Error".to_string();
@@ -456,7 +476,6 @@ impl<'a> Parser<'a> {
 
         self.next();
         self.next();
-        println!("{:?}", self.current_token);
 
         let ret_ty: Either<VarType, TypeName> = self.parse_ty();
 
@@ -471,6 +490,43 @@ impl<'a> Parser<'a> {
 
         Box::new(FunctionNode::new(func_details, function_block))
     }
+
+    fn parse_arg(&mut self) -> Box<ArgNode<'a>> {
+        let value: Box<Node<'a>> = self.parse_list(self.current_token);
+
+        Box::new(ArgNode::new(value))
+    }
+
+    fn parse_use_function(&mut self) -> Box<UseFunctionNode<'a>> {
+        self.next();
+
+        let name: String = self.current_token.slice.into();
+        self.next();
+
+        let mut args: Vec<Box<ArgNode>> = vec![];
+
+        while self.current_token.token_type != TokenType::CloseParen {
+            if self.current_token.token_type == TokenType::Comma {
+                self.next();
+            }
+
+            args.push(self.parse_arg());
+            self.next();
+        }
+
+        self.next();
+        self.next();
+
+        Box::new(UseFunctionNode::new(name, args))
+    }
+
+    // fn parse_def_function_ft(&mut self) -> Box<FunctionNode<'a>> {
+    //     todo!()
+    // }
+
+    // fn parse_use_function_ft(&mut self) -> Box<FunctionNode<'a>> {
+    //     todo!()
+    // }
 
     // Params
     fn parse_param(&mut self, is_func: bool) -> Box<ParamNode> {
