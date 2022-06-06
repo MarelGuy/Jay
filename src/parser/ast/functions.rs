@@ -2,7 +2,7 @@ use either::Either;
 
 use super::{
     declarations::{TypeName, VarType},
-    general::{BlockNode, ParamNode},
+    general::{BlockNode, Node, ParamNode},
 };
 
 #[derive(PartialEq, Debug)]
@@ -30,5 +30,28 @@ impl<'a> FunctionNode<'a> {
             func_details,
             block,
         }
+    }
+}
+
+#[derive(PartialEq, Debug)]
+pub struct ArgNode<'a> {
+    pub value: Box<Node<'a>>,
+}
+
+impl<'a> ArgNode<'a> {
+    pub fn new(value: Box<Node<'a>>) -> Self {
+        Self { value }
+    }
+}
+
+#[derive(PartialEq, Debug)]
+pub struct UseFunctionNode<'a> {
+    pub name: String,
+    pub args: Vec<Box<ArgNode<'a>>>,
+}
+
+impl<'a> UseFunctionNode<'a> {
+    pub fn new(name: String, args: Vec<Box<ArgNode<'a>>>) -> Self {
+        Self { name, args }
     }
 }
