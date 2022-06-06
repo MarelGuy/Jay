@@ -1,4 +1,6 @@
-func main(lmao: int, peppe: string): string {
+func yay(lmao: int, peppe: string): string {
     1+1;
     let lmao: int = 8;
 }
+
+yay(2, "haha");
