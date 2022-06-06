@@ -1,8 +1,7 @@
 # TODO
 
-## Parser
+## Done
 
-  ### Done
     - Variables
     - Constants
     - Functions
@@ -20,11 +19,13 @@
     - Boolean
     - Switch
   
-  ### Doing
+## Doing
+
     - Return
     - Return_if
 
-  ### To do
+## To do
+
     - Array
     - Import
     - Export
@@ -33,6 +34,4 @@
 
 ## Bugs
 
-  ### Parser
-    - Variables with bin ops are not parsed correctly
-    - Switch and Types when parsed, they will give a NullNode in return
+    - None
