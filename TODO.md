@@ -18,6 +18,7 @@
     - Type
     - Boolean
     - Switch
+    - Function call
   
 ## Doing
 
@@ -30,7 +31,6 @@
     - Import
     - Export
     - Dot notation
-    - Function call
 
 ## Bugs
 
