@@ -245,6 +245,12 @@ pub enum TokenType {
     #[token(":")]
     Colon,
 
+    #[token("::")]
+    DoubleColon,
+
+    #[token(":::")]
+    TripleColon,
+
     // Import and Export
     #[token("import")]
     Import,
