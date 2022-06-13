@@ -6,14 +6,14 @@ use Either::{Left, Right};
 */
 
 use super::ast::declarations::{ConstDeclNode, TypeName, VarDeclNode, VarType};
-use super::ast::functions::{ArgNode, FunctionDeclNode, UseFunctionNode};
+use super::ast::functions::{ArgNode, FunctionDeclNode, UseFunctionNode, UseTypeFunctionNode};
 use super::ast::general::{ConditionNode, Node, ParamNode};
 use super::ast::identifier::IdentifierNode;
 use super::ast::if_else::IfNode;
 use super::ast::loops::{ForNode, LoopNode};
 use super::ast::math_ops::{BinOpNode, UnOpNode};
 use super::ast::switch::{CaseNode, DefaultNode, SwitchNode};
-use super::ast::types::{BoolNode, CharNode, NumberNode, StringNode};
+use super::ast::types::{BoolNode, CharNode, NumberNode, StringNode, TypeFunctionNode};
 
 use crate::lexer::token::{Span, Token, TokenType};
 use crate::parser::ast::declarations::AssignType;
@@ -127,16 +127,12 @@ impl<'a> Parser<'a> {
                 Box::new(Node::new(Box::new(Nodes::SwitchNode(*self.parse_switch()))))
             }
             TokenType::Identifier => match self.peek().token_type {
-                TokenType::TripleColon =>
-                /* self.parse_def_function_ft() */
-                {
-                    todo!()
-                }
-                TokenType::DoubleColon =>
-                /* self.parse_use_function_ft() */
-                {
-                    todo!()
-                }
+                TokenType::TripleColon => Box::new(Node::new(Box::new(Nodes::TypeFunctionNode(
+                    *self.parse_def_function_ft(),
+                )))),
+                TokenType::DoubleColon => Box::new(Node::new(Box::new(
+                    Nodes::UseTypeFunctionNode(*self.parse_use_function_ft()),
+                ))),
                 TokenType::OpenParen => Box::new(Node::new(Box::new(Nodes::UseFunctionNode(
                     *self.parse_use_function(),
                 )))),
@@ -520,13 +516,13 @@ impl<'a> Parser<'a> {
         Box::new(UseFunctionNode::new(name, args))
     }
 
-    // fn parse_def_function_ft(&mut self) -> Box<FunctionNode<'a>> {
-    //     todo!()
-    // }
+    fn parse_def_function_ft(&mut self) -> Box<TypeFunctionNode> {
+        todo!()
+    }
 
-    // fn parse_use_function_ft(&mut self) -> Box<FunctionNode<'a>> {
-    //     todo!()
-    // }
+    fn parse_use_function_ft(&mut self) -> Box<UseTypeFunctionNode<'a>> {
+        todo!()
+    }
 
     // Params
     fn parse_param(&mut self, is_func: bool) -> Box<ParamNode> {
