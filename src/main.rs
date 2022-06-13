@@ -43,16 +43,11 @@ fn run(input: &str) {
 
 // fn interpreter() {
 // println!("Jay version 0.0.0 (c) 2022");
-
 //     loop {
 //         print!(">>> ");
-
 //         std::io::stdout().flush().expect("");
-
 //         let mut input: String = String::new();
-
 //         std::io::stdin().read_line(&mut input).expect("");
-
 //         run(&input)
 //     }
 // }
