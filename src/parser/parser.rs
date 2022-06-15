@@ -6,14 +6,14 @@ use Either::{Left, Right};
 */
 
 use super::ast::declarations::{ConstDeclNode, TypeName, VarDeclNode, VarType};
-use super::ast::functions::{ArgNode, FunctionDeclNode, UseFunctionNode, UseTypeFunctionNode};
+use super::ast::functions::{ArgNode, FunctionDeclNode, UseFunctionNode};
 use super::ast::general::{ConditionNode, Node, ParamNode};
 use super::ast::identifier::IdentifierNode;
 use super::ast::if_else::IfNode;
 use super::ast::loops::{ForNode, LoopNode};
 use super::ast::math_ops::{BinOpNode, UnOpNode};
 use super::ast::switch::{CaseNode, DefaultNode, SwitchNode};
-use super::ast::types::{BoolNode, CharNode, NumberNode, StringNode, TypeFunctionNode};
+use super::ast::types::{BoolNode, CharNode, NumberNode, StringNode};
 
 use crate::lexer::token::{Span, Token, TokenType};
 use crate::parser::ast::declarations::AssignType;
@@ -121,20 +121,20 @@ impl<'a> Parser<'a> {
             TokenType::For => Box::new(Node::new(Box::new(Nodes::ForNode(*self.parse_for())))),
             TokenType::Loop => Box::new(Node::new(Box::new(Nodes::LoopNode(*self.parse_loop())))),
             TokenType::Func => Box::new(Node::new(Box::new(Nodes::FunctionNode(
-                *self.parse_function(),
+                *self.parse_function(false),
             )))),
             TokenType::Switch => {
                 Box::new(Node::new(Box::new(Nodes::SwitchNode(*self.parse_switch()))))
             }
             TokenType::Identifier => match self.peek().token_type {
-                TokenType::TripleColon => Box::new(Node::new(Box::new(Nodes::TypeFunctionNode(
-                    *self.parse_def_function_ft(),
+                TokenType::TripleColon => Box::new(Node::new(Box::new(Nodes::FunctionNode(
+                    *self.parse_function(true),
                 )))),
-                TokenType::DoubleColon => Box::new(Node::new(Box::new(
-                    Nodes::UseTypeFunctionNode(*self.parse_use_function_ft()),
-                ))),
+                TokenType::DoubleColon => Box::new(Node::new(Box::new(Nodes::UseFunctionNode(
+                    *self.parse_use_function(true),
+                )))),
                 TokenType::OpenParen => Box::new(Node::new(Box::new(Nodes::UseFunctionNode(
-                    *self.parse_use_function(),
+                    *self.parse_use_function(false),
                 )))),
                 _ => Box::new(Node::new(Box::new(Nodes::IdentifierNode(
                     *self.parse_identifier(),
@@ -286,9 +286,9 @@ impl<'a> Parser<'a> {
 
         while self.current_token.token_type != TokenType::CloseBrace {
             if self.current_token.token_type == TokenType::Func {
-                fields.push(self.parse_param(true));
+                fields.push(self.parse_param(true, false));
             } else {
-                fields.push(self.parse_param(false));
+                fields.push(self.parse_param(false, false));
             }
             self.next();
         }
@@ -447,7 +447,7 @@ impl<'a> Parser<'a> {
     }
 
     // Functions
-    fn parse_function_decl(&mut self) -> Box<FunctionDeclNode> {
+    fn parse_function_decl(&mut self, is_from_type: bool) -> Box<FunctionDeclNode> {
         self.next();
 
         let mut name: String = self.current_token.slice.into();
@@ -464,9 +464,9 @@ impl<'a> Parser<'a> {
 
         while self.current_token.token_type != TokenType::CloseParen {
             if self.current_token.token_type == TokenType::Func {
-                params.push(self.parse_param(true));
+                params.push(self.parse_param(true, false));
             } else {
-                params.push(self.parse_param(false));
+                params.push(self.parse_param(false, false));
             }
         }
 
@@ -478,8 +478,15 @@ impl<'a> Parser<'a> {
         Box::new(FunctionDeclNode::new(name, params, ret_ty))
     }
 
-    fn parse_function(&mut self) -> Box<FunctionNode<'a>> {
-        let func_details: Box<FunctionDeclNode> = self.parse_function_decl();
+    fn parse_function(&mut self, is_from_type: bool) -> Box<FunctionNode<'a>> {
+        let mut func_details: Box<FunctionDeclNode>;
+
+        if is_from_type {
+            func_details = self.parse_function_decl(true);
+        } else {
+            func_details = self.parse_function_decl(false);
+        }
+
         self.next();
 
         let function_block: Box<BlockNode<'a>> = self.parse_block();
@@ -487,13 +494,7 @@ impl<'a> Parser<'a> {
         Box::new(FunctionNode::new(func_details, function_block))
     }
 
-    fn parse_arg(&mut self) -> Box<ArgNode<'a>> {
-        let value: Box<Node<'a>> = self.parse_list(self.current_token);
-
-        Box::new(ArgNode::new(value))
-    }
-
-    fn parse_use_function(&mut self) -> Box<UseFunctionNode<'a>> {
+    fn parse_use_function(&mut self, is_from_type: bool) -> Box<UseFunctionNode<'a>> {
         self.next();
 
         let name: String = self.current_token.slice.into();
@@ -506,7 +507,12 @@ impl<'a> Parser<'a> {
                 self.next();
             }
 
-            args.push(self.parse_arg());
+            if is_from_type {
+                args.push(self.parse_arg(true));
+            } else {
+                args.push(self.parse_arg(false));
+            }
+
             self.next();
         }
 
@@ -516,22 +522,26 @@ impl<'a> Parser<'a> {
         Box::new(UseFunctionNode::new(name, args))
     }
 
-    fn parse_def_function_ft(&mut self) -> Box<TypeFunctionNode> {
-        todo!()
-    }
+    fn parse_arg(&mut self, is_from_type: bool) -> Box<ArgNode<'a>> {
+        let value: Box<Node<'a>> = self.parse_list(self.current_token);
 
-    fn parse_use_function_ft(&mut self) -> Box<UseTypeFunctionNode<'a>> {
-        todo!()
+        Box::new(ArgNode::new(value))
     }
 
     // Params
-    fn parse_param(&mut self, is_func: bool) -> Box<ParamNode> {
+    fn parse_param(&mut self, is_func: bool, is_from_type: bool) -> Box<ParamNode> {
         if self.current_token.token_type == TokenType::Comma {
             self.next();
         }
 
         if is_func == true {
-            let func_details: Box<FunctionDeclNode> = self.parse_function_decl();
+            let mut func_details: Box<FunctionDeclNode>;
+
+            if is_from_type {
+                func_details = self.parse_function_decl(true);
+            } else {
+                func_details = self.parse_function_decl(false);
+            }
 
             self.next();
 
