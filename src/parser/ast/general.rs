@@ -4,13 +4,13 @@ use crate::lexer::token::Token;
 
 use super::{
     declarations::{ConstDeclNode, TypeName, VarDeclNode, VarType},
-    functions::{FunctionDeclNode, FunctionNode, UseFunctionNode, UseTypeFunctionNode},
+    functions::{FunctionDeclNode, FunctionNode, UseFunctionNode},
     identifier::IdentifierNode,
     if_else::IfNode,
     loops::{ForNode, LoopNode, WhileNode},
     math_ops::{BinOpNode, UnOpNode},
     switch::SwitchNode,
-    types::{BoolNode, CharNode, NumberNode, StringNode, TypeFunctionNode, TypeNode},
+    types::{BoolNode, CharNode, NumberNode, StringNode, TypeNode},
 };
 
 #[derive(PartialEq, Debug)]
@@ -78,8 +78,6 @@ pub enum Nodes<'a> {
     CharNode(CharNode<'a>),
     BoolNode(BoolNode<'a>),
     TypeNode(TypeNode),
-    TypeFunctionNode(TypeFunctionNode),
-    UseTypeFunctionNode(UseTypeFunctionNode<'a>),
 
     // Loops
     WhileNode(WhileNode<'a>),

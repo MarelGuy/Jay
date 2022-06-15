@@ -21,16 +21,6 @@ pub struct TypeFunctionNode {
     pub return_type: Box<TypeNode>,
 }
 
-impl TypeFunctionNode {
-    pub fn new(name: String, params: Vec<Box<ParamNode>>, return_type: Box<TypeNode>) -> Self {
-        Self {
-            name,
-            params,
-            return_type,
-        }
-    }
-}
-
 #[derive(PartialEq, Debug)]
 pub struct NumberNode<'a> {
     token: Token<'a>,

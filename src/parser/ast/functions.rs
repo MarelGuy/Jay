@@ -55,15 +55,3 @@ impl<'a> UseFunctionNode<'a> {
         Self { name, args }
     }
 }
-
-#[derive(PartialEq, Debug)]
-pub struct UseTypeFunctionNode<'a> {
-    pub name: String,
-    pub args: Vec<Box<ArgNode<'a>>>,
-}
-
-impl<'a> UseTypeFunctionNode<'a> {
-    pub fn new(name: String, args: Vec<Box<ArgNode<'a>>>) -> Self {
-        Self { name, args }
-    }
-}
