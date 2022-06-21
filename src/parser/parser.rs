@@ -286,9 +286,9 @@ impl<'a> Parser<'a> {
 
         while self.current_token.token_type != TokenType::CloseBrace {
             if self.current_token.token_type == TokenType::Func {
-                fields.push(self.parse_param(true, false));
+                fields.push(self.parse_param(true));
             } else {
-                fields.push(self.parse_param(false, false));
+                fields.push(self.parse_param(false));
             }
             self.next();
         }
@@ -307,6 +307,7 @@ impl<'a> Parser<'a> {
             if is_type_block == true {
                 while self.current_token.token_type != TokenType::Comma {
                     self.next();
+
                     value.push(self.parse_list(self.current_token));
                 }
             }
@@ -450,23 +451,30 @@ impl<'a> Parser<'a> {
     fn parse_function_decl(&mut self, is_from_type: bool) -> Box<FunctionDeclNode> {
         self.next();
 
+        if is_from_type == true {
+            self.next();
+        }
+
         let mut name: String = self.current_token.slice.into();
-        self.functions.push(name.clone());
+
+        if is_from_type == false {
+            self.functions.push(name.clone());
+        }
 
         if name.chars().next().unwrap().is_numeric() {
             name = "Error".to_string();
         }
 
         self.next();
+        self.next();
 
         let mut params: Vec<Box<ParamNode>> = vec![];
-        self.next();
 
         while self.current_token.token_type != TokenType::CloseParen {
             if self.current_token.token_type == TokenType::Func {
-                params.push(self.parse_param(true, false));
+                params.push(self.parse_param(true));
             } else {
-                params.push(self.parse_param(false, false));
+                params.push(self.parse_param(false));
             }
         }
 
@@ -479,13 +487,7 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_function(&mut self, is_from_type: bool) -> Box<FunctionNode<'a>> {
-        let mut func_details: Box<FunctionDeclNode>;
-
-        if is_from_type {
-            func_details = self.parse_function_decl(true);
-        } else {
-            func_details = self.parse_function_decl(false);
-        }
+        let func_details: Box<FunctionDeclNode> = self.parse_function_decl(is_from_type);
 
         self.next();
 
@@ -495,9 +497,14 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_use_function(&mut self, is_from_type: bool) -> Box<UseFunctionNode<'a>> {
-        self.next();
+        if is_from_type == true {
+            self.next();
+            self.next();
+        }
 
         let name: String = self.current_token.slice.into();
+
+        self.next();
         self.next();
 
         let mut args: Vec<Box<ArgNode>> = vec![];
@@ -507,11 +514,7 @@ impl<'a> Parser<'a> {
                 self.next();
             }
 
-            if is_from_type {
-                args.push(self.parse_arg(true));
-            } else {
-                args.push(self.parse_arg(false));
-            }
+            args.push(self.parse_arg());
 
             self.next();
         }
@@ -522,26 +525,14 @@ impl<'a> Parser<'a> {
         Box::new(UseFunctionNode::new(name, args))
     }
 
-    fn parse_arg(&mut self, is_from_type: bool) -> Box<ArgNode<'a>> {
-        let value: Box<Node<'a>> = self.parse_list(self.current_token);
-
-        Box::new(ArgNode::new(value))
-    }
-
     // Params
-    fn parse_param(&mut self, is_func: bool, is_from_type: bool) -> Box<ParamNode> {
+    fn parse_param(&mut self, is_func: bool) -> Box<ParamNode> {
         if self.current_token.token_type == TokenType::Comma {
             self.next();
         }
 
         if is_func == true {
-            let mut func_details: Box<FunctionDeclNode>;
-
-            if is_from_type {
-                func_details = self.parse_function_decl(true);
-            } else {
-                func_details = self.parse_function_decl(false);
-            }
+            let func_details: Box<FunctionDeclNode> = self.parse_function_decl(false);
 
             self.next();
 
@@ -559,12 +550,17 @@ impl<'a> Parser<'a> {
         }
 
         let ty: Either<FunctionDeclNode, Either<VarType, TypeName>>;
-
         self.next();
 
         ty = Either::Right(self.parse_ty());
         self.next();
 
         Box::new(ParamNode::new(name, ty))
+    }
+
+    fn parse_arg(&mut self) -> Box<ArgNode<'a>> {
+        let value: Box<Node<'a>> = self.parse_list(self.current_token);
+
+        Box::new(ArgNode::new(value))
     }
 }

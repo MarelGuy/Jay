@@ -12,7 +12,7 @@ pub struct FunctionDeclNode {
     pub ret_ty: Either<VarType, TypeName>,
 }
 
-impl<'a> FunctionDeclNode {
+impl FunctionDeclNode {
     pub fn new(name: String, args: Vec<Box<ParamNode>>, ret_ty: Either<VarType, TypeName>) -> Self {
         Self { name, args, ret_ty }
     }
