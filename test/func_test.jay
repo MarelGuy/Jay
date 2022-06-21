@@ -3,4 +3,4 @@ func yay(lmao: int, peppe: string): string {
     let lmao: int = 8;
 }
 
-yay(2, "haha");
+let lmao: string = yay(2, "haha");

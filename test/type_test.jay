@@ -5,9 +5,11 @@ type MyType {
     b: int;
 }
 
-// not working
-// MyType:::new(a: string, b: int): MyType {
-//    return MyType{ a, b };
-// }
+MyType:::new(a: string, b: int): MyType {
+   return MyType{ a, b };
+}
 
+MyType::new("lmao", 5);
+
+// not working
 // let lmao: MyType = MyType::new("lmao", 5);
