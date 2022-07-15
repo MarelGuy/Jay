@@ -66,6 +66,12 @@ impl<'a> Parser<'a> {
         self.tok_i += 1;
     }
 
+    fn back(&mut self) {
+        self.tok_i -= 1;
+
+        self.current_token = self.token_stream[self.tok_i];
+    }
+
     fn peek(&self) -> Token<'a> {
         if self.tok_i < self.token_stream.len() {
             self.token_stream[self.tok_i].clone()
@@ -250,8 +256,13 @@ impl<'a> Parser<'a> {
             _ => AssignType::Error,
         };
         self.next();
-
         let mut value: Vec<Box<Node<'a>>> = vec![];
+
+        for type_name in self.types.clone() {
+            if &type_name == self.current_token.slice {
+                self.back();
+            }
+        }
 
         if ty.is_left() {
             value.append(&mut self.parse_value(false, &ty));
@@ -305,9 +316,10 @@ impl<'a> Parser<'a> {
 
         if ty.is_right() {
             if is_type_block == true {
-                while self.current_token.token_type != TokenType::Comma {
+                while self.current_token.token_type != TokenType::Comma
+                    && self.current_token.token_type != TokenType::Semicolon
+                {
                     self.next();
-
                     value.push(self.parse_list(self.current_token));
                 }
             }

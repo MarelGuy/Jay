@@ -1,15 +1,13 @@
-// working
 type MyType {
-    func new(a: string, b: int): MyType;
-    a: string;
-    b: int;
+   func new(a: string, b: int): MyType;
+   a: string;
+   b: int;
 }
 
 MyType:::new(a: string, b: int): MyType {
-   return MyType{ a, b };
+    return MyType{ a, b };
 }
 
 MyType::new("lmao", 5);
 
-// not working
-// let lmao: MyType = MyType::new("lmao", 5);
+let lmao: MyType = MyType::new("lmao", 5);
