@@ -4,7 +4,7 @@ use crate::lexer::token::Token;
 
 use super::{
     declarations::{ConstDeclNode, TypeName, VarDeclNode, VarType},
-    functions::{FunctionDeclNode, FunctionNode, UseFunctionNode},
+    functions::{FunctionDeclNode, FunctionNode, ReturnIfNode, ReturnNode, UseFunctionNode},
     identifier::IdentifierNode,
     if_else::IfNode,
     loops::{ForNode, LoopNode, WhileNode},
@@ -87,6 +87,8 @@ pub enum Nodes<'a> {
     // Functions
     FunctionNode(FunctionNode<'a>),
     UseFunctionNode(UseFunctionNode<'a>),
+    ReturnNode(ReturnNode<'a>),
+    ReturnIfNode(ReturnIfNode<'a>),
 
     // Misc
     NullNode,

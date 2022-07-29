@@ -6,7 +6,7 @@ use Either::{Left, Right};
 */
 
 use super::ast::declarations::{ConstDeclNode, TypeName, VarDeclNode, VarType};
-use super::ast::functions::{ArgNode, FunctionDeclNode, UseFunctionNode};
+use super::ast::functions::{ArgNode, FunctionDeclNode, ReturnIfNode, ReturnNode, UseFunctionNode};
 use super::ast::general::{ConditionNode, Node, ParamNode};
 use super::ast::identifier::IdentifierNode;
 use super::ast::if_else::IfNode;
@@ -128,6 +128,12 @@ impl<'a> Parser<'a> {
             TokenType::Loop => Box::new(Node::new(Box::new(Nodes::LoopNode(*self.parse_loop())))),
             TokenType::Func => Box::new(Node::new(Box::new(Nodes::FunctionNode(
                 *self.parse_function(false),
+            )))),
+            TokenType::Return => {
+                Box::new(Node::new(Box::new(Nodes::ReturnNode(*self.parse_return()))))
+            }
+            TokenType::ReturnIf => Box::new(Node::new(Box::new(Nodes::ReturnIfNode(
+                *self.parse_return_if(),
             )))),
             TokenType::Switch => {
                 Box::new(Node::new(Box::new(Nodes::SwitchNode(*self.parse_switch()))))
@@ -535,6 +541,23 @@ impl<'a> Parser<'a> {
         self.next();
 
         Box::new(UseFunctionNode::new(name, args))
+    }
+
+    fn parse_return(&mut self) -> Box<ReturnNode<'a>> {
+        self.next();
+
+        let return_value: Box<Node<'a>> = self.parse_list(self.current_token);
+
+        Box::new(ReturnNode::new(return_value))
+    }
+
+    fn parse_return_if(&mut self) -> Box<ReturnIfNode<'a>> {
+        let condition: Box<ConditionNode<'a>> = self.parse_condition();
+        self.next();
+
+        let return_value: Box<Node<'a>> = self.parse_list(self.current_token);
+
+        Box::new(ReturnIfNode::new(condition, return_value))
     }
 
     // Params

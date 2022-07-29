@@ -171,7 +171,7 @@ pub enum TokenType {
     #[token("return")]
     Return,
 
-    #[token("returnif")]
+    #[token("return_if")]
     ReturnIf,
 
     #[token("func")]
