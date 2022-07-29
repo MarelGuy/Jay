@@ -19,19 +19,19 @@
     - Boolean
     - Switch
     - Function call
+    - Return
+    - Return_if
   
 ## Doing
 
-    - Return
-    - Return_if
+    - Import
+    - Export
 
 ## To do
 
     - Array
-    - Import
-    - Export
     - Dot notation
 
 ## Bugs
 
-    - None
+    - None, yay!
