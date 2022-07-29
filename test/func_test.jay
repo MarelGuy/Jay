@@ -1,6 +1,7 @@
 func yay(lmao: int, peppe: string): string {
-    1+1;
     let lmao: int = 8;
+
+    return_if 2 > 3 lmao;
 }
 
 let lmao: string = yay(2, "haha");
