@@ -10,6 +10,7 @@ use super::ast::functions::{ArgNode, FunctionDeclNode, ReturnIfNode, ReturnNode,
 use super::ast::general::{ConditionNode, Node, ParamNode};
 use super::ast::identifier::IdentifierNode;
 use super::ast::if_else::IfNode;
+use super::ast::import_export::{ExportNode, ImportNode};
 use super::ast::loops::{ForNode, LoopNode};
 use super::ast::math_ops::{BinOpNode, UnOpNode};
 use super::ast::switch::{CaseNode, DefaultNode, SwitchNode};
@@ -152,6 +153,12 @@ impl<'a> Parser<'a> {
                     *self.parse_identifier(),
                 )))),
             },
+            TokenType::Import => {
+                Box::new(Node::new(Box::new(Nodes::ImportNode(*self.parse_import()))))
+            }
+            TokenType::Export => {
+                Box::new(Node::new(Box::new(Nodes::ExportNode(*self.parse_export()))))
+            }
             _ => Box::new(Node::new(Box::new(Nodes::NullNode))),
         }
     }
@@ -558,6 +565,15 @@ impl<'a> Parser<'a> {
         let return_value: Box<Node<'a>> = self.parse_list(self.current_token);
 
         Box::new(ReturnIfNode::new(condition, return_value))
+    }
+
+    // Import & Export
+    fn parse_import(&mut self) -> Box<ImportNode<'a>> {
+        todo!()
+    }
+
+    fn parse_export(&mut self) -> Box<ExportNode<'a>> {
+        todo!()
     }
 
     // Params
