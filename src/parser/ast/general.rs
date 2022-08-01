@@ -7,6 +7,7 @@ use super::{
     functions::{FunctionDeclNode, FunctionNode, ReturnIfNode, ReturnNode, UseFunctionNode},
     identifier::IdentifierNode,
     if_else::IfNode,
+    import_export::{ExportNode, ImportNode},
     loops::{ForNode, LoopNode, WhileNode},
     math_ops::{BinOpNode, UnOpNode},
     switch::SwitchNode,
@@ -89,6 +90,10 @@ pub enum Nodes<'a> {
     UseFunctionNode(UseFunctionNode<'a>),
     ReturnNode(ReturnNode<'a>),
     ReturnIfNode(ReturnIfNode<'a>),
+
+    // Import & Export
+    ImportNode(ImportNode<'a>),
+    ExportNode(ExportNode<'a>),
 
     // Misc
     NullNode,
