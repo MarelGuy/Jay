@@ -198,7 +198,7 @@ pub enum TokenType {
     #[token("continue")]
     Continue,
 
-    #[token("breakif")]
+    #[token("break_if")]
     BreakIf,
 
     #[token("in")]
@@ -254,6 +254,9 @@ pub enum TokenType {
     // Import and Export
     #[token("import")]
     Import,
+
+    #[token("export")]
+    Export,
 
     #[token("from")]
     From,
