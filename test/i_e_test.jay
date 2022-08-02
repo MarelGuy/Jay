@@ -1,4 +1,4 @@
 import lmao0 from lmao;
 import {lmao1, lmao2} from lmao;
-export lmao3;
-export { lmao4, lmao5 } from lmao;
+// export lmao3;
+// export { lmao4, lmao5 } from lmao;
