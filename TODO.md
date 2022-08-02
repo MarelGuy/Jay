@@ -2,6 +2,8 @@
 
 ## Done
 
+    - Token list
+    - Lexical analyzer
     - Variables
     - Constants
     - Functions
@@ -28,9 +30,13 @@
 
     - Array
 
-## To do
+## To do | Parser
 
     - Dot notation
+
+## To do | Miscellaneous
+
+    - Error handling
 
 ## Bugs
 
