@@ -3,7 +3,7 @@ use either::Either;
 use crate::lexer::token::Token;
 
 use super::{
-    declarations::{ConstDeclNode, TypeName, VarDeclNode, VarType},
+    declarations::{ConstDeclNode, VarDeclNode, VarType},
     functions::{FunctionDeclNode, FunctionNode, ReturnIfNode, ReturnNode, UseFunctionNode},
     identifier::IdentifierNode,
     if_else::IfNode,
@@ -45,11 +45,11 @@ impl<'a> BlockNode<'a> {
 #[derive(PartialEq, Debug)]
 pub struct ParamNode {
     pub name: String,
-    pub ty: Either<FunctionDeclNode, Either<VarType, TypeName>>,
+    pub ty: Either<FunctionDeclNode, VarType>,
 }
 
 impl ParamNode {
-    pub fn new(name: String, ty: Either<FunctionDeclNode, Either<VarType, TypeName>>) -> Self {
+    pub fn new(name: String, ty: Either<FunctionDeclNode, VarType>) -> Self {
         Self { name, ty }
     }
 }

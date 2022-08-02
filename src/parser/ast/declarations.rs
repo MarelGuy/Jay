@@ -1,27 +1,14 @@
-use either::Either;
-
 use super::general::Node;
 
 #[derive(PartialEq, Debug)]
-pub struct TypeName {
+pub struct VarType {
     name: String,
 }
 
-impl TypeName {
+impl VarType {
     pub fn new(name: String) -> Self {
         Self { name }
     }
-}
-
-#[derive(PartialEq, Debug)]
-pub enum VarType {
-    Int,
-    Float,
-    Bool,
-    String,
-    Char,
-    Void,
-    Error,
 }
 
 #[derive(PartialEq, Debug)]
@@ -39,7 +26,7 @@ pub enum AssignType {
 #[derive(PartialEq, Debug)]
 pub struct VarDeclNode<'a> {
     name: String,
-    ty: Either<VarType, TypeName>,
+    ty: VarType,
     assign_op: AssignType,
     mutable: bool,
     value: Vec<Box<Node<'a>>>,
@@ -48,7 +35,7 @@ pub struct VarDeclNode<'a> {
 impl<'a> VarDeclNode<'a> {
     pub fn new(
         name: String,
-        ty: Either<VarType, TypeName>,
+        ty: VarType,
         assign_op: AssignType,
         mutable: bool,
         value: Vec<Box<Node<'a>>>,
@@ -66,7 +53,7 @@ impl<'a> VarDeclNode<'a> {
 #[derive(PartialEq, Debug)]
 pub struct ConstDeclNode<'a> {
     name: String,
-    ty: Either<VarType, TypeName>,
+    ty: VarType,
     assign_op: AssignType,
     value: Vec<Box<Node<'a>>>,
 }
@@ -74,7 +61,7 @@ pub struct ConstDeclNode<'a> {
 impl<'a> ConstDeclNode<'a> {
     pub fn new(
         name: String,
-        ty: Either<VarType, TypeName>,
+        ty: VarType,
         assign_op: AssignType,
         value: Vec<Box<Node<'a>>>,
     ) -> Self {

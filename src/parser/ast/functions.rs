@@ -1,7 +1,5 @@
-use either::Either;
-
 use super::{
-    declarations::{TypeName, VarType},
+    declarations::VarType,
     general::{BlockNode, ConditionNode, Node, ParamNode},
 };
 
@@ -9,11 +7,11 @@ use super::{
 pub struct FunctionDeclNode {
     pub name: String,
     pub args: Vec<Box<ParamNode>>,
-    pub ret_ty: Either<VarType, TypeName>,
+    pub ret_ty: VarType,
 }
 
 impl FunctionDeclNode {
-    pub fn new(name: String, args: Vec<Box<ParamNode>>, ret_ty: Either<VarType, TypeName>) -> Self {
+    pub fn new(name: String, args: Vec<Box<ParamNode>>, ret_ty: VarType) -> Self {
         Self { name, args, ret_ty }
     }
 }

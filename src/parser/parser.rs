@@ -5,7 +5,7 @@ use Either::{Left, Right};
     Copyright (C) 2022  Loris Cuntreri
 */
 
-use super::ast::declarations::{ConstDeclNode, TypeName, VarDeclNode, VarType};
+use super::ast::declarations::{ConstDeclNode, VarDeclNode, VarType};
 use super::ast::functions::{ArgNode, FunctionDeclNode, ReturnIfNode, ReturnNode, UseFunctionNode};
 use super::ast::general::{ConditionNode, Node, ParamNode};
 use super::ast::identifier::IdentifierNode;
@@ -193,19 +193,19 @@ impl<'a> Parser<'a> {
         return Box::new(BoolNode::new(token));
     }
 
-    fn parse_ty(&mut self) -> Either<VarType, TypeName> {
+    fn parse_ty(&mut self) -> VarType {
         match self.current_token.token_type {
-            TokenType::IntType => Left(VarType::Int),
-            TokenType::FloatType => Left(VarType::Float),
-            TokenType::BoolType => Left(VarType::Bool),
-            TokenType::StringType => Left(VarType::String),
-            TokenType::CharType => Left(VarType::Char),
-            TokenType::VoidType => Left(VarType::Void),
+            TokenType::IntType => VarType::new("int".into()),
+            TokenType::FloatType => VarType::new("float".into()),
+            TokenType::BoolType => VarType::new("bool".into()),
+            TokenType::StringType => VarType::new("string".into()),
+            TokenType::CharType => VarType::new("char".into()),
+            TokenType::VoidType => VarType::new("void".into()),
             _ => {
                 if self.types.contains(&self.current_token.slice.to_string()) {
-                    Right(TypeName::new(self.current_token.slice.to_string()))
+                    VarType::new(self.current_token.slice.to_string())
                 } else {
-                    Left(VarType::Error)
+                    VarType::new("Error".into())
                 }
             }
         }
@@ -260,7 +260,7 @@ impl<'a> Parser<'a> {
         self.next();
         self.next();
 
-        let ty: Either<VarType, TypeName> = self.parse_ty();
+        let ty: VarType = self.parse_ty();
         self.next();
 
         let assign_token: AssignType = match self.current_token.token_type {
@@ -282,11 +282,7 @@ impl<'a> Parser<'a> {
             }
         }
 
-        if ty.is_left() {
-            value.append(&mut self.parse_value(false, &ty));
-        } else {
-            value.append(&mut self.parse_value(true, &ty));
-        }
+        value.append(&mut self.parse_value());
 
         if is_const {
             return Right(Box::new(ConstDeclNode::new(name, ty, assign_token, value)));
@@ -325,27 +321,12 @@ impl<'a> Parser<'a> {
         Box::new(TypeNode::new(name, fields))
     }
 
-    fn parse_value(
-        &mut self,
-        is_type_block: bool,
-        ty: &Either<VarType, TypeName>,
-    ) -> Vec<Box<Node<'a>>> {
+    fn parse_value(&mut self) -> Vec<Box<Node<'a>>> {
         let mut value: Vec<Box<Node<'a>>> = vec![];
 
-        if ty.is_right() {
-            if is_type_block == true {
-                while self.current_token.token_type != TokenType::Comma
-                    && self.current_token.token_type != TokenType::Semicolon
-                {
-                    self.next();
-                    value.push(self.parse_list(self.current_token));
-                }
-            }
-        } else {
-            while self.current_token.token_type != TokenType::Semicolon {
-                value.push(self.parse_list(self.current_token));
-                self.next();
-            }
+        while self.current_token.token_type != TokenType::Semicolon {
+            value.push(self.parse_list(self.current_token));
+            self.next();
         }
 
         value
@@ -511,7 +492,7 @@ impl<'a> Parser<'a> {
         self.next();
         self.next();
 
-        let ret_ty: Either<VarType, TypeName> = self.parse_ty();
+        let ret_ty: VarType = self.parse_ty();
 
         Box::new(FunctionDeclNode::new(name, params, ret_ty))
     }
@@ -549,7 +530,6 @@ impl<'a> Parser<'a> {
             self.next();
         }
 
-        self.next();
         self.next();
 
         Box::new(UseFunctionNode::new(name, args))
@@ -645,7 +625,7 @@ impl<'a> Parser<'a> {
             name = "Error".to_string();
         }
 
-        let ty: Either<FunctionDeclNode, Either<VarType, TypeName>>;
+        let ty: Either<FunctionDeclNode, VarType>;
         self.next();
 
         ty = Either::Right(self.parse_ty());
