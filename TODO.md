@@ -21,15 +21,15 @@
     - Function call
     - Return
     - Return_if
+    - Import
+    - Export
   
 ## Doing
 
-    - Import
-    - Export
+    - Array
 
 ## To do
 
-    - Array
     - Dot notation
 
 ## Bugs
