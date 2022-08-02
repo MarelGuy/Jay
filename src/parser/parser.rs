@@ -153,11 +153,16 @@ impl<'a> Parser<'a> {
                     *self.parse_identifier(),
                 )))),
             },
-            TokenType::Import => {
-                Box::new(Node::new(Box::new(Nodes::ImportNode(*self.parse_import()))))
-            }
-            TokenType::Export => {
-                Box::new(Node::new(Box::new(Nodes::ExportNode(*self.parse_export()))))
+            TokenType::Import | TokenType::Export => {
+                if self.current_token.token_type == TokenType::Import {
+                    return Box::new(Node::new(Box::new(Nodes::ImportNode(
+                        *self.parse_import().left().unwrap(),
+                    ))));
+                } else {
+                    return Box::new(Node::new(Box::new(Nodes::ExportNode(
+                        *self.parse_import().right().unwrap(),
+                    ))));
+                }
             }
             _ => Box::new(Node::new(Box::new(Nodes::NullNode))),
         }
@@ -568,48 +573,52 @@ impl<'a> Parser<'a> {
     }
 
     // Import & Export
-    fn parse_take_ies(&mut self) -> Vec<Box<Node<'a>>> {
-        let mut arg_vec: Vec<Box<Node<'a>>> = vec![];
-
-        while self.current_token.token_type != TokenType::CloseBrace {
-            if self.current_token.token_type == TokenType::Comma {
-                self.next()
-            }
-
-            arg_vec.push(self.parse_list(self.current_token));
-
-            self.next();
-        }
-
-        self.next();
-
-        arg_vec
-    }
-
-    fn parse_import(&mut self) -> Box<ImportNode<'a>> {
-        self.next();
-
-        let import: Either<Box<Node<'a>>, Vec<Box<Node<'a>>>>;
+    fn parse_take_ies(&mut self) -> Either<Box<Node<'a>>, Vec<Box<Node<'a>>>> {
+        let args: Either<Box<Node<'a>>, Vec<Box<Node<'a>>>>;
 
         if self.current_token.token_type == TokenType::OpenBrace {
+            let mut temp_vec: Vec<Box<Node<'a>>> = vec![];
             self.next();
 
-            import = Either::Right(self.parse_take_ies());
+            while self.current_token.token_type != TokenType::CloseBrace {
+                if self.current_token.token_type == TokenType::Comma {
+                    self.next()
+                }
+
+                temp_vec.push(self.parse_list(self.current_token));
+
+                self.next();
+            }
+
+            args = Either::Right(temp_vec);
         } else {
             self.next();
 
-            import = Either::Left(self.parse_list(self.current_token));
+            args = Either::Left(self.parse_list(self.current_token));
         }
+
+        self.next();
+
+        args
+    }
+
+    fn parse_import(&mut self) -> Either<Box<ImportNode<'a>>, Box<ExportNode<'a>>> {
+        if self.current_token.token_type == TokenType::Export {
+            self.next();
+            let items: Either<Box<Node<'a>>, Vec<Box<Node<'a>>>> = self.parse_take_ies();
+
+            return Right(Box::new(ExportNode::new(items)));
+        }
+
+        self.next();
+
+        let import: Either<Box<Node<'a>>, Vec<Box<Node<'a>>>> = self.parse_take_ies();
 
         self.next();
 
         let from: Box<Node<'a>> = self.parse_list(self.current_token);
 
-        Box::new(ImportNode::new(import, from))
-    }
-
-    fn parse_export(&mut self) -> Box<ExportNode<'a>> {
-        todo!()
+        Left(Box::new(ImportNode::new(import, from)))
     }
 
     // Params
