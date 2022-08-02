@@ -568,8 +568,44 @@ impl<'a> Parser<'a> {
     }
 
     // Import & Export
+    fn parse_take_ies(&mut self) -> Vec<Box<Node<'a>>> {
+        let mut arg_vec: Vec<Box<Node<'a>>> = vec![];
+
+        while self.current_token.token_type != TokenType::CloseBrace {
+            if self.current_token.token_type == TokenType::Comma {
+                self.next()
+            }
+
+            arg_vec.push(self.parse_list(self.current_token));
+
+            self.next();
+        }
+
+        self.next();
+
+        arg_vec
+    }
+
     fn parse_import(&mut self) -> Box<ImportNode<'a>> {
-        todo!()
+        self.next();
+
+        let import: Either<Box<Node<'a>>, Vec<Box<Node<'a>>>>;
+
+        if self.current_token.token_type == TokenType::OpenBrace {
+            self.next();
+
+            import = Either::Right(self.parse_take_ies());
+        } else {
+            self.next();
+
+            import = Either::Left(self.parse_list(self.current_token));
+        }
+
+        self.next();
+
+        let from: Box<Node<'a>> = self.parse_list(self.current_token);
+
+        Box::new(ImportNode::new(import, from))
     }
 
     fn parse_export(&mut self) -> Box<ExportNode<'a>> {
