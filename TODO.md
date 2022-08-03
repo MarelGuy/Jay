@@ -25,12 +25,9 @@
     - Return_if
     - Import
     - Export
+    - Array
   
 ## Doing
-
-    - Array
-
-## To do | Parser
 
     - Dot notation
 
