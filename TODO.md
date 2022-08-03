@@ -26,10 +26,6 @@
     - Import
     - Export
     - Array
-  
-## Doing
-
-    - Dot notation
 
 ## To do | Miscellaneous
 
