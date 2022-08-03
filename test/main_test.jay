@@ -2,6 +2,8 @@
 // - Dot notation
 // - Array access
 
+// The test is not working yet
+
 // Of course, the standard library has not been designed yet
 import std from std;
 
@@ -36,20 +38,20 @@ func main() {
 
     var weird_0: weird_type = weird_type::new(3);
 
-    //weird_0.num_weird + 3;
+    weird_0.num_weird + 3;
 }
 
 func use_switch(num_array_0: int[]) {
     var num_temp: int = 0;
 
     switch {
-    //    case num_array_0[5] + 6 = 10 {
-    //        num_temp = 5;
-    //    }
+        case num_array_0[5] + 6 = 10 {
+            num_temp = 5;
+        }
 
-    //    case num_array_0[10] + 1 = 10 {
-    //        num_temp += 3;
-    //    }
+        case num_array_0[10] + 1 = 10 {
+            num_temp += 3;
+        }
     }
 
     return_if num_temp = 8 num_temp;
