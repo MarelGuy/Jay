@@ -38,5 +38,4 @@
 
 ## Bugs
 
-    - Type functions not parsing
     - Array variables taking a NullNode as first element

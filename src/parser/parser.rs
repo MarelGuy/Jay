@@ -635,8 +635,6 @@ impl<'a> Parser<'a> {
         if is_func == true {
             let func_details: Box<FunctionDeclNode> = self.parse_function_decl(false);
 
-            self.next();
-
             return Box::new(ParamNode::new(
                 func_details.name.clone(),
                 Left(*func_details),

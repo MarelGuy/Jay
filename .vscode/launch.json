@@ -19,7 +19,7 @@
                     "kind": "bin"
                 }
             },
-            "args": ["./test/func_test.jay"],
+            "args": ["./test/type_test.jay"],
             "cwd": "${workspaceFolder}"
         },
         {
