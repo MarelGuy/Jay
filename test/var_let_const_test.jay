@@ -1,3 +1,4 @@
 let lmao1: char = 'a';
 const lmao2: string = "lmao";
 var lmao0: int = 2+5;
+let lmao: char[3] = ["a", "b", "c"];
