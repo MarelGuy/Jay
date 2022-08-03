@@ -26,10 +26,10 @@
     - Import
     - Export
     - Array
+    - Array access
 
 ## To do | Parser
 
-    - Array access
     - Dot notation
 
 ## To do | Miscellaneous

@@ -8,7 +8,7 @@ use Either::{Left, Right};
 use super::ast::declarations::{ConstDeclNode, VarDeclNode, VarType};
 use super::ast::functions::{ArgNode, FunctionDeclNode, ReturnIfNode, ReturnNode, UseFunctionNode};
 use super::ast::general::{ConditionNode, Node, ParamNode};
-use super::ast::identifier::IdentifierNode;
+use super::ast::identifier::{ArrayAccessNode, IdentifierNode};
 use super::ast::if_else::IfNode;
 use super::ast::import_export::{ExportNode, ImportNode};
 use super::ast::loops::{ForNode, LoopNode};
@@ -149,6 +149,9 @@ impl<'a> Parser<'a> {
                 TokenType::OpenParen => Box::new(Node::new(Box::new(Nodes::UseFunctionNode(
                     *self.parse_use_function(false),
                 )))),
+                TokenType::OpenBracket => Box::new(Node::new(Box::new(Nodes::ArrayAccessNode(
+                    *self.parse_array_access(),
+                )))),
                 _ => Box::new(Node::new(Box::new(Nodes::IdentifierNode(
                     *self.parse_identifier(),
                 )))),
@@ -234,6 +237,17 @@ impl<'a> Parser<'a> {
         let token: Token<'a> = self.current_token.clone();
 
         return Box::new(IdentifierNode::new(token));
+    }
+
+    fn parse_array_access(&mut self) -> Box<ArrayAccessNode<'a>> {
+        self.next();
+        self.next();
+
+        let arr_pos: Box<NumberNode> = self.parse_number();
+
+        self.next();
+
+        Box::new(ArrayAccessNode::new(arr_pos))
     }
 
     // Ops

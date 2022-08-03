@@ -1,5 +1,7 @@
 use crate::lexer::token::Token;
 
+use super::types::NumberNode;
+
 #[derive(Debug, PartialEq)]
 pub struct IdentifierNode<'a> {
     pub token: Token<'a>,
@@ -8,5 +10,16 @@ pub struct IdentifierNode<'a> {
 impl<'a> IdentifierNode<'a> {
     pub fn new(token: Token<'a>) -> Self {
         Self { token }
+    }
+}
+
+#[derive(Debug, PartialEq)]
+pub struct ArrayAccessNode<'a> {
+    position: Box<NumberNode<'a>>,
+}
+
+impl<'a> ArrayAccessNode<'a> {
+    pub fn new(position: Box<NumberNode<'a>>) -> Self {
+        Self { position }
     }
 }

@@ -5,7 +5,7 @@ use crate::lexer::token::Token;
 use super::{
     declarations::{ConstDeclNode, VarDeclNode, VarType},
     functions::{FunctionDeclNode, FunctionNode, ReturnIfNode, ReturnNode, UseFunctionNode},
-    identifier::IdentifierNode,
+    identifier::{ArrayAccessNode, IdentifierNode},
     if_else::IfNode,
     import_export::{ExportNode, ImportNode},
     loops::{ForNode, LoopNode, WhileNode},
@@ -62,6 +62,7 @@ pub enum Nodes<'a> {
 
     // Identifiers
     IdentifierNode(IdentifierNode<'a>),
+    ArrayAccessNode(ArrayAccessNode<'a>),
 
     // If-else
     IfNode(IfNode<'a>),
