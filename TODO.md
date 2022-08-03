@@ -29,10 +29,7 @@
     - Array access
     - Dot notation
 
-## To do | Parser
-
-
-## To do | Miscellaneous
+## Doing 
 
     - Error handling
 
