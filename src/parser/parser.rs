@@ -8,7 +8,7 @@ use Either::{Left, Right};
 use super::ast::declarations::{ConstDeclNode, VarDeclNode, VarType};
 use super::ast::functions::{ArgNode, FunctionDeclNode, ReturnIfNode, ReturnNode, UseFunctionNode};
 use super::ast::general::{ConditionNode, Node, ParamNode};
-use super::ast::identifier::{ArrayAccessNode, IdentifierNode};
+use super::ast::identifier::{ArrayAccessNode, DotNotationNode, IdentifierNode};
 use super::ast::if_else::IfNode;
 use super::ast::import_export::{ExportNode, ImportNode};
 use super::ast::loops::{ForNode, LoopNode};
@@ -152,6 +152,9 @@ impl<'a> Parser<'a> {
                 TokenType::OpenBracket => Box::new(Node::new(Box::new(Nodes::ArrayAccessNode(
                     *self.parse_array_access(),
                 )))),
+                TokenType::Dot => Box::new(Node::new(Box::new(Nodes::DotNotationNode(
+                    *self.parse_dot_notation(),
+                )))),
                 _ => Box::new(Node::new(Box::new(Nodes::IdentifierNode(
                     *self.parse_identifier(),
                 )))),
@@ -248,6 +251,15 @@ impl<'a> Parser<'a> {
         self.next();
 
         Box::new(ArrayAccessNode::new(arr_pos))
+    }
+
+    fn parse_dot_notation(&mut self) -> Box<DotNotationNode<'a>> {
+        self.next();
+        self.next();
+
+        let next_token: Box<Node<'a>> = self.parse_list(self.current_token);
+
+        Box::new(DotNotationNode::new(next_token))
     }
 
     // Ops

@@ -27,10 +27,10 @@
     - Export
     - Array
     - Array access
+    - Dot notation
 
 ## To do | Parser
 
-    - Dot notation
 
 ## To do | Miscellaneous
 
