@@ -2,4 +2,5 @@ let lmao1: char = 'a';
 const lmao2: string = "lmao";
 let lmao: char[3] = ["a", "b", "c"];
 lmao[3];
+lmao1.idk.f[2]:
 var lmao0: int = 2+5;
