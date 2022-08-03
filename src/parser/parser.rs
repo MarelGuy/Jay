@@ -193,22 +193,40 @@ impl<'a> Parser<'a> {
         return Box::new(BoolNode::new(token));
     }
 
-    fn parse_ty(&mut self) -> VarType {
+    fn parse_ty_list(&mut self, is_array: bool) -> VarType {
         match self.current_token.token_type {
-            TokenType::IntType => VarType::new("int".into()),
-            TokenType::FloatType => VarType::new("float".into()),
-            TokenType::BoolType => VarType::new("bool".into()),
-            TokenType::StringType => VarType::new("string".into()),
-            TokenType::CharType => VarType::new("char".into()),
-            TokenType::VoidType => VarType::new("void".into()),
+            TokenType::IntType => VarType::new("int".into(), is_array),
+            TokenType::FloatType => VarType::new("float".into(), is_array),
+            TokenType::BoolType => VarType::new("bool".into(), is_array),
+            TokenType::StringType => VarType::new("string".into(), is_array),
+            TokenType::CharType => VarType::new("char".into(), is_array),
+            TokenType::VoidType => VarType::new("void".into(), is_array),
             _ => {
                 if self.types.contains(&self.current_token.slice.to_string()) {
-                    VarType::new(self.current_token.slice.to_string())
+                    VarType::new(self.current_token.slice.to_string(), is_array)
                 } else {
-                    VarType::new("Error".into())
+                    VarType::new("Error".into(), is_array)
                 }
             }
         }
+    }
+
+    fn parse_ty(&mut self) -> VarType {
+        let ty: VarType;
+
+        if self.peek().token_type == TokenType::OpenBracket {
+            ty = self.parse_ty_list(true);
+
+            self.next();
+            self.next();
+            self.next();
+        } else {
+            ty = self.parse_ty_list(false)
+        }
+
+        self.next();
+
+        ty
     }
 
     // Identifiers
@@ -227,7 +245,6 @@ impl<'a> Parser<'a> {
         self.next();
 
         let right_node: Box<NumberNode<'a>> = self.parse_number();
-        self.next();
 
         return Box::new(BinOpNode::new(left_node, op_token, right_node));
     }
@@ -261,7 +278,6 @@ impl<'a> Parser<'a> {
         self.next();
 
         let ty: VarType = self.parse_ty();
-        self.next();
 
         let assign_token: AssignType = match self.current_token.token_type {
             TokenType::Assign => AssignType::Assign,
@@ -274,6 +290,7 @@ impl<'a> Parser<'a> {
             _ => AssignType::Error,
         };
         self.next();
+
         let mut value: Vec<Box<Node<'a>>> = vec![];
 
         for type_name in self.types.clone() {
@@ -282,7 +299,7 @@ impl<'a> Parser<'a> {
             }
         }
 
-        value.append(&mut self.parse_value());
+        value.append(&mut self.parse_value(ty.is_array));
 
         if is_const {
             return Right(Box::new(ConstDeclNode::new(name, ty, assign_token, value)));
@@ -321,12 +338,22 @@ impl<'a> Parser<'a> {
         Box::new(TypeNode::new(name, fields))
     }
 
-    fn parse_value(&mut self) -> Vec<Box<Node<'a>>> {
+    fn parse_value(&mut self, is_array: bool) -> Vec<Box<Node<'a>>> {
         let mut value: Vec<Box<Node<'a>>> = vec![];
 
-        while self.current_token.token_type != TokenType::Semicolon {
-            value.push(self.parse_list(self.current_token));
-            self.next();
+        if is_array == false {
+            while self.current_token.token_type != TokenType::Semicolon {
+                value.push(self.parse_list(self.current_token));
+                self.next();
+            }
+        } else {
+            while self.current_token.token_type != TokenType::CloseBracket {
+                if self.current_token.token_type == TokenType::Comma {
+                    self.next()
+                }
+                value.push(self.parse_list(self.current_token));
+                self.next();
+            }
         }
 
         value
