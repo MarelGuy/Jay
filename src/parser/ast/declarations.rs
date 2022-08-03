@@ -3,11 +3,12 @@ use super::general::Node;
 #[derive(PartialEq, Debug)]
 pub struct VarType {
     name: String,
+    pub is_array: bool,
 }
 
 impl VarType {
-    pub fn new(name: String) -> Self {
-        Self { name }
+    pub fn new(name: String, is_array: bool) -> Self {
+        Self { name, is_array }
     }
 }
 
