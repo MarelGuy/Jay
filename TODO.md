@@ -38,4 +38,4 @@
 
 ## Bugs
 
-    - Array variables taking a NullNode as first element
+    - No bugs... Eleganto!
