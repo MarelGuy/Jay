@@ -654,7 +654,6 @@ impl<'a> Parser<'a> {
         self.next();
 
         ty = Either::Right(self.parse_ty());
-        self.next();
 
         Box::new(ParamNode::new(name, ty))
     }
