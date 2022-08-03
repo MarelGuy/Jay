@@ -156,11 +156,11 @@ impl<'a> Parser<'a> {
             TokenType::Import | TokenType::Export => {
                 if self.current_token.token_type == TokenType::Import {
                     return Box::new(Node::new(Box::new(Nodes::ImportNode(
-                        *self.parse_import().left().unwrap(),
+                        *self.parse_import_export().left().unwrap(),
                     ))));
                 } else {
                     return Box::new(Node::new(Box::new(Nodes::ExportNode(
-                        *self.parse_import().right().unwrap(),
+                        *self.parse_import_export().right().unwrap(),
                     ))));
                 }
             }
@@ -599,8 +599,6 @@ impl<'a> Parser<'a> {
 
             args = Either::Right(temp_vec);
         } else {
-            self.next();
-
             args = Either::Left(self.parse_list(self.current_token));
         }
 
@@ -609,14 +607,14 @@ impl<'a> Parser<'a> {
         args
     }
 
-    fn parse_import(&mut self) -> Either<Box<ImportNode<'a>>, Box<ExportNode<'a>>> {
+    fn parse_import_export(&mut self) -> Either<Box<ImportNode<'a>>, Box<ExportNode<'a>>> {
         if self.current_token.token_type == TokenType::Export {
             self.next();
+
             let items: Either<Box<Node<'a>>, Vec<Box<Node<'a>>>> = self.parse_take_ies();
 
             return Right(Box::new(ExportNode::new(items)));
         }
-
         self.next();
 
         let import: Either<Box<Node<'a>>, Vec<Box<Node<'a>>>> = self.parse_take_ies();
