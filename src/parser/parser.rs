@@ -347,6 +347,7 @@ impl<'a> Parser<'a> {
                 self.next();
             }
         } else {
+            self.next();
             while self.current_token.token_type != TokenType::CloseBracket {
                 if self.current_token.token_type == TokenType::Comma {
                     self.next()
