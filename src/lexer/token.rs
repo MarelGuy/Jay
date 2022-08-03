@@ -149,24 +149,6 @@ pub enum TokenType {
     #[token("char")]
     CharType,
 
-    #[token("int[]")]
-    IntArrayType,
-
-    #[token("float[]")]
-    FloatArrayType,
-
-    #[token("bool[]")]
-    BoolArrayType,
-
-    #[token("string[]")]
-    StringArrayType,
-
-    #[token("void[]")]
-    VoidArrayType,
-
-    #[token("char[]")]
-    CharArrayType,
-
     // Keywords
     #[token("type")]
     Type,
