@@ -27,6 +27,11 @@
     - Export
     - Array
 
+## To do | Parser
+
+    - Array access
+    - Dot notation
+
 ## To do | Miscellaneous
 
     - Error handling
