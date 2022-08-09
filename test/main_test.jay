@@ -1,22 +1,18 @@
-// Commented things are yet to be done:
-// - Dot notation
-// - Array access
-
-// The test is not working yet
+// This test is not working yet
 
 // Of course, the standard library has not been designed yet
 import std from std;
 
 type weird_type {
-    func new(),
+    func new(a: int): weird_type,
     num_weird: int,
 }
 
-weird_type:::new(a: int) {
+weird_type:::new(a: int): weird_type {
     return weird_type{ a };
 }
 
-func main() {
+func main(): int {
     const num_0: int = 3;
     const num_1: int = 4;
     
@@ -29,19 +25,19 @@ func main() {
     } else {
         var i: int = 0;
 
-        while i > 10 {
+      while i > 10 {
             num_array_0[i] += i;
         }
     }
 
-    let num_2 = use_switch(num_array_0)
+    let num_2: int = use_switch(num_array_0);
 
     var weird_0: weird_type = weird_type::new(3);
 
     weird_0.num_weird + 3;
 }
 
-func use_switch(num_array_0: int[]) {
+func use_switch(num_array_23: int[]): string {
     var num_temp: int = 0;
 
     switch {
