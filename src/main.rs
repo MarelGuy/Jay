@@ -4,7 +4,7 @@ Copyright (C) 2022  Loris Cuntreri
 */
 use lexer::lexer::Lexer;
 use parser::parser::Parser;
-use std::{env::args, fs::read_to_string, /* io::Write, */ path::Path};
+use std::{env::args, fs::read_to_string, io::Write, path::Path};
 
 use crate::lexer::token::{Token, TokenType};
 
@@ -29,6 +29,7 @@ fn run(input: &str) {
         if token.token_type != TokenType::Space
             && token.token_type != TokenType::LineFeed
             && token.token_type != TokenType::CarriageReturn
+            && token.token_type != TokenType::Comment
         {
             tokens.push(token);
         }
@@ -41,16 +42,20 @@ fn run(input: &str) {
     println!("{:#?}", parser.ast);
 }
 
-// fn interpreter() {
-// println!("Jay version 0.0.0 (c) 2022");
-//     loop {
-//         print!(">>> ");
-//         std::io::stdout().flush().expect("");
-//         let mut input: String = String::new();
-//         std::io::stdin().read_line(&mut input).expect("");
-//         run(&input)
-//     }
-// }
+fn interpreter() {
+    println!("Jay version 0.0.0 (c) 2022");
+    loop {
+        print!(">>> ");
+
+        std::io::stdout().flush().expect("");
+
+        let mut input: String = String::new();
+
+        std::io::stdin().read_line(&mut input).expect("");
+
+        run(&input)
+    }
+}
 
 fn compiler() {
     let args: Vec<String> = args().collect();
@@ -80,6 +85,7 @@ fn main() {
         Some(ref arg) if arg == "-h" => help(),
         Some(ref arg) if arg == "--version" => version(),
         Some(ref arg) if arg == "--help" => help(),
+        Some(ref arg) if arg == "-i" => interpreter(),
         _ => compiler(),
     }
 }
