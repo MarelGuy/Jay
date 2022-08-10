@@ -35,4 +35,4 @@
 
 ## Bugs
 
-    - No bugs... Eleganto!
+    - Types not parsing
