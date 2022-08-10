@@ -128,7 +128,7 @@ impl<'a> Parser<'a> {
             TokenType::For => Box::new(Node::new(Box::new(Nodes::ForNode(*self.parse_for())))),
             TokenType::Loop => Box::new(Node::new(Box::new(Nodes::LoopNode(*self.parse_loop())))),
             TokenType::Func => Box::new(Node::new(Box::new(Nodes::FunctionNode(
-                *self.parse_function(false),
+                *self.parse_function(),
             )))),
             TokenType::Return => {
                 Box::new(Node::new(Box::new(Nodes::ReturnNode(*self.parse_return()))))
@@ -141,7 +141,7 @@ impl<'a> Parser<'a> {
             }
             TokenType::Identifier => match self.peek().token_type {
                 TokenType::TripleColon => Box::new(Node::new(Box::new(Nodes::FunctionNode(
-                    *self.parse_function(true),
+                    *self.parse_function(),
                 )))),
                 TokenType::DoubleColon => Box::new(Node::new(Box::new(Nodes::UseFunctionNode(
                     *self.parse_use_function(true),
@@ -227,10 +227,9 @@ impl<'a> Parser<'a> {
             self.next();
             self.next();
         } else {
-            ty = self.parse_ty_list(false)
+            ty = self.parse_ty_list(false);
+            self.next();
         }
-
-        self.next();
 
         ty
     }
@@ -304,7 +303,7 @@ impl<'a> Parser<'a> {
         self.next();
 
         let ty: VarType = self.parse_ty();
-
+        self.next();
         let assign_token: AssignType = match self.current_token.token_type {
             TokenType::Assign => AssignType::Assign,
             TokenType::PlusAssign => AssignType::AddAssign,
@@ -353,12 +352,15 @@ impl<'a> Parser<'a> {
         self.next();
 
         while self.current_token.token_type != TokenType::CloseBrace {
+            if self.current_token.token_type == TokenType::Comma {
+                self.next();
+            }
+
             if self.current_token.token_type == TokenType::Func {
                 fields.push(self.parse_param(true));
             } else {
                 fields.push(self.parse_param(false));
             }
-            self.next();
         }
 
         Box::new(TypeNode::new(name, fields))
@@ -513,18 +515,11 @@ impl<'a> Parser<'a> {
     }
 
     // Functions
-    fn parse_function_decl(&mut self, is_from_type: bool) -> Box<FunctionDeclNode> {
+    fn parse_function_decl(&mut self) -> Box<FunctionDeclNode> {
         self.next();
 
-        if is_from_type == true {
-            self.next();
-        }
-
         let mut name: String = self.current_token.slice.into();
-
-        if is_from_type == false {
-            self.functions.push(name.clone());
-        }
+        self.functions.push(name.clone());
 
         if name.chars().next().unwrap().is_numeric() {
             name = "Error".to_string();
@@ -535,24 +530,27 @@ impl<'a> Parser<'a> {
 
         let mut params: Vec<Box<ParamNode>> = vec![];
 
-        while self.current_token.token_type != TokenType::CloseParen {
-            if self.current_token.token_type == TokenType::Func {
-                params.push(self.parse_param(true));
-            } else {
-                params.push(self.parse_param(false));
+        if self.current_token.token_type != TokenType::CloseParen {
+            while self.current_token.token_type != TokenType::Colon {
+                if self.current_token.token_type == TokenType::Func {
+                    params.push(self.parse_param(true));
+                } else {
+                    params.push(self.parse_param(false));
+                }
             }
+
+            self.next();
+        } else {
+            self.next();
+            self.next();
         }
 
-        self.next();
-        self.next();
-
         let ret_ty: VarType = self.parse_ty();
-
         Box::new(FunctionDeclNode::new(name, params, ret_ty))
     }
 
-    fn parse_function(&mut self, is_from_type: bool) -> Box<FunctionNode<'a>> {
-        let func_details: Box<FunctionDeclNode> = self.parse_function_decl(is_from_type);
+    fn parse_function(&mut self) -> Box<FunctionNode<'a>> {
+        let func_details: Box<FunctionDeclNode> = self.parse_function_decl();
 
         self.next();
 
@@ -583,8 +581,6 @@ impl<'a> Parser<'a> {
 
             self.next();
         }
-
-        self.next();
 
         Box::new(UseFunctionNode::new(name, args))
     }
@@ -655,30 +651,27 @@ impl<'a> Parser<'a> {
 
     // Params
     fn parse_param(&mut self, is_func: bool) -> Box<ParamNode> {
-        if self.current_token.token_type == TokenType::Comma {
-            self.next();
-        }
-
         if is_func == true {
-            let func_details: Box<FunctionDeclNode> = self.parse_function_decl(false);
+            let func_details: Box<FunctionDeclNode> = self.parse_function_decl();
 
             return Box::new(ParamNode::new(
                 func_details.name.clone(),
                 Left(*func_details),
             ));
         }
-
         let mut name: String = self.current_token.slice.into();
+
         self.next();
 
         if name.chars().next().unwrap().is_numeric() {
             name = "Error".to_string();
         }
 
-        let ty: Either<FunctionDeclNode, VarType>;
         self.next();
 
-        ty = Either::Right(self.parse_ty());
+        let ty: Either<FunctionDeclNode, VarType> = Either::Right(self.parse_ty());
+
+        self.next();
 
         Box::new(ParamNode::new(name, ty))
     }
