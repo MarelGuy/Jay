@@ -1,7 +1,7 @@
 use either::Either;
 use Either::{Left, Right};
 /*
-    Jay parser
+    Jay parse&r
     Copyright (C) 2022  Loris Cuntreri
 */
 
@@ -511,6 +511,7 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_loop(&mut self) -> Box<LoopNode<'a>> {
+        self.next();
         let loop_block: Box<BlockNode<'a>> = self.parse_block();
         Box::new(LoopNode::new(loop_block))
     }
