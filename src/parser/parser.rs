@@ -5,7 +5,7 @@ use Either::{Left, Right};
     Copyright (C) 2022  Loris Cuntreri
 */
 
-use super::ast::declarations::{ConstDeclNode, VarDeclNode, VarType};
+use super::ast::declarations::{AssignNode, ConstDeclNode, VarDeclNode, VarType};
 use super::ast::functions::{ArgNode, FunctionDeclNode, ReturnIfNode, ReturnNode, UseFunctionNode};
 use super::ast::general::{ConditionNode, Node, ParamNode};
 use super::ast::identifier::{ArrayAccessNode, DotNotationNode, IdentifierNode};
@@ -14,7 +14,7 @@ use super::ast::import_export::{ExportNode, ImportNode};
 use super::ast::loops::{ForNode, LoopNode};
 use super::ast::math_ops::{BinOpNode, UnOpNode};
 use super::ast::switch::{CaseNode, DefaultNode, SwitchNode};
-use super::ast::types::{BoolNode, CharNode, NumberNode, StringNode};
+use super::ast::types::{BoolNode, CharNode, NewTypeValueNode, NumberNode, StringNode};
 
 use crate::lexer::token::{Span, Token, TokenType};
 use crate::parser::ast::declarations::AssignType;
@@ -155,6 +155,18 @@ impl<'a> Parser<'a> {
                 TokenType::Dot => Box::new(Node::new(Box::new(Nodes::DotNotationNode(
                     *self.parse_dot_notation(),
                 )))),
+                TokenType::OpenBrace => Box::new(Node::new(Box::new(Nodes::NewTypeValueNode(
+                    *self.parse_new_type_value(),
+                )))),
+                TokenType::Assign
+                | TokenType::PlusAssign
+                | TokenType::MinusAssign
+                | TokenType::MultiplyAssign
+                | TokenType::DivideAssign
+                | TokenType::ModuloAssign
+                | TokenType::PowerAssign => Box::new(Node::new(Box::new(Nodes::AssignNode(
+                    *self.parse_assign_to_var(),
+                )))),
                 _ => Box::new(Node::new(Box::new(Nodes::IdentifierNode(
                     *self.parse_identifier(),
                 )))),
@@ -171,6 +183,19 @@ impl<'a> Parser<'a> {
                 }
             }
             _ => Box::new(Node::new(Box::new(Nodes::NullNode))),
+        }
+    }
+
+    fn parse_assign(&mut self) -> AssignType {
+        match self.current_token.token_type {
+            TokenType::Assign => AssignType::Assign,
+            TokenType::PlusAssign => AssignType::AddAssign,
+            TokenType::MinusAssign => AssignType::SubAssign,
+            TokenType::MultiplyAssign => AssignType::MulAssign,
+            TokenType::DivideAssign => AssignType::DivAssign,
+            TokenType::ModuloAssign => AssignType::ModAssign,
+            TokenType::PowerAssign => AssignType::PowAssign,
+            _ => AssignType::Error,
         }
     }
 
@@ -303,17 +328,9 @@ impl<'a> Parser<'a> {
         self.next();
 
         let ty: VarType = self.parse_ty();
-        self.next();
-        let assign_token: AssignType = match self.current_token.token_type {
-            TokenType::Assign => AssignType::Assign,
-            TokenType::PlusAssign => AssignType::AddAssign,
-            TokenType::MinusAssign => AssignType::SubAssign,
-            TokenType::MultiplyAssign => AssignType::MulAssign,
-            TokenType::DivideAssign => AssignType::DivAssign,
-            TokenType::ModuloAssign => AssignType::ModAssign,
-            TokenType::PowerAssign => AssignType::PowAssign,
-            _ => AssignType::Error,
-        };
+
+        let assign_token: AssignType = self.parse_assign();
+
         self.next();
 
         let mut value: Vec<Box<Node<'a>>> = vec![];
@@ -337,6 +354,20 @@ impl<'a> Parser<'a> {
                 value,
             )));
         }
+    }
+
+    fn parse_assign_to_var(&mut self) -> Box<AssignNode<'a>> {
+        let var: Box<IdentifierNode<'a>> = self.parse_identifier();
+
+        self.next();
+
+        let assign: AssignType = self.parse_assign();
+
+        self.next();
+
+        let val: Box<Node<'a>> = self.parse_list(self.current_token);
+
+        Box::new(AssignNode::new(var, assign, val))
     }
 
     fn parse_type(&mut self) -> Box<TypeNode> {
@@ -364,6 +395,23 @@ impl<'a> Parser<'a> {
         }
 
         Box::new(TypeNode::new(name, fields))
+    }
+
+    fn parse_new_type_value(&mut self) -> Box<NewTypeValueNode<'a>> {
+        self.next();
+        self.next();
+
+        let mut params: Vec<Box<Node>> = vec![];
+
+        while self.current_token.token_type != TokenType::CloseBrace {
+            if self.current_token.token_type == TokenType::Comma {
+                self.next();
+            }
+            params.push(self.parse_list(self.current_token));
+            self.next();
+        }
+
+        Box::new(NewTypeValueNode::new(params))
     }
 
     fn parse_value(&mut self, is_array: bool) -> Vec<Box<Node<'a>>> {
@@ -404,8 +452,6 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_block(&mut self) -> Box<BlockNode<'a>> {
-        self.next();
-
         let mut block_node: Vec<Box<Node<'a>>> = vec![];
 
         while self.current_token.token_type != TokenType::CloseBrace {
@@ -517,6 +563,9 @@ impl<'a> Parser<'a> {
     // Functions
     fn parse_function_decl(&mut self) -> Box<FunctionDeclNode> {
         self.next();
+        if self.current_token.token_type == TokenType::TripleColon {
+            self.next();
+        }
 
         let mut name: String = self.current_token.slice.into();
         self.functions.push(name.clone());
@@ -546,13 +595,14 @@ impl<'a> Parser<'a> {
         }
 
         let ret_ty: VarType = self.parse_ty();
+
+        self.next();
+
         Box::new(FunctionDeclNode::new(name, params, ret_ty))
     }
 
     fn parse_function(&mut self) -> Box<FunctionNode<'a>> {
         let func_details: Box<FunctionDeclNode> = self.parse_function_decl();
-
-        self.next();
 
         let function_block: Box<BlockNode<'a>> = self.parse_block();
 
