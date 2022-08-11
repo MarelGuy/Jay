@@ -1,7 +1,7 @@
 type MyType {
-   func new(a: string, b: int): MyType,
    a: string,
    b: int,
+   func new(a: string, b: int): MyType,
 }
 
 MyType:::new(a: string, b: int): MyType {
