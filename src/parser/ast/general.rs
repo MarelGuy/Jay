@@ -3,7 +3,7 @@ use either::Either;
 use crate::lexer::token::Token;
 
 use super::{
-    declarations::{ConstDeclNode, VarDeclNode, VarType},
+    declarations::{AssignNode, ConstDeclNode, VarDeclNode, VarType},
     functions::{FunctionDeclNode, FunctionNode, ReturnIfNode, ReturnNode, UseFunctionNode},
     identifier::{ArrayAccessNode, DotNotationNode, IdentifierNode},
     if_else::IfNode,
@@ -11,7 +11,7 @@ use super::{
     loops::{ForNode, LoopNode, WhileNode},
     math_ops::{BinOpNode, UnOpNode},
     switch::SwitchNode,
-    types::{BoolNode, CharNode, NumberNode, StringNode, TypeNode},
+    types::{BoolNode, CharNode, NewTypeValueNode, NumberNode, StringNode, TypeNode},
 };
 
 #[derive(PartialEq, Debug)]
@@ -59,6 +59,7 @@ pub enum Nodes<'a> {
     // Declarations
     VarDeclNode(VarDeclNode<'a>),
     ConstDeclNode(ConstDeclNode<'a>),
+    AssignNode(AssignNode<'a>),
 
     // Identifiers
     IdentifierNode(IdentifierNode<'a>),
@@ -81,6 +82,7 @@ pub enum Nodes<'a> {
     CharNode(CharNode<'a>),
     BoolNode(BoolNode<'a>),
     TypeNode(TypeNode),
+    NewTypeValueNode(NewTypeValueNode<'a>),
 
     // Loops
     WhileNode(WhileNode<'a>),
