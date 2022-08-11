@@ -1,4 +1,4 @@
-use super::general::Node;
+use super::{general::Node, identifier::IdentifierNode};
 
 #[derive(PartialEq, Debug)]
 pub struct VarType {
@@ -71,6 +71,23 @@ impl<'a> ConstDeclNode<'a> {
             ty,
             assign_op,
             value,
+        }
+    }
+}
+
+#[derive(PartialEq, Debug)]
+pub struct AssignNode<'a> {
+    var: Box<IdentifierNode<'a>>,
+    assign_token: AssignType,
+    val: Box<Node<'a>>,
+}
+
+impl<'a> AssignNode<'a> {
+    pub fn new(var: Box<IdentifierNode<'a>>, assign_token: AssignType, val: Box<Node<'a>>) -> Self {
+        Self {
+            var,
+            assign_token,
+            val,
         }
     }
 }
