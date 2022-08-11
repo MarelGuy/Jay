@@ -1,6 +1,6 @@
 use crate::lexer::token::Token;
 
-use super::general::ParamNode;
+use super::general::{Node, ParamNode};
 
 #[derive(PartialEq, Debug)]
 pub struct TypeNode {
@@ -15,10 +15,14 @@ impl TypeNode {
 }
 
 #[derive(PartialEq, Debug)]
-pub struct TypeFunctionNode {
-    pub name: String,
-    pub params: Vec<Box<ParamNode>>,
-    pub return_type: Box<TypeNode>,
+pub struct NewTypeValueNode<'a> {
+    params: Vec<Box<Node<'a>>>,
+}
+
+impl<'a> NewTypeValueNode<'a> {
+    pub fn new(params: Vec<Box<Node<'a>>>) -> Self {
+        Self { params }
+    }
 }
 
 #[derive(PartialEq, Debug)]
