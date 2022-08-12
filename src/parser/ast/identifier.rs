@@ -1,6 +1,6 @@
 use crate::lexer::token::Token;
 
-use super::{general::Node, types::NumberNode};
+use super::{types::NumberNode, Node};
 
 #[derive(Debug, PartialEq)]
 pub struct IdentifierNode<'a> {

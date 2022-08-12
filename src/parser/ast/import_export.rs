@@ -1,6 +1,6 @@
 use either::Either;
 
-use super::general::Node;
+use super::Node;
 
 #[derive(Debug, PartialEq)]
 pub struct ImportNode<'a> {

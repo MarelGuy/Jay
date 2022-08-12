@@ -7,7 +7,6 @@ use Either::{Left, Right};
 
 use super::ast::declarations::{AssignNode, ConstDeclNode, VarDeclNode, VarType};
 use super::ast::functions::{ArgNode, FunctionDeclNode, ReturnIfNode, ReturnNode, UseFunctionNode};
-use super::ast::general::{ConditionNode, Node, ParamNode};
 use super::ast::identifier::{ArrayAccessNode, DotNotationNode, IdentifierNode};
 use super::ast::if_else::IfNode;
 use super::ast::import_export::{ExportNode, ImportNode};
@@ -15,11 +14,11 @@ use super::ast::loops::{ForNode, LoopNode};
 use super::ast::math_ops::{BinOpNode, UnOpNode};
 use super::ast::switch::{CaseNode, DefaultNode, SwitchNode};
 use super::ast::types::{BoolNode, CharNode, NewTypeValueNode, NumberNode, StringNode};
+use super::ast::{BlockNode, ConditionNode, Node, Nodes, ParamNode};
 
 use crate::lexer::token::{Span, Token, TokenType};
 use crate::parser::ast::declarations::AssignType;
 use crate::parser::ast::functions::FunctionNode;
-use crate::parser::ast::general::{BlockNode, Nodes};
 use crate::parser::ast::loops::WhileNode;
 use crate::parser::ast::types::TypeNode;
 

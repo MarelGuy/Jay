@@ -1,9 +1,6 @@
 use either::Either;
 
-use super::{
-    general::{BlockNode, ConditionNode},
-    math_ops::UnOpNode,
-};
+use super::{math_ops::UnOpNode, BlockNode, ConditionNode};
 
 #[derive(Debug, PartialEq)]
 pub struct WhileNode<'a> {

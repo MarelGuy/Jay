@@ -1,4 +1,4 @@
-use super::{general::Node, identifier::IdentifierNode};
+use super::{identifier::IdentifierNode, Node};
 
 #[derive(PartialEq, Debug)]
 pub struct VarType {

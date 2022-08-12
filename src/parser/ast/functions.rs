@@ -1,7 +1,4 @@
-use super::{
-    declarations::VarType,
-    general::{BlockNode, ConditionNode, Node, ParamNode},
-};
+use super::{declarations::VarType, BlockNode, ConditionNode, Node, ParamNode};
 
 #[derive(PartialEq, Debug)]
 pub struct FunctionDeclNode {

@@ -4,9 +4,9 @@ use super::types::NumberNode;
 
 #[derive(PartialEq, Debug)]
 pub struct BinOpNode<'a> {
-    left_node: Box<NumberNode<'a>>,
+    pub left_node: Box<NumberNode<'a>>,
     op_token: Token<'a>,
-    right_node: Box<NumberNode<'a>>,
+    pub right_node: Box<NumberNode<'a>>,
 }
 
 impl<'a> BinOpNode<'a> {
@@ -26,7 +26,7 @@ impl<'a> BinOpNode<'a> {
 #[derive(PartialEq, Debug)]
 pub struct UnOpNode<'a> {
     op_token: Token<'a>,
-    node: Box<NumberNode<'a>>,
+    pub node: Box<NumberNode<'a>>,
 }
 
 impl<'a> UnOpNode<'a> {

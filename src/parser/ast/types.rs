@@ -1,6 +1,6 @@
 use crate::lexer::token::Token;
 
-use super::general::{Node, ParamNode};
+use super::{Node, ParamNode};
 
 #[derive(PartialEq, Debug)]
 pub struct TypeNode {
@@ -25,7 +25,7 @@ impl<'a> NewTypeValueNode<'a> {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub struct NumberNode<'a> {
     token: Token<'a>,
 }

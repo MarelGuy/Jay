@@ -1,6 +1,6 @@
 use either::Either;
 
-use super::general::{BlockNode, ConditionNode};
+use super::{BlockNode, ConditionNode};
 
 #[derive(PartialEq, Debug)]
 pub struct IfNode<'a> {

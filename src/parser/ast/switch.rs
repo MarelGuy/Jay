@@ -1,6 +1,6 @@
 use either::Either;
 
-use super::general::{BlockNode, ConditionNode};
+use super::{BlockNode, ConditionNode};
 
 #[derive(Debug, PartialEq)]
 pub struct SwitchNode<'a> {
