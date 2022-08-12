@@ -4,7 +4,7 @@ Copyright (C) 2022  Loris Cuntreri
 */
 use compiler::Compiler;
 use lexer::lexer::Lexer;
-use parser::parser::Parser;
+use parser::Parser;
 use std::{env::args, fs::read_to_string, io::Write, path::Path};
 
 use crate::lexer::token::{Token, TokenType};
