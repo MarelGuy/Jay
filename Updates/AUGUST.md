@@ -9,4 +9,9 @@ Also, I'll be taking a train for Milan, I hope to be finished with everything be
 It was easier than expected, I'll be working on arrays now.
 *Even later-er*
 I'm done, well... Kinda.  
-The dot notation isn't really something I can do now, I'll add it later when I'm sure that the parser   is 100% working, now it's time to get into error handling, I'll work in it in the train, I'll have 4   (more or less) hours.
+The dot notation isn't really something I can do now, I'll add it later when I'm sure that the parser   is 100% working, now it's time to get into error handling, I'll work in it in the train, I'll have 4 (more or less) hours.
+
+## 2022-08-12
+
+The parser is finally done, after several months of procastinating and personal changes I'm finally at half the work, jeesus that was quite the ride.  
+By the way, I'll start testing with LLVM-IR for now, I'm not really in the mood for error handling.
