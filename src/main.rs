@@ -2,12 +2,14 @@
 Jay main
 Copyright (C) 2022  Loris Cuntreri
 */
+use compiler::Compiler;
 use lexer::lexer::Lexer;
 use parser::parser::Parser;
 use std::{env::args, fs::read_to_string, io::Write, path::Path};
 
 use crate::lexer::token::{Token, TokenType};
 
+mod compiler;
 mod lexer;
 mod parser;
 
@@ -39,7 +41,9 @@ fn run(input: &str) {
 
     parser.parse();
 
-    println!("{:#?}", parser.ast);
+    let compiler: Compiler = Compiler::new(parser.ast);
+
+    compiler.compile();
 }
 
 fn interpreter() {
