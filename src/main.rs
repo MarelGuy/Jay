@@ -3,7 +3,7 @@ Jay main
 Copyright (C) 2022  Loris Cuntreri
 */
 use compiler::Compiler;
-use lexer::lexer::Lexer;
+use lexer::Lexer;
 use parser::Parser;
 use std::{env::args, fs::read_to_string, io::Write, path::Path};
 
