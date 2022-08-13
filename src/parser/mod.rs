@@ -179,9 +179,7 @@ impl<'a> Parser<'a> {
 
     // Types
     fn parse_number(&self) -> NumberNode<'a> {
-        let token: Token<'a> = self.current_token.clone();
-
-        return NumberNode::new(token);
+        NumberNode::new(self.current_token.clone())
     }
 
     fn parse_string(&self) -> StringNode<'a> {
@@ -191,15 +189,11 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_char(&self) -> CharNode<'a> {
-        let token: Token<'a> = self.current_token.clone();
-
-        return CharNode::new(token);
+        CharNode::new(self.current_token.clone())
     }
 
     fn parse_bool(&self) -> BoolNode<'a> {
-        let token: Token<'a> = self.current_token.clone();
-
-        return BoolNode::new(token);
+        BoolNode::new(self.current_token.clone())
     }
 
     fn parse_ty_list(&mut self, is_array: bool) -> VarType {
@@ -239,9 +233,7 @@ impl<'a> Parser<'a> {
 
     // Identifiers
     fn parse_identifier(&self) -> IdentifierNode<'a> {
-        let token: Token<'a> = self.current_token.clone();
-
-        return IdentifierNode::new(token);
+        IdentifierNode::new(self.current_token.clone())
     }
 
     fn parse_array_access(&mut self) -> ArrayAccessNode<'a> {
@@ -396,10 +388,12 @@ impl<'a> Parser<'a> {
             }
         } else {
             self.next();
+
             while self.current_token.token_type != TokenType::CloseBracket {
                 if self.current_token.token_type == TokenType::Comma {
                     self.next()
                 }
+
                 value.push(self.parse_list(self.current_token));
                 self.next();
             }
