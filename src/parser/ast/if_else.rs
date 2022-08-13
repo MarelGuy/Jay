@@ -4,16 +4,16 @@ use super::{BlockNode, ConditionNode};
 
 #[derive(PartialEq, Debug)]
 pub struct IfNode<'a> {
-    condition: Box<ConditionNode<'a>>,
-    if_block: Box<BlockNode<'a>>,
-    else_block: Either<Box<BlockNode<'a>>, ()>,
+    condition: ConditionNode<'a>,
+    if_block: BlockNode<'a>,
+    else_block: Either<BlockNode<'a>, ()>,
 }
 
 impl<'a> IfNode<'a> {
     pub fn new(
-        condition: Box<ConditionNode<'a>>,
-        if_block: Box<BlockNode<'a>>,
-        else_block: Either<Box<BlockNode<'a>>, ()>,
+        condition: ConditionNode<'a>,
+        if_block: BlockNode<'a>,
+        else_block: Either<BlockNode<'a>, ()>,
     ) -> Self {
         Self {
             condition,

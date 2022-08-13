@@ -4,15 +4,12 @@ use super::{BlockNode, ConditionNode};
 
 #[derive(Debug, PartialEq)]
 pub struct SwitchNode<'a> {
-    pub cases: Vec<Box<CaseNode<'a>>>,
-    pub default_block: Either<Box<DefaultNode<'a>>, ()>,
+    pub cases: Vec<CaseNode<'a>>,
+    pub default_block: Either<DefaultNode<'a>, ()>,
 }
 
 impl<'a> SwitchNode<'a> {
-    pub fn new(
-        cases: Vec<Box<CaseNode<'a>>>,
-        default_block: Either<Box<DefaultNode<'a>>, ()>,
-    ) -> Self {
+    pub fn new(cases: Vec<CaseNode<'a>>, default_block: Either<DefaultNode<'a>, ()>) -> Self {
         Self {
             cases,
             default_block,
@@ -22,23 +19,23 @@ impl<'a> SwitchNode<'a> {
 
 #[derive(Debug, PartialEq)]
 pub struct CaseNode<'a> {
-    pub condition: Box<ConditionNode<'a>>,
-    pub block: Box<BlockNode<'a>>,
+    pub condition: ConditionNode<'a>,
+    pub block: BlockNode<'a>,
 }
 
 impl<'a> CaseNode<'a> {
-    pub fn new(condition: Box<ConditionNode<'a>>, block: Box<BlockNode<'a>>) -> Self {
+    pub fn new(condition: ConditionNode<'a>, block: BlockNode<'a>) -> Self {
         Self { condition, block }
     }
 }
 
 #[derive(Debug, PartialEq)]
 pub struct DefaultNode<'a> {
-    pub block: Box<BlockNode<'a>>,
+    pub block: BlockNode<'a>,
 }
 
 impl<'a> DefaultNode<'a> {
-    pub fn new(block: Box<BlockNode<'a>>) -> Self {
+    pub fn new(block: BlockNode<'a>) -> Self {
         Self { block }
     }
 }

@@ -5,22 +5,22 @@ use super::{Node, ParamNode};
 #[derive(PartialEq, Debug)]
 pub struct TypeNode {
     name: String,
-    fields: Vec<Box<ParamNode>>,
+    fields: Vec<ParamNode>,
 }
 
 impl TypeNode {
-    pub fn new(name: String, fields: Vec<Box<ParamNode>>) -> Self {
+    pub fn new(name: String, fields: Vec<ParamNode>) -> Self {
         Self { name, fields }
     }
 }
 
 #[derive(PartialEq, Debug)]
 pub struct NewTypeValueNode<'a> {
-    params: Vec<Box<Node<'a>>>,
+    params: Vec<Node<'a>>,
 }
 
 impl<'a> NewTypeValueNode<'a> {
-    pub fn new(params: Vec<Box<Node<'a>>>) -> Self {
+    pub fn new(params: Vec<Node<'a>>) -> Self {
         Self { params }
     }
 }

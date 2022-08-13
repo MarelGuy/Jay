@@ -15,11 +15,11 @@ impl<'a> IdentifierNode<'a> {
 
 #[derive(Debug, PartialEq)]
 pub struct ArrayAccessNode<'a> {
-    position: Box<NumberNode<'a>>,
+    position: NumberNode<'a>,
 }
 
 impl<'a> ArrayAccessNode<'a> {
-    pub fn new(position: Box<NumberNode<'a>>) -> Self {
+    pub fn new(position: NumberNode<'a>) -> Self {
         Self { position }
     }
 }

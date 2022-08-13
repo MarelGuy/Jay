@@ -30,7 +30,7 @@ pub struct VarDeclNode<'a> {
     ty: VarType,
     assign_op: AssignType,
     mutable: bool,
-    value: Vec<Box<Node<'a>>>,
+    value: Vec<Node<'a>>,
 }
 
 impl<'a> VarDeclNode<'a> {
@@ -39,7 +39,7 @@ impl<'a> VarDeclNode<'a> {
         ty: VarType,
         assign_op: AssignType,
         mutable: bool,
-        value: Vec<Box<Node<'a>>>,
+        value: Vec<Node<'a>>,
     ) -> Self {
         Self {
             name,
@@ -56,16 +56,11 @@ pub struct ConstDeclNode<'a> {
     name: String,
     ty: VarType,
     assign_op: AssignType,
-    value: Vec<Box<Node<'a>>>,
+    value: Vec<Node<'a>>,
 }
 
 impl<'a> ConstDeclNode<'a> {
-    pub fn new(
-        name: String,
-        ty: VarType,
-        assign_op: AssignType,
-        value: Vec<Box<Node<'a>>>,
-    ) -> Self {
+    pub fn new(name: String, ty: VarType, assign_op: AssignType, value: Vec<Node<'a>>) -> Self {
         Self {
             name,
             ty,
@@ -77,13 +72,13 @@ impl<'a> ConstDeclNode<'a> {
 
 #[derive(PartialEq, Debug)]
 pub struct AssignNode<'a> {
-    var: Box<IdentifierNode<'a>>,
+    var: IdentifierNode<'a>,
     assign_token: AssignType,
     val: Box<Node<'a>>,
 }
 
 impl<'a> AssignNode<'a> {
-    pub fn new(var: Box<IdentifierNode<'a>>, assign_token: AssignType, val: Box<Node<'a>>) -> Self {
+    pub fn new(var: IdentifierNode<'a>, assign_token: AssignType, val: Box<Node<'a>>) -> Self {
         Self {
             var,
             assign_token,
