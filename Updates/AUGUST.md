@@ -15,3 +15,9 @@ The dot notation isn't really something I can do now, I'll add it later when I'm
 
 The parser is finally done, after several months of procastinating and personal changes I'm finally at half the work, jeesus that was quite the ride.  
 By the way, I'll start testing with LLVM-IR for now, I'm not really in the mood for error handling.
+
+## 2022-08-13
+
+Early update today. While testing with LLVM-IR, I'm also refactoring some code to make it cleaner and more readable.  
+Also, there will be some refactors for the functions, right now, the workflow of the parser is kind of messed up.  
+The lexer is good for now, the only thing to add is "line" parameter to the token though, the error handling will be messed up without it.

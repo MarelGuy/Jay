@@ -31,6 +31,10 @@
 
 ## Doing 
 
+    - Testing LLVM/LLVM-IR
+
+## Miscellaneous
+
     - Error handling
 
 ## Bugs
