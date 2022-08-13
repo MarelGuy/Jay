@@ -1,7 +1,6 @@
 use crate::parser::ast::{
     declarations::{AssignNode, ConstDeclNode, VarDeclNode},
     functions::{FunctionNode, ReturnIfNode, ReturnNode, UseFunctionNode},
-    general::{Node, Nodes},
     identifier::{ArrayAccessNode, DotNotationNode, IdentifierNode},
     if_else::IfNode,
     import_export::{ExportNode, ImportNode},
@@ -9,25 +8,26 @@ use crate::parser::ast::{
     math_ops::{BinOpNode, UnOpNode},
     switch::SwitchNode,
     types::{BoolNode, CharNode, NewTypeValueNode, NumberNode, StringNode, TypeNode},
+    Node, Nodes,
 };
 
 pub struct Compiler<'a> {
-    ast: Vec<Box<Node<'a>>>,
+    ast: Vec<Node<'a>>,
 }
 
 impl<'a> Compiler<'a> {
-    pub fn compile(&self) {
-        for node in &self.ast {
-            self.visit_node(&*node);
-        }
-    }
-
-    pub fn new(ast: Vec<Box<Node<'a>>>) -> Self {
+    pub fn new(ast: Vec<Node<'a>>) -> Self {
         Self { ast }
     }
 
-    pub fn visit_node(&self, node: &Node<'a>) {
-        match &*node.node {
+    pub fn compile(&self) {
+        for node in &self.ast {
+            self.visit_node(&&node.node);
+        }
+    }
+
+    pub fn visit_node(&self, node: &&Nodes) {
+        match node {
             Nodes::VarDeclNode(node) => self.visit_var_decl_node(node),
             Nodes::ConstDeclNode(node) => self.visit_const_decl_node(node),
             Nodes::AssignNode(node) => self.visit_assign_node(node),
@@ -53,7 +53,7 @@ impl<'a> Compiler<'a> {
             Nodes::ReturnIfNode(node) => self.visit_return_if_node(node),
             Nodes::ImportNode(node) => self.visit_import_node(node),
             Nodes::ExportNode(node) => self.visit_export_node(node),
-            Nodes::NullNode => self.visit_null_node(&node.node),
+            Nodes::NullNode => self.visit_null_node(node),
         }
     }
 
