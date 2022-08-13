@@ -297,6 +297,7 @@ pub struct Span {
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Token<'a> {
+    pub line: usize,
     pub token_type: TokenType,
     pub slice: &'a str,
     pub span: Span,

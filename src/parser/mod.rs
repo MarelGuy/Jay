@@ -82,6 +82,7 @@ impl<'a> Parser<'a> {
                 token_type: TokenType::Null,
                 slice: "",
                 span: Span { start: 0, end: 0 },
+                line: 0,
             }
         }
     }
