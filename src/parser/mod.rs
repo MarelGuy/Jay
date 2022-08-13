@@ -2,10 +2,6 @@ pub(crate) mod ast;
 
 use either::Either;
 use Either::{Left, Right};
-/*
-    Jay parse&r
-    Copyright (C) 2022  Loris Cuntreri
-*/
 
 use crate::lexer::token::{Span, Token, TokenType};
 use crate::parser::ast::declarations::AssignType;

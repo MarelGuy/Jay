@@ -1,7 +1,3 @@
-/*
-Jay main
-Copyright (C) 2022  Loris Cuntreri
-*/
 use compiler::Compiler;
 use lexer::Lexer;
 use parser::Parser;
