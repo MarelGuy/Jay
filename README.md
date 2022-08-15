@@ -4,7 +4,7 @@
 
 - ### What is Jay?
 
-    Jay is a new programming language that aims to creating a new, simple and straight fowrard programming language. Right now, Jay is in development and it is NOT ready to use.
+    Jay is a new programming language that aims to creating a new, simple and straight forward programming language. Right now, Jay is in development and it is NOT ready to use.
 
 - ### Why Jay?
 
