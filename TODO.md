@@ -39,4 +39,4 @@
 
 ## Bugs
 
-    - No bugs?
+    - Biniary operators not working correctly, if you feed 1 + 1 - 1, it will give [binop_node, number_node]
