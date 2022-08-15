@@ -1,11 +1,11 @@
-use compiler::Compiler;
+// use compiler::Compiler;
 use lexer::Lexer;
 use parser::Parser;
 use std::{env::args, fs::read_to_string, io::Write, path::Path};
 
 use crate::lexer::token::{Token, TokenType};
 
-mod compiler;
+// mod compiler;
 mod lexer;
 mod parser;
 
@@ -37,9 +37,11 @@ fn run(input: &str) {
 
     parser.parse();
 
-    let compiler: Compiler = Compiler::new(parser.ast);
+    println!("{:#?}", parser.ast);
 
-    compiler.compile();
+    // let compiler: Compiler = Compiler::new(parser.ast);
+
+    // compiler.compile();
 }
 
 fn interpreter() {
