@@ -1,5 +1,7 @@
 pub(crate) mod ast;
 
+use std::vec;
+
 use either::Either;
 use Either::{Left, Right};
 
@@ -15,7 +17,7 @@ use self::ast::identifier::{ArrayAccessNode, DotNotationNode, IdentifierNode};
 use self::ast::if_else::IfNode;
 use self::ast::import_export::{ExportNode, ImportNode};
 use self::ast::loops::{ForNode, LoopNode};
-use self::ast::math_ops::{BinOpNode, UnOpNode};
+use self::ast::math_ops::{BinOpNode, OpNode, UnOpNode};
 use self::ast::switch::{CaseNode, DefaultNode, SwitchNode};
 use self::ast::types::{BoolNode, CharNode, NewTypeValueNode, NumberNode, StringNode};
 use self::ast::{BlockNode, ConditionNode, Node, Nodes, ParamNode};
@@ -84,20 +86,34 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_list(&mut self, current_token: Token<'a>) -> Node<'a> {
+        let next_token: Token = self.peek();
+
         match current_token.token_type {
-            TokenType::Number | TokenType::Float => {
-                if self.peek().token_type == TokenType::Plus
-                    || self.peek().token_type == TokenType::Minus
-                    || self.peek().token_type == TokenType::Multiply
-                    || self.peek().token_type == TokenType::Divide
-                    || self.peek().token_type == TokenType::Power
-                    || self.peek().token_type == TokenType::Modulo
+            TokenType::Number
+            | TokenType::Float
+            | TokenType::NegativeNumber
+            | TokenType::NegativeFloat
+            | TokenType::Identifier => {
+                if next_token.token_type == TokenType::Plus
+                    || next_token.token_type == TokenType::Minus
+                    || next_token.token_type == TokenType::Multiply
+                    || next_token.token_type == TokenType::Divide
+                    || next_token.token_type == TokenType::Power
+                    || next_token.token_type == TokenType::Modulo
                 {
-                    Node::new(Nodes::BinOpNode(self.parse_bin_op()))
-                } else if self.peek().token_type == TokenType::PlusPlus
-                    || self.peek().token_type == TokenType::MinusMinus
+                    if self.current_token.token_type == TokenType::Identifier {
+                        Node::new(Nodes::OpNode(self.parse_op(true, false)))
+                    } else {
+                        Node::new(Nodes::OpNode(self.parse_op(true, true)))
+                    }
+                } else if next_token.token_type == TokenType::PlusPlus
+                    || next_token.token_type == TokenType::MinusMinus
                 {
-                    Node::new(Nodes::UnOpNode(self.parse_un_op()))
+                    if self.current_token.token_type == TokenType::Identifier {
+                        Node::new(Nodes::OpNode(self.parse_op(false, false)))
+                    } else {
+                        Node::new(Nodes::OpNode(self.parse_op(false, true)))
+                    }
                 } else {
                     Node::new(Nodes::NumberNode(self.parse_number()))
                 }
@@ -123,7 +139,7 @@ impl<'a> Parser<'a> {
             TokenType::Return => Node::new(Nodes::ReturnNode(self.parse_return())),
             TokenType::ReturnIf => Node::new(Nodes::ReturnIfNode(self.parse_return_if())),
             TokenType::Switch => Node::new(Nodes::SwitchNode(self.parse_switch())),
-            TokenType::Identifier => match self.peek().token_type {
+            TokenType::Identifier => match next_token.token_type {
                 TokenType::TripleColon => Node::new(Nodes::FunctionNode(self.parse_function())),
                 TokenType::DoubleColon => {
                     Node::new(Nodes::UseFunctionNode(self.parse_use_function(true)))
@@ -257,26 +273,80 @@ impl<'a> Parser<'a> {
     }
 
     // Ops
-    fn parse_bin_op(&mut self) -> BinOpNode<'a> {
-        let left_node: NumberNode<'a> = self.parse_number();
-        self.next();
+    fn parse_op(&mut self, is_bin_op: bool, is_number: bool) -> OpNode<'a> {
+        let mut op_vec: Vec<Either<BinOpNode<'a>, UnOpNode<'a>>> = vec![];
+        let mut node: Either<BinOpNode<'a>, UnOpNode<'a>> = Left(BinOpNode::new_useless(
+            self.current_token.line,
+            self.current_token.span,
+        ));
 
-        let op_token: Token<'a> = self.current_token;
-        self.next();
+        loop {
+            if self.current_token.token_type == TokenType::Semicolon {
+                break;
+            }
 
-        let right_node: NumberNode<'a> = self.parse_number();
+            if is_bin_op {
+                node = Left(self.parse_bin_op(is_number, node.left().unwrap().clone()));
+            } else {
+                node = Right(self.parse_un_op(is_number));
+            }
 
-        return BinOpNode::new(left_node, op_token, right_node);
+            if self.current_token.token_type != TokenType::Minus
+                || self.current_token.token_type != TokenType::Plus
+                || self.current_token.token_type != TokenType::Multiply
+                || self.current_token.token_type != TokenType::Divide
+                || self.current_token.token_type != TokenType::Modulo
+                || self.current_token.token_type != TokenType::Power
+            {
+                self.next()
+            }
+
+            op_vec.push(node.clone());
+        }
+
+        OpNode::new(op_vec.last().unwrap().clone())
     }
 
-    fn parse_un_op(&mut self) -> UnOpNode<'a> {
-        let number_node: NumberNode<'a> = self.parse_number();
+    fn parse_bin_op(&mut self, is_number: bool, old_node: BinOpNode<'a>) -> BinOpNode<'a> {
+        let left_node: Either<Either<NumberNode<'a>, IdentifierNode<'a>>, Box<BinOpNode<'a>>> =
+            if old_node.op_token.token_type == TokenType::Null {
+                if is_number {
+                    Left(Left(self.parse_number()))
+                } else {
+                    Left(Right(self.parse_identifier()))
+                }
+            } else {
+                self.back();
+                Right(Box::new(old_node.clone()))
+            };
+
         self.next();
 
-        let op_token: Token<'a> = self.current_token;
+        let op_token: Token<'a> = self.current_token.clone();
         self.next();
 
-        UnOpNode::new(op_token, number_node)
+        let right_node: Either<NumberNode<'a>, IdentifierNode<'a>> = if is_number {
+            Left(self.parse_number())
+        } else {
+            Right(self.parse_identifier())
+        };
+
+        BinOpNode::new(left_node, op_token, right_node)
+    }
+
+    fn parse_un_op(&mut self, is_number: bool) -> UnOpNode<'a> {
+        let left_node: Either<NumberNode<'a>, IdentifierNode<'a>> = if is_number {
+            Left(self.parse_number())
+        } else {
+            Right(self.parse_identifier())
+        };
+
+        self.next();
+
+        let op_token: Token = self.current_token;
+        self.next();
+
+        UnOpNode::new(left_node, op_token)
     }
 
     // Declarations
@@ -468,7 +538,7 @@ impl<'a> Parser<'a> {
 
         if self.current_token.token_type == TokenType::Next {
             self.next();
-            next_block = Either::Left(self.parse_un_op());
+            next_block = Either::Left(self.parse_un_op(false));
         }
 
         let for_block: BlockNode<'a> = self.parse_block();

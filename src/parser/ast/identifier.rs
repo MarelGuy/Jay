@@ -2,7 +2,7 @@ use crate::lexer::token::Token;
 
 use super::{types::NumberNode, Node};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct IdentifierNode<'a> {
     pub token: Token<'a>,
 }
