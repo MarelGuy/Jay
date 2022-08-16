@@ -92,8 +92,7 @@ impl<'a> Parser<'a> {
             TokenType::Number
             | TokenType::Float
             | TokenType::NegativeNumber
-            | TokenType::NegativeFloat
-            | TokenType::Identifier => {
+            | TokenType::NegativeFloat => {
                 if next_token.token_type == TokenType::Plus
                     || next_token.token_type == TokenType::Minus
                     || next_token.token_type == TokenType::Multiply
@@ -101,19 +100,11 @@ impl<'a> Parser<'a> {
                     || next_token.token_type == TokenType::Power
                     || next_token.token_type == TokenType::Modulo
                 {
-                    if self.current_token.token_type == TokenType::Identifier {
-                        Node::new(Nodes::OpNode(self.parse_op(true, false)))
-                    } else {
-                        Node::new(Nodes::OpNode(self.parse_op(true, true)))
-                    }
+                    Node::new(Nodes::OpNode(self.parse_op(true, true)))
                 } else if next_token.token_type == TokenType::PlusPlus
                     || next_token.token_type == TokenType::MinusMinus
                 {
-                    if self.current_token.token_type == TokenType::Identifier {
-                        Node::new(Nodes::OpNode(self.parse_op(false, false)))
-                    } else {
-                        Node::new(Nodes::OpNode(self.parse_op(false, true)))
-                    }
+                    Node::new(Nodes::OpNode(self.parse_op(false, true)))
                 } else {
                     Node::new(Nodes::NumberNode(self.parse_number()))
                 }
@@ -162,6 +153,15 @@ impl<'a> Parser<'a> {
                 | TokenType::ModuloAssign
                 | TokenType::PowerAssign => {
                     Node::new(Nodes::AssignNode(self.parse_assign_to_var()))
+                }
+                TokenType::Plus
+                | TokenType::Minus
+                | TokenType::Multiply
+                | TokenType::Divide
+                | TokenType::Power
+                | TokenType::Modulo => Node::new(Nodes::OpNode(self.parse_op(true, false))),
+                TokenType::PlusPlus | TokenType::MinusMinus => {
+                    Node::new(Nodes::OpNode(self.parse_op(false, false)))
                 }
                 _ => Node::new(Nodes::IdentifierNode(self.parse_identifier())),
             },
