@@ -32,11 +32,8 @@
 ## Doing 
 
     - Testing LLVM/LLVM-IR
-
-## Miscellaneous
-
     - Error handling
 
 ## Bugs
 
-    - Biniary operators not working correctly, if you feed 1 + 1 - 1, it will give [binop_node, number_node]
+    - No bugs!? This is non-sense!
