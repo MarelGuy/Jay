@@ -2,7 +2,7 @@ use either::Either;
 
 use crate::lexer::token::{Span, Token, TokenType};
 
-use super::{identifier::IdentifierNode, types::NumberNode, Node};
+use super::{identifier::IdentifierNode, types::NumberNode};
 
 #[derive(PartialEq, Debug)]
 pub struct OpNode<'a> {

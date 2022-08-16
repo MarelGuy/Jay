@@ -19,7 +19,7 @@ use self::{
     if_else::IfNode,
     import_export::{ExportNode, ImportNode},
     loops::{ForNode, LoopNode, WhileNode},
-    math_ops::{BinOpNode, OpNode, UnOpNode},
+    math_ops::OpNode,
     switch::SwitchNode,
     types::{BoolNode, CharNode, NewTypeValueNode, NumberNode, StringNode, TypeNode},
 };
@@ -83,8 +83,6 @@ pub enum Nodes<'a> {
     SwitchNode(SwitchNode<'a>),
 
     // Ops
-    BinOpNode(BinOpNode<'a>),
-    UnOpNode(UnOpNode<'a>),
     OpNode(OpNode<'a>),
 
     // Types
