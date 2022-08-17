@@ -7,6 +7,7 @@ edition = "2021"
 llvm-ir = { version = "0.8.1", features = ["llvm-13"] }
 logos = "0.12.1"
 either = "1.7.0"
+colored = "2.0.0"
 
 [profile.release]
 opt-level = 3
