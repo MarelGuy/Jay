@@ -502,6 +502,23 @@ impl<'a> Parser<'a> {
 
         let name: String = self.current_token.slice.into();
 
+        for type_ in &self.types {
+            if type_.name == name {
+                Error::new(
+                    self.current_token.line,
+                    self.lines
+                        .clone()
+                        .into_iter()
+                        .nth(self.current_token.line - 1)
+                        .unwrap(),
+                    self.current_token.slice,
+                    self.current_token.column,
+                    self.file_name.clone(),
+                )
+                .throw_type_name_already_used(name.clone());
+            }
+        }
+
         self.types.push(SupportTypeNode::new(name.clone(), vec![]));
 
         let mut fields: Vec<ParamNode> = vec![];
