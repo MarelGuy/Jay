@@ -8,6 +8,8 @@ pub(crate) mod math_ops;
 pub(crate) mod switch;
 pub(crate) mod types;
 
+use core::fmt::{self, Display};
+
 use either::Either;
 
 use crate::lexer::token::Token;
@@ -52,7 +54,7 @@ impl<'a> BlockNode<'a> {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct ParamNode {
     pub name: String,
     pub ty: Either<FunctionDeclNode, VarType>,
@@ -61,6 +63,12 @@ pub struct ParamNode {
 impl ParamNode {
     pub fn new(name: String, ty: Either<FunctionDeclNode, VarType>) -> Self {
         Self { name, ty }
+    }
+}
+
+impl Display for ParamNode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.name)
     }
 }
 

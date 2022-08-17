@@ -14,6 +14,18 @@ impl TypeNode {
     }
 }
 
+#[derive(PartialEq, Debug, Clone)]
+pub struct SupportTypeNode {
+    pub name: String,
+    pub fields: Vec<String>,
+}
+
+impl SupportTypeNode {
+    pub fn new(name: String, fields: Vec<String>) -> Self {
+        Self { name, fields }
+    }
+}
+
 #[derive(PartialEq, Debug)]
 pub struct NewTypeValueNode<'a> {
     params: Vec<Node<'a>>,

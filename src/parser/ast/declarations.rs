@@ -1,6 +1,6 @@
 use super::{identifier::IdentifierNode, Node};
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct VarType {
     name: String,
     pub is_array: bool,

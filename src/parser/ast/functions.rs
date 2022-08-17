@@ -1,6 +1,6 @@
 use super::{declarations::VarType, BlockNode, ConditionNode, Node, ParamNode};
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct FunctionDeclNode {
     pub name: String,
     pub args: Vec<ParamNode>,

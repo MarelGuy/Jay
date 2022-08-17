@@ -20,7 +20,9 @@ use self::ast::import_export::{ExportNode, ImportNode};
 use self::ast::loops::{ForNode, LoopNode};
 use self::ast::math_ops::{BinOpNode, OpNode, UnOpNode};
 use self::ast::switch::{CaseNode, DefaultNode, SwitchNode};
-use self::ast::types::{BoolNode, CharNode, FloatNode, NewTypeValueNode, NumberNode, StringNode};
+use self::ast::types::{
+    BoolNode, CharNode, FloatNode, NewTypeValueNode, NumberNode, StringNode, SupportTypeNode,
+};
 use self::ast::{BlockNode, ConditionNode, Node, Nodes, ParamNode};
 
 pub struct Parser<'a> {
@@ -29,7 +31,7 @@ pub struct Parser<'a> {
     pub current_token: Token<'a>,
     pub tok_i: usize,
     pub lines: Vec<String>,
-    pub types: Vec<String>,
+    pub types: Vec<SupportTypeNode>,
     pub functions: Vec<String>,
     pub variables: Vec<(String, String)>,
     pub ast: Vec<Node<'a>>,
@@ -211,11 +213,15 @@ impl<'a> Parser<'a> {
             Nodes::StringNode(_) => VarType::new("string".into(), false),
             Nodes::CharNode(_) => VarType::new("char".into(), false),
             _ => {
-                if self.types.contains(&self.current_token.slice.to_string()) {
-                    VarType::new(self.current_token.slice.to_string(), false)
-                } else {
-                    VarType::new("Error".into(), false)
+                for arr_type in self.types.clone() {
+                    if arr_type.name == self.current_token.slice.to_string() {
+                        return VarType::new(arr_type.name, false);
+                    } else {
+                        return VarType::new("Error".into(), false);
+                    }
                 }
+
+                return VarType::new("Error".into(), false);
             }
         }
     }
@@ -251,11 +257,15 @@ impl<'a> Parser<'a> {
             TokenType::StringType => VarType::new("string".into(), is_array),
             TokenType::CharType => VarType::new("char".into(), is_array),
             _ => {
-                if self.types.contains(&self.current_token.slice.to_string()) {
-                    VarType::new(self.current_token.slice.to_string(), is_array)
-                } else {
-                    VarType::new("Error".into(), is_array)
+                for arr_type in self.types.clone() {
+                    if arr_type.name == self.current_token.slice.to_string() {
+                        return VarType::new(arr_type.name, false);
+                    } else {
+                        return VarType::new("Error".into(), false);
+                    }
                 }
+
+                return VarType::new("Error".into(), false);
             }
         }
     }
@@ -407,7 +417,7 @@ impl<'a> Parser<'a> {
         let mut value: Vec<Node<'a>> = vec![];
 
         for type_name in self.types.clone() {
-            if &type_name == self.current_token.slice {
+            if &type_name.name == self.current_token.slice {
                 self.back();
             }
         }
@@ -492,7 +502,7 @@ impl<'a> Parser<'a> {
 
         let name: String = self.current_token.slice.into();
 
-        self.types.push(name.clone());
+        self.types.push(SupportTypeNode::new(name.clone(), vec![]));
 
         let mut fields: Vec<ParamNode> = vec![];
 
@@ -510,6 +520,10 @@ impl<'a> Parser<'a> {
                 fields.push(self.parse_param(false));
             }
         }
+
+        let fields_str: Vec<String> = fields.clone().into_iter().map(|x| x.to_string()).collect();
+
+        self.types.last_mut().unwrap().fields = fields_str;
 
         TypeNode::new(name, fields)
     }
