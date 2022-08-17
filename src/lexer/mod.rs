@@ -43,6 +43,11 @@ impl<'a> Iterator for Lexer<'a> {
                 token_type,
                 slice: &self.input[span.start..span.end],
                 line: self.input[..span.start].matches('\n').count() + 1,
+                column: span.start
+                    - self.input[..span.start]
+                        .rfind('\n')
+                        .map(|i| i + 1)
+                        .unwrap_or(0),
                 span: span.into(),
             }),
             _ => None,
