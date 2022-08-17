@@ -35,25 +35,28 @@ impl<'a> BinOpNode<'a> {
         }
     }
 
-    pub fn new_useless(line: usize, span: Span) -> Self {
+    pub fn new_useless(line: usize, column: usize, span: Span) -> Self {
         Self {
             left_node: Either::Left(Either::Left(NumberNode::new(Token {
                 line,
                 token_type: TokenType::Number,
                 slice: "",
                 span,
+                column,
             }))),
             op_token: Token {
                 line,
                 token_type: TokenType::Null,
                 slice: "",
                 span,
+                column,
             },
             right_node: Either::Left(NumberNode::new(Token {
                 line,
                 token_type: TokenType::Number,
                 slice: "",
                 span,
+                column,
             })),
         }
     }

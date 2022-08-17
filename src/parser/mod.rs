@@ -81,6 +81,7 @@ impl<'a> Parser<'a> {
                 slice: "",
                 span: Span { start: 0, end: 0 },
                 line: 0,
+                column: 0,
             }
         }
     }
@@ -277,6 +278,7 @@ impl<'a> Parser<'a> {
         let mut op_vec: Vec<Either<BinOpNode<'a>, UnOpNode<'a>>> = vec![];
         let mut node: Either<BinOpNode<'a>, UnOpNode<'a>> = Left(BinOpNode::new_useless(
             self.current_token.line,
+            self.current_token.column,
             self.current_token.span,
         ));
 
