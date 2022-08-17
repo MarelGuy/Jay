@@ -19,7 +19,7 @@ fn version() {
     println!("Jay v0.0.0 (2022-016-03)");
 }
 
-fn run(input: &str) {
+fn run(input: &str, file_name: &str) {
     let lexer: Lexer = Lexer::new(input);
 
     let mut tokens: Vec<Token> = Vec::new();
@@ -34,7 +34,9 @@ fn run(input: &str) {
         }
     }
 
-    let mut parser: Parser = Parser::new(tokens);
+    let lines: Vec<String> = input.lines().map(|line| line.to_string()).collect();
+
+    let mut parser: Parser = Parser::new(tokens, file_name.into(), lines);
 
     parser.parse();
 
@@ -56,7 +58,7 @@ fn interpreter() {
 
         std::io::stdin().read_line(&mut input).expect("");
 
-        run(&input)
+        run(&input, "Interpreter");
     }
 }
 
@@ -79,7 +81,10 @@ fn compiler() {
 
     let file_content: String = read_to_string(file_path).expect("Error: failed to read file");
 
-    run(&file_content)
+    run(
+        &file_content,
+        file_path.file_name().unwrap().to_str().unwrap(),
+    );
 }
 
 fn main() {
