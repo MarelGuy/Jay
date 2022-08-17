@@ -21,3 +21,10 @@ By the way, I'll start testing with LLVM-IR for now, I'm not really in the mood 
 Early update today. While testing with LLVM-IR, I'm also refactoring some code to make it cleaner and more readable.  
 Also, there will be some refactors for the functions, right now, the workflow of the parser is kind of messed up.  
 The lexer is good for now, the only thing to add is "line" parameter to the token though, the error handling will be messed up without it.
+
+## 2022-08-17
+
+Hey there. Today I won't be able to test LLVM because I'll not be home. I'll bring my laptop to start the error handler though.  
+Talking about LLVM, it's hard, harder than I thought, but no problem, I remember some months ago when I didn't even know what rust is.  
+If I think about it, I started building a language without knowledge of both compilers and rust, starting has been quite a challenge.  
+But now I'm here, at half the work, I hope to be done with it before the start of the school year.
