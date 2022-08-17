@@ -36,6 +36,17 @@ impl<'a> NumberNode<'a> {
     }
 }
 
+#[derive(PartialEq, Debug, Clone, Copy)]
+pub struct FloatNode<'a> {
+    token: Token<'a>,
+}
+
+impl<'a> FloatNode<'a> {
+    pub fn new(token: Token<'a>) -> Self {
+        Self { token }
+    }
+}
+
 #[derive(PartialEq, Debug)]
 pub struct CharNode<'a> {
     token: Token<'a>,

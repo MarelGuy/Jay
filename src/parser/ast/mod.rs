@@ -21,7 +21,7 @@ use self::{
     loops::{ForNode, LoopNode, WhileNode},
     math_ops::OpNode,
     switch::SwitchNode,
-    types::{BoolNode, CharNode, NewTypeValueNode, NumberNode, StringNode, TypeNode},
+    types::{BoolNode, CharNode, FloatNode, NewTypeValueNode, NumberNode, StringNode, TypeNode},
 };
 
 #[derive(PartialEq, Debug)]
@@ -87,6 +87,7 @@ pub enum Nodes<'a> {
 
     // Types
     NumberNode(NumberNode<'a>),
+    FloatNode(FloatNode<'a>),
     StringNode(StringNode<'a>),
     CharNode(CharNode<'a>),
     BoolNode(BoolNode<'a>),

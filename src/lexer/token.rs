@@ -1,3 +1,6 @@
+use core::fmt;
+use std::fmt::{Display, Formatter};
+
 use logos::Logos;
 
 #[derive(Logos, Debug, PartialEq, Copy, Clone)]
@@ -137,9 +140,6 @@ pub enum TokenType {
 
     #[token("string")]
     StringType,
-
-    #[token("void")]
-    VoidType,
 
     #[token("char")]
     CharType,
@@ -288,6 +288,12 @@ pub enum TokenType {
     #[error]
     #[regex(r"[ \t\n\f]+", logos::skip)]
     Error,
+}
+
+impl Display for TokenType {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 #[derive(PartialEq, Debug, Copy, Clone)]
