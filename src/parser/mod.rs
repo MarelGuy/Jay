@@ -5,6 +5,7 @@ use std::vec;
 use either::Either;
 use Either::{Left, Right};
 
+use crate::error_handler::Error;
 use crate::lexer::token::{Span, Token, TokenType};
 use crate::parser::ast::declarations::AssignType;
 use crate::parser::ast::functions::FunctionNode;
@@ -19,25 +20,29 @@ use self::ast::import_export::{ExportNode, ImportNode};
 use self::ast::loops::{ForNode, LoopNode};
 use self::ast::math_ops::{BinOpNode, OpNode, UnOpNode};
 use self::ast::switch::{CaseNode, DefaultNode, SwitchNode};
-use self::ast::types::{BoolNode, CharNode, NewTypeValueNode, NumberNode, StringNode};
+use self::ast::types::{BoolNode, CharNode, FloatNode, NewTypeValueNode, NumberNode, StringNode};
 use self::ast::{BlockNode, ConditionNode, Node, Nodes, ParamNode};
 
 pub struct Parser<'a> {
+    pub file_name: String,
     pub token_stream: Vec<Token<'a>>,
     pub current_token: Token<'a>,
     pub tok_i: usize,
+    pub lines: Vec<String>,
     pub types: Vec<String>,
     pub functions: Vec<String>,
-    pub variables: Vec<String>,
+    pub variables: Vec<(String, String)>,
     pub ast: Vec<Node<'a>>,
 }
 
 impl<'a> Parser<'a> {
-    pub fn new(token_stream: Vec<Token<'a>>) -> Self {
+    pub fn new(token_stream: Vec<Token<'a>>, file_name: String, lines: Vec<String>) -> Self {
         Self {
+            file_name,
             current_token: token_stream[0].clone(),
             token_stream,
             tok_i: 0,
+            lines,
             types: Vec::new(),
             functions: Vec::new(),
             variables: Vec::new(),
@@ -107,7 +112,11 @@ impl<'a> Parser<'a> {
                 {
                     Node::new(Nodes::OpNode(self.parse_op(false, true)))
                 } else {
-                    Node::new(Nodes::NumberNode(self.parse_number()))
+                    if current_token.token_type == TokenType::Number {
+                        Node::new(Nodes::NumberNode(self.parse_number()))
+                    } else {
+                        Node::new(Nodes::FloatNode(self.parse_float()))
+                    }
                 }
             }
             TokenType::String => Node::new(Nodes::StringNode(self.parse_string())),
@@ -194,9 +203,30 @@ impl<'a> Parser<'a> {
         }
     }
 
+    fn parse_val_type(&mut self, val: &Box<Node>) -> VarType {
+        match val.node {
+            Nodes::NumberNode(_) => VarType::new("int".into(), false),
+            Nodes::FloatNode(_) => VarType::new("float".into(), false),
+            Nodes::BoolNode(_) => VarType::new("bool".into(), false),
+            Nodes::StringNode(_) => VarType::new("string".into(), false),
+            Nodes::CharNode(_) => VarType::new("char".into(), false),
+            _ => {
+                if self.types.contains(&self.current_token.slice.to_string()) {
+                    VarType::new(self.current_token.slice.to_string(), false)
+                } else {
+                    VarType::new("Error".into(), false)
+                }
+            }
+        }
+    }
+
     // Types
     fn parse_number(&self) -> NumberNode<'a> {
         NumberNode::new(self.current_token.clone())
+    }
+
+    fn parse_float(&self) -> FloatNode<'a> {
+        FloatNode::new(self.current_token.clone())
     }
 
     fn parse_string(&self) -> StringNode<'a> {
@@ -220,7 +250,6 @@ impl<'a> Parser<'a> {
             TokenType::BoolType => VarType::new("bool".into(), is_array),
             TokenType::StringType => VarType::new("string".into(), is_array),
             TokenType::CharType => VarType::new("char".into(), is_array),
-            TokenType::VoidType => VarType::new("void".into(), is_array),
             _ => {
                 if self.types.contains(&self.current_token.slice.to_string()) {
                     VarType::new(self.current_token.slice.to_string(), is_array)
@@ -360,7 +389,6 @@ impl<'a> Parser<'a> {
         self.next();
 
         let mut name: String = self.current_token.slice.into();
-        self.variables.push(name.clone());
 
         if name.chars().next().unwrap().is_numeric() {
             name = "Error".to_string();
@@ -370,6 +398,7 @@ impl<'a> Parser<'a> {
         self.next();
 
         let ty: VarType = self.parse_ty();
+        self.variables.push((name.clone(), ty.to_string().clone()));
 
         let assign_token: AssignType = self.parse_assign();
 
@@ -393,7 +422,35 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_assign_to_var(&mut self) -> AssignNode<'a> {
+        let mut did_find: bool = false;
         let var: IdentifierNode<'a> = self.parse_identifier();
+        let mut var_type: String = String::new();
+
+        for var_arr in self.variables.clone() {
+            if var_arr.0 == var.token.slice {
+                var_type = var_arr.1.parse().unwrap();
+
+                did_find = true;
+                break;
+            }
+        }
+
+        if !did_find {
+            Error::new(
+                var.token.line,
+                self.lines
+                    .clone()
+                    .into_iter()
+                    .nth(var.token.line - 1)
+                    .unwrap(),
+                var.token.slice,
+                var.token.column,
+                self.file_name.clone(),
+            )
+            .throw_var_not_defined(var.token.slice);
+        }
+
+        did_find = false;
 
         self.next();
 
@@ -402,6 +459,30 @@ impl<'a> Parser<'a> {
         self.next();
 
         let val: Box<Node<'a>> = Box::new(self.parse_list(self.current_token));
+
+        let val_type: VarType = self.parse_val_type(&val);
+
+        for var_arr in self.variables.clone() {
+            if var_arr.1 == val_type.to_string() {
+                did_find = true;
+                break;
+            }
+        }
+
+        if !did_find {
+            Error::new(
+                var.token.line,
+                self.lines
+                    .clone()
+                    .into_iter()
+                    .nth(var.token.line - 1)
+                    .unwrap(),
+                self.current_token.slice,
+                self.current_token.column,
+                self.file_name.clone(),
+            )
+            .throw_wrong_assign_type(var.token.slice, val_type.to_string(), var_type);
+        }
 
         AssignNode::new(var, assign, val)
     }
