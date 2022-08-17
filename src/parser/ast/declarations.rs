@@ -6,6 +6,12 @@ pub struct VarType {
     pub is_array: bool,
 }
 
+impl std::fmt::Display for VarType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.name)
+    }
+}
+
 impl VarType {
     pub fn new(name: String, is_array: bool) -> Self {
         Self { name, is_array }
