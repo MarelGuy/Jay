@@ -5,9 +5,10 @@ use std::{env::args, fs::read_to_string, io::Write, path::Path};
 
 use crate::lexer::token::{Token, TokenType};
 
-// mod compiler;
+mod error_handler;
 mod lexer;
 mod parser;
+// mod compiler;
 
 fn help() {
     println!("-h, --help: show this help message");
