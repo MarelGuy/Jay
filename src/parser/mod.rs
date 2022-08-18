@@ -260,12 +260,21 @@ impl<'a> Parser<'a> {
                 for arr_type in self.types.clone() {
                     if arr_type.name == self.current_token.slice.to_string() {
                         return VarType::new(arr_type.name, false);
-                    } else {
-                        return VarType::new("Error".into(), false);
                     }
                 }
 
-                return VarType::new("Error".into(), false);
+                Error::new(
+                    self.current_token.clone(),
+                    self.lines
+                        .clone()
+                        .into_iter()
+                        .nth(self.current_token.line - 1)
+                        .unwrap(),
+                    self.file_name.clone(),
+                )
+                .throw_ty_not_found();
+
+                return VarType::new("".into(), false);
             }
         }
     }
@@ -447,14 +456,12 @@ impl<'a> Parser<'a> {
 
         if !did_find {
             Error::new(
-                var.token.line,
+                var.token,
                 self.lines
                     .clone()
                     .into_iter()
                     .nth(var.token.line - 1)
                     .unwrap(),
-                var.token.slice,
-                var.token.column,
                 self.file_name.clone(),
             )
             .throw_var_not_defined(var.token.slice);
@@ -481,14 +488,12 @@ impl<'a> Parser<'a> {
 
         if !did_find {
             Error::new(
-                var.token.line,
+                var.token,
                 self.lines
                     .clone()
                     .into_iter()
                     .nth(var.token.line - 1)
                     .unwrap(),
-                self.current_token.slice,
-                self.current_token.column,
                 self.file_name.clone(),
             )
             .throw_wrong_assign_type(var.token.slice, val_type.to_string(), var_type);
@@ -505,14 +510,12 @@ impl<'a> Parser<'a> {
         for type_ in &self.types {
             if type_.name == name {
                 Error::new(
-                    self.current_token.line,
+                    self.current_token,
                     self.lines
                         .clone()
                         .into_iter()
                         .nth(self.current_token.line - 1)
                         .unwrap(),
-                    self.current_token.slice,
-                    self.current_token.column,
                     self.file_name.clone(),
                 )
                 .throw_type_name_already_used(name.clone());

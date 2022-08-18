@@ -1,42 +1,34 @@
 use colored::{ColoredString, Colorize};
 use std::process::exit;
 
+use crate::lexer::token::Token;
+
 pub struct Error<'a> {
+    token: Token<'a>,
     e_str: ColoredString,
-    line: usize,
     line_string: String,
-    slice: &'a str,
-    column: usize,
     file_name: String,
 }
 
 impl<'a> Error<'a> {
-    pub fn new(
-        line: usize,
-        line_string: String,
-        slice: &'a str,
-        column: usize,
-        file_name: String,
-    ) -> Self {
+    pub fn new(token: Token<'a>, line_string: String, file_name: String) -> Self {
         Self {
-            e_str: "Error".red(),
-            line,
+            token,
+            e_str: "error".red(),
             line_string,
-            slice,
-            column,
             file_name,
         }
     }
 
     pub fn print(&self) {
-        let error_counter: String = "^".repeat(self.slice.len());
+        let error_counter: String = "^".repeat(self.token.slice.len());
         println!("{} file: {}", "-".blue(), self.file_name);
         println!("{}", "|".blue());
-        println!("{} {}.   {}", "|".blue(), self.line, self.line_string);
+        println!("{} {}.   {}", "|".blue(), self.token.line, self.line_string);
         println!(
             "{}      {}{}",
             "|".blue(),
-            " ".repeat(self.column),
+            " ".repeat(self.token.column),
             error_counter.yellow()
         );
         println!("{}", "-".blue());
@@ -61,7 +53,19 @@ impl<'a> Error<'a> {
     }
 
     pub fn throw_type_name_already_used(&self, name: String) {
-        println!("{}, type name: {} already used", self.e_str, name);
+        println!(
+            "{}, type name: {} already used in this scope",
+            self.e_str, name
+        );
+        self.print();
+        exit(0)
+    }
+
+    pub fn throw_ty_not_found(&self) {
+        println!(
+            "{}: type {} not found in this scope",
+            self.e_str, self.token.slice
+        );
         self.print();
         exit(0)
     }
