@@ -69,4 +69,10 @@ impl<'a> Error<'a> {
         self.print();
         exit(0)
     }
+
+    pub fn throw_unkown_token(&self) {
+        println!("{}: unknown token: {}", self.e_str, self.token.slice);
+        self.print();
+        exit(0)
+    }
 }

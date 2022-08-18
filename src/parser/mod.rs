@@ -93,6 +93,11 @@ impl<'a> Parser<'a> {
         }
     }
 
+    fn get_line(&self, line: usize) -> String {
+        self.lines.clone().into_iter().nth(line).unwrap()
+    }
+
+    // Parsing utils
     fn parse_list(&mut self, current_token: Token<'a>) -> Node<'a> {
         let next_token: Token = self.peek();
 
@@ -188,7 +193,15 @@ impl<'a> Parser<'a> {
                     ));
                 }
             }
-            _ => Node::new(Nodes::NullNode),
+            _ => {
+                Error::new(
+                    self.current_token,
+                    self.get_line(self.current_token.line - 1),
+                    self.file_name.clone(),
+                )
+                .throw_unkown_token();
+                return Node::new(Nodes::NullNode);
+            }
         }
     }
 
@@ -265,11 +278,7 @@ impl<'a> Parser<'a> {
 
                 Error::new(
                     self.current_token.clone(),
-                    self.lines
-                        .clone()
-                        .into_iter()
-                        .nth(self.current_token.line - 1)
-                        .unwrap(),
+                    self.get_line(self.current_token.line - 1),
                     self.file_name.clone(),
                 )
                 .throw_ty_not_found();
@@ -457,11 +466,7 @@ impl<'a> Parser<'a> {
         if !did_find {
             Error::new(
                 var.token,
-                self.lines
-                    .clone()
-                    .into_iter()
-                    .nth(var.token.line - 1)
-                    .unwrap(),
+                self.get_line(var.token.line - 1),
                 self.file_name.clone(),
             )
             .throw_var_not_defined(var.token.slice);
@@ -489,11 +494,7 @@ impl<'a> Parser<'a> {
         if !did_find {
             Error::new(
                 var.token,
-                self.lines
-                    .clone()
-                    .into_iter()
-                    .nth(var.token.line - 1)
-                    .unwrap(),
+                self.get_line(var.token.line - 1),
                 self.file_name.clone(),
             )
             .throw_wrong_assign_type(var.token.slice, val_type.to_string(), var_type);
@@ -511,11 +512,7 @@ impl<'a> Parser<'a> {
             if type_.name == name {
                 Error::new(
                     self.current_token,
-                    self.lines
-                        .clone()
-                        .into_iter()
-                        .nth(self.current_token.line - 1)
-                        .unwrap(),
+                    self.get_line(self.current_token.line - 1),
                     self.file_name.clone(),
                 )
                 .throw_type_name_already_used(name.clone());
