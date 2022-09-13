@@ -15,7 +15,7 @@ use either::Either;
 use crate::lexer::token::Token;
 
 use self::{
-    declarations::{AssignNode, ConstDeclNode, VarDeclNode, VarType},
+    declarations::{ArrNode, AssignNode, ConstDeclNode, VarDeclNode, VarType},
     functions::{FunctionDeclNode, FunctionNode, ReturnIfNode, ReturnNode, UseFunctionNode},
     identifier::{ArrayAccessNode, DotNotationNode, IdentifierNode},
     if_else::IfNode,
@@ -28,17 +28,17 @@ use self::{
 
 #[derive(PartialEq, Debug)]
 pub struct ConditionNode<'a> {
-    left_token: Token<'a>,
+    pub left_node: Node<'a>,
     op_token: Token<'a>,
-    right_token: Token<'a>,
+    pub right_node: Node<'a>,
 }
 
 impl<'a> ConditionNode<'a> {
-    pub fn new(left_token: Token<'a>, op_token: Token<'a>, right_token: Token<'a>) -> Self {
+    pub fn new(left_node: Node<'a>, op_token: Token<'a>, right_node: Node<'a>) -> Self {
         Self {
-            left_token,
+            left_node,
             op_token,
-            right_token,
+            right_node,
         }
     }
 }
@@ -83,11 +83,11 @@ pub enum Nodes<'a> {
     IdentifierNode(IdentifierNode<'a>),
     ArrayAccessNode(ArrayAccessNode<'a>),
     DotNotationNode(DotNotationNode<'a>),
+    NewTypeValueNode(NewTypeValueNode<'a>),
+    ArrayNode(ArrNode<'a>),
 
     // If-else
     IfNode(IfNode<'a>),
-
-    // Switch
     SwitchNode(SwitchNode<'a>),
 
     // Ops
@@ -100,7 +100,6 @@ pub enum Nodes<'a> {
     CharNode(CharNode<'a>),
     BoolNode(BoolNode<'a>),
     TypeNode(TypeNode),
-    NewTypeValueNode(NewTypeValueNode<'a>),
 
     // Loops
     WhileNode(WhileNode<'a>),

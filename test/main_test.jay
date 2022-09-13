@@ -19,13 +19,13 @@ func main(): int {
     var num_array_0: int[5] = [];
     
     if num_0 < num_1 {
-        for i in 5 {
+        for i in 0...5 {
             num_array_0[i] += i;
         }
     } else {
         var i: int = 0;
 
-      while i > 10 {
+      while i > 0...10 {
             num_array_0[i] += i;
         }
     }

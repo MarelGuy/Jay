@@ -1,4 +1,9 @@
-use super::{identifier::IdentifierNode, Node};
+use either::Either;
+
+use super::{
+    identifier::{ArrayAccessNode, IdentifierNode},
+    Node,
+};
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct VarType {
@@ -79,16 +84,34 @@ impl<'a> ConstDeclNode<'a> {
 #[derive(PartialEq, Debug)]
 pub struct AssignNode<'a> {
     var: IdentifierNode<'a>,
+    array_access: Either<ArrayAccessNode<'a>, ()>,
     assign_token: AssignType,
     val: Box<Node<'a>>,
 }
 
 impl<'a> AssignNode<'a> {
-    pub fn new(var: IdentifierNode<'a>, assign_token: AssignType, val: Box<Node<'a>>) -> Self {
+    pub fn new(
+        var: IdentifierNode<'a>,
+        array_access: Either<ArrayAccessNode<'a>, ()>,
+        assign_token: AssignType,
+        val: Box<Node<'a>>,
+    ) -> Self {
         Self {
             var,
+            array_access,
             assign_token,
             val,
         }
+    }
+}
+
+#[derive(PartialEq, Debug)]
+pub struct ArrNode<'a> {
+    items: Vec<Node<'a>>,
+}
+
+impl<'a> ArrNode<'a> {
+    pub fn new(items: Vec<Node<'a>>) -> Self {
+        Self { items }
     }
 }

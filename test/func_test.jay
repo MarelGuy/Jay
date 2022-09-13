@@ -1,5 +1,5 @@
 func yay(lmao: int, peppe: string): string {
-    let lmao: int = 8;
+    let lmao: int = 8+1;
 
     return_if 2 > 3 lmao;
 }

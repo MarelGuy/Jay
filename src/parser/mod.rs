@@ -12,7 +12,7 @@ use crate::parser::ast::functions::FunctionNode;
 use crate::parser::ast::loops::WhileNode;
 use crate::parser::ast::types::TypeNode;
 
-use self::ast::declarations::{AssignNode, ConstDeclNode, VarDeclNode, VarType};
+use self::ast::declarations::{ArrNode, AssignNode, ConstDeclNode, VarDeclNode, VarType};
 use self::ast::functions::{ArgNode, FunctionDeclNode, ReturnIfNode, ReturnNode, UseFunctionNode};
 use self::ast::identifier::{ArrayAccessNode, DotNotationNode, IdentifierNode};
 use self::ast::if_else::IfNode;
@@ -97,6 +97,12 @@ impl<'a> Parser<'a> {
         self.lines.clone().into_iter().nth(line).unwrap()
     }
 
+    fn skip_comma(&mut self) {
+        if self.current_token.token_type == TokenType::Comma {
+            self.next()
+        }
+    }
+
     // Parsing utils
     fn parse_list(&mut self, current_token: Token<'a>) -> Node<'a> {
         let next_token: Token = self.peek();
@@ -156,7 +162,26 @@ impl<'a> Parser<'a> {
                     Node::new(Nodes::UseFunctionNode(self.parse_use_function(false)))
                 }
                 TokenType::OpenBracket => {
-                    Node::new(Nodes::ArrayAccessNode(self.parse_array_access()))
+                    for _ in 0..4 {
+                        self.next();
+                    }
+
+                    if self.current_token.token_type == TokenType::Assign
+                        || self.current_token.token_type == TokenType::PlusAssign
+                        || self.current_token.token_type == TokenType::MinusAssign
+                        || self.current_token.token_type == TokenType::MultiplyAssign
+                        || self.current_token.token_type == TokenType::DivideAssign
+                        || self.current_token.token_type == TokenType::ModuloAssign
+                        || self.current_token.token_type == TokenType::PowerAssign
+                    {
+                        for _ in 0..5 {
+                            self.back();
+                        }
+
+                        Node::new(Nodes::AssignNode(self.parse_assign_to_var(true)))
+                    } else {
+                        Node::new(Nodes::ArrayAccessNode(self.parse_array_access()))
+                    }
                 }
                 TokenType::Dot => Node::new(Nodes::DotNotationNode(self.parse_dot_notation())),
                 TokenType::OpenBrace => {
@@ -169,7 +194,7 @@ impl<'a> Parser<'a> {
                 | TokenType::DivideAssign
                 | TokenType::ModuloAssign
                 | TokenType::PowerAssign => {
-                    Node::new(Nodes::AssignNode(self.parse_assign_to_var()))
+                    Node::new(Nodes::AssignNode(self.parse_assign_to_var(false)))
                 }
                 TokenType::Plus
                 | TokenType::Minus
@@ -193,10 +218,11 @@ impl<'a> Parser<'a> {
                     ));
                 }
             }
+            TokenType::OpenBracket => Node::new(Nodes::ArrayNode(self.parse_array())),
             _ => {
                 Error::new(
                     self.current_token,
-                    self.get_line(self.current_token.line - 1),
+                    self.get_line(self.current_token.line),
                     self.file_name.clone(),
                 )
                 .throw_unkown_token();
@@ -218,7 +244,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_val_type(&mut self, val: &Box<Node>) -> VarType {
+    fn parse_val_type(&mut self, val: &str) -> VarType {
         match val.node {
             Nodes::NumberNode(_) => VarType::new("int".into(), false),
             Nodes::FloatNode(_) => VarType::new("float".into(), false),
@@ -278,7 +304,7 @@ impl<'a> Parser<'a> {
 
                 Error::new(
                     self.current_token.clone(),
-                    self.get_line(self.current_token.line - 1),
+                    self.get_line(self.current_token.line),
                     self.file_name.clone(),
                 )
                 .throw_ty_not_found();
@@ -328,6 +354,22 @@ impl<'a> Parser<'a> {
         let next_token: Box<Node<'a>> = Box::new(self.parse_list(self.current_token));
 
         DotNotationNode::new(next_token)
+    }
+
+    fn parse_array(&mut self) -> ArrNode<'a> {
+        let mut items: Vec<Node> = vec![];
+
+        self.next();
+
+        while self.current_token.token_type != TokenType::CloseBracket {
+            self.skip_comma();
+            items.push(self.parse_list(self.current_token));
+            self.next();
+        }
+
+        self.next();
+
+        ArrNode::new(items)
     }
 
     // Ops
@@ -416,10 +458,16 @@ impl<'a> Parser<'a> {
     ) -> Either<VarDeclNode<'a>, ConstDeclNode<'a>> {
         self.next();
 
-        let mut name: String = self.current_token.slice.into();
+        let name: String = self.current_token.slice.into();
 
         if name.chars().next().unwrap().is_numeric() {
-            name = "Error".to_string();
+            // println!("{:?}", self.current_token);
+            // Error::new(
+            //     self.current_token,
+            //     self.get_line(self.current_token.line),
+            //     self.file_name.clone(),
+            // )
+            // .throw_cant_start_var_num();
         }
 
         self.next();
@@ -449,7 +497,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_assign_to_var(&mut self) -> AssignNode<'a> {
+    fn parse_assign_to_var(&mut self, is_array: bool) -> AssignNode<'a> {
         let mut did_find: bool = false;
         let var: IdentifierNode<'a> = self.parse_identifier();
         let mut var_type: String = String::new();
@@ -466,7 +514,7 @@ impl<'a> Parser<'a> {
         if !did_find {
             Error::new(
                 var.token,
-                self.get_line(var.token.line - 1),
+                self.get_line(var.token.line),
                 self.file_name.clone(),
             )
             .throw_var_not_defined(var.token.slice);
@@ -475,6 +523,17 @@ impl<'a> Parser<'a> {
         did_find = false;
 
         self.next();
+
+        let array_access: Either<ArrayAccessNode<'a>, ()>;
+
+        if is_array {
+            array_access = Left(self.parse_array_access());
+            self.next();
+        } else {
+            array_access = Right(());
+        }
+
+        println!("{:?}", self.current_token);
 
         let assign: AssignType = self.parse_assign();
 
@@ -494,13 +553,13 @@ impl<'a> Parser<'a> {
         if !did_find {
             Error::new(
                 var.token,
-                self.get_line(var.token.line - 1),
+                self.get_line(var.token.line),
                 self.file_name.clone(),
             )
             .throw_wrong_assign_type(var.token.slice, val_type.to_string(), var_type);
         }
 
-        AssignNode::new(var, assign, val)
+        AssignNode::new(var, array_access, assign, val)
     }
 
     fn parse_type(&mut self) -> TypeNode {
@@ -512,7 +571,7 @@ impl<'a> Parser<'a> {
             if type_.name == name {
                 Error::new(
                     self.current_token,
-                    self.get_line(self.current_token.line - 1),
+                    self.get_line(self.current_token.line),
                     self.file_name.clone(),
                 )
                 .throw_type_name_already_used(name.clone());
@@ -527,9 +586,7 @@ impl<'a> Parser<'a> {
         self.next();
 
         while self.current_token.token_type != TokenType::CloseBrace {
-            if self.current_token.token_type == TokenType::Comma {
-                self.next();
-            }
+            self.skip_comma();
 
             if self.current_token.token_type == TokenType::Func {
                 fields.push(self.parse_param(true));
@@ -552,12 +609,13 @@ impl<'a> Parser<'a> {
         let mut params: Vec<Node> = vec![];
 
         while self.current_token.token_type != TokenType::CloseBrace {
-            if self.current_token.token_type == TokenType::Comma {
-                self.next();
-            }
+            self.skip_comma();
+
             params.push(self.parse_list(self.current_token));
             self.next();
         }
+
+        self.next();
 
         NewTypeValueNode::new(params)
     }
@@ -574,9 +632,7 @@ impl<'a> Parser<'a> {
             self.next();
 
             while self.current_token.token_type != TokenType::CloseBracket {
-                if self.current_token.token_type == TokenType::Comma {
-                    self.next()
-                }
+                self.skip_comma();
 
                 value.push(self.parse_list(self.current_token));
                 self.next();
@@ -590,19 +646,21 @@ impl<'a> Parser<'a> {
     fn parse_condition(&mut self) -> ConditionNode<'a> {
         self.next();
 
-        let left_node: Token<'a> = self.current_token.clone();
+        let left_node: NumberNode = self.parse_number();
         self.next();
 
         let op_token: Token<'a> = self.current_token.clone();
         self.next();
 
-        let right_node: Token<'a> = self.current_token.clone();
+        let right_node: NumberNode = self.parse_number();
 
         ConditionNode::new(left_node, op_token, right_node)
     }
 
     fn parse_block(&mut self) -> BlockNode<'a> {
         let mut block_node: Vec<Node<'a>> = vec![];
+
+        self.next();
 
         while self.current_token.token_type != TokenType::CloseBrace {
             let new_node: Node<'a> = self.parse_list(self.current_token);
@@ -619,6 +677,7 @@ impl<'a> Parser<'a> {
 
     fn parse_if_else(&mut self) -> IfNode<'a> {
         let condition: ConditionNode<'a> = self.parse_condition();
+
         self.next();
 
         let if_block: BlockNode<'a> = self.parse_block();
@@ -646,6 +705,10 @@ impl<'a> Parser<'a> {
 
     fn parse_for(&mut self) -> ForNode<'a> {
         let condition: ConditionNode<'a> = self.parse_condition();
+        self.variables.push((
+            condition.left_node.token.slice,
+            self.parse_val_type(condition.right_token),
+        ));
         self.next();
 
         let mut next_block: Either<UnOpNode<'a>, ()> = Either::Right(());
@@ -721,7 +784,7 @@ impl<'a> Parser<'a> {
         self.functions.push(name.clone());
 
         if name.chars().next().unwrap().is_numeric() {
-            name = "Error".to_string();
+            name = "Error".into();
         }
 
         self.next();
@@ -745,8 +808,6 @@ impl<'a> Parser<'a> {
         }
 
         let ret_ty: VarType = self.parse_ty();
-
-        self.next();
 
         FunctionDeclNode::new(name, params, ret_ty)
     }
@@ -773,14 +834,13 @@ impl<'a> Parser<'a> {
         let mut args: Vec<Box<ArgNode>> = vec![];
 
         while self.current_token.token_type != TokenType::CloseParen {
-            if self.current_token.token_type == TokenType::Comma {
-                self.next();
-            }
+            self.skip_comma();
 
             args.push(self.parse_arg());
 
             self.next();
         }
+        self.next();
 
         UseFunctionNode::new(name, args)
     }
@@ -789,6 +849,7 @@ impl<'a> Parser<'a> {
         self.next();
 
         let return_value: Box<Node<'a>> = Box::new(self.parse_list(self.current_token));
+        self.next();
 
         ReturnNode::new(return_value)
     }
@@ -811,9 +872,7 @@ impl<'a> Parser<'a> {
             self.next();
 
             while self.current_token.token_type != TokenType::CloseBrace {
-                if self.current_token.token_type == TokenType::Comma {
-                    self.next()
-                }
+                self.skip_comma();
 
                 temp_vec.push(self.parse_list(self.current_token));
 
@@ -845,6 +904,7 @@ impl<'a> Parser<'a> {
         self.next();
 
         let from: Box<Node<'a>> = Box::new(self.parse_list(self.current_token));
+        self.next();
 
         Left(ImportNode::new(import, from))
     }
@@ -861,7 +921,7 @@ impl<'a> Parser<'a> {
         self.next();
 
         if name.chars().next().unwrap().is_numeric() {
-            name = "Error".to_string();
+            name = "Error".into();
         }
 
         self.next();
