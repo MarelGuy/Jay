@@ -122,11 +122,11 @@ pub enum Nodes<'a> {
 
 #[derive(PartialEq, Debug)]
 pub struct Node<'a> {
-    pub node: Nodes<'a>,
+    pub node: Box<Nodes<'a>>,
 }
 
 impl<'a> Node<'a> {
-    pub fn new(node: Nodes<'a>) -> Self {
+    pub fn new(node: Box<Nodes<'a>>) -> Self {
         Self { node }
     }
 }

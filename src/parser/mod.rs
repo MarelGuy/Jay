@@ -58,7 +58,7 @@ impl<'a> Parser<'a> {
 
             let new_node: Node<'a> = self.parse_list(self.current_token);
 
-            if new_node != Node::new(Nodes::NullNode) {
+            if new_node != Node::new(Box::new(Nodes::NullNode)) {
                 self.ast.push(new_node);
             }
         }
@@ -119,48 +119,50 @@ impl<'a> Parser<'a> {
                     || next_token.token_type == TokenType::Power
                     || next_token.token_type == TokenType::Modulo
                 {
-                    Node::new(Nodes::OpNode(self.parse_op(true, true)))
+                    Node::new(Box::new(Nodes::OpNode(self.parse_op(true, true))))
                 } else if next_token.token_type == TokenType::PlusPlus
                     || next_token.token_type == TokenType::MinusMinus
                 {
-                    Node::new(Nodes::OpNode(self.parse_op(false, true)))
+                    Node::new(Box::new(Nodes::OpNode(self.parse_op(false, true))))
                 } else {
                     if current_token.token_type == TokenType::Number {
-                        Node::new(Nodes::NumberNode(self.parse_number()))
+                        Node::new(Box::new(Nodes::NumberNode(self.parse_number())))
                     } else {
-                        Node::new(Nodes::FloatNode(self.parse_float()))
+                        Node::new(Box::new(Nodes::FloatNode(self.parse_float())))
                     }
                 }
             }
-            TokenType::String => Node::new(Nodes::StringNode(self.parse_string())),
-            TokenType::Char => Node::new(Nodes::CharNode(self.parse_char())),
-            TokenType::BoolType => Node::new(Nodes::BoolNode(self.parse_bool())),
-            TokenType::Let => Node::new(Nodes::VarDeclNode(
+            TokenType::String => Node::new(Box::new(Nodes::StringNode(self.parse_string()))),
+            TokenType::Char => Node::new(Box::new(Nodes::CharNode(self.parse_char()))),
+            TokenType::BoolType => Node::new(Box::new(Nodes::BoolNode(self.parse_bool()))),
+            TokenType::Let => Node::new(Box::new(Nodes::VarDeclNode(
                 self.parse_var(false, false).left().unwrap(),
-            )),
-            TokenType::Var => Node::new(Nodes::VarDeclNode(
+            ))),
+            TokenType::Var => Node::new(Box::new(Nodes::VarDeclNode(
                 self.parse_var(true, false).left().unwrap(),
-            )),
-            TokenType::Const => Node::new(Nodes::ConstDeclNode(
+            ))),
+            TokenType::Const => Node::new(Box::new(Nodes::ConstDeclNode(
                 self.parse_var(false, true).right().unwrap(),
-            )),
-            TokenType::Type => Node::new(Nodes::TypeNode(self.parse_type())),
-            TokenType::If => Node::new(Nodes::IfNode(self.parse_if_else())),
-            TokenType::While => Node::new(Nodes::WhileNode(self.parse_while())),
-            TokenType::For => Node::new(Nodes::ForNode(self.parse_for())),
-            TokenType::Loop => Node::new(Nodes::LoopNode(self.parse_loop())),
-            TokenType::Func => Node::new(Nodes::FunctionNode(self.parse_function())),
-            TokenType::Return => Node::new(Nodes::ReturnNode(self.parse_return())),
-            TokenType::ReturnIf => Node::new(Nodes::ReturnIfNode(self.parse_return_if())),
-            TokenType::Switch => Node::new(Nodes::SwitchNode(self.parse_switch())),
+            ))),
+            TokenType::Type => Node::new(Box::new(Nodes::TypeNode(self.parse_type()))),
+            TokenType::If => Node::new(Box::new(Nodes::IfNode(self.parse_if_else()))),
+            TokenType::While => Node::new(Box::new(Nodes::WhileNode(self.parse_while()))),
+            TokenType::For => Node::new(Box::new(Nodes::ForNode(self.parse_for()))),
+            TokenType::Loop => Node::new(Box::new(Nodes::LoopNode(self.parse_loop()))),
+            TokenType::Func => Node::new(Box::new(Nodes::FunctionNode(self.parse_function()))),
+            TokenType::Return => Node::new(Box::new(Nodes::ReturnNode(self.parse_return()))),
+            TokenType::ReturnIf => Node::new(Box::new(Nodes::ReturnIfNode(self.parse_return_if()))),
+            TokenType::Switch => Node::new(Box::new(Nodes::SwitchNode(self.parse_switch()))),
             TokenType::Identifier => match next_token.token_type {
-                TokenType::TripleColon => Node::new(Nodes::FunctionNode(self.parse_function())),
-                TokenType::DoubleColon => {
-                    Node::new(Nodes::UseFunctionNode(self.parse_use_function(true)))
+                TokenType::TripleColon => {
+                    Node::new(Box::new(Nodes::FunctionNode(self.parse_function())))
                 }
-                TokenType::OpenParen => {
-                    Node::new(Nodes::UseFunctionNode(self.parse_use_function(false)))
-                }
+                TokenType::DoubleColon => Node::new(Box::new(Nodes::UseFunctionNode(
+                    self.parse_use_function(true),
+                ))),
+                TokenType::OpenParen => Node::new(Box::new(Nodes::UseFunctionNode(
+                    self.parse_use_function(false),
+                ))),
                 TokenType::OpenBracket => {
                     for _ in 0..4 {
                         self.next();
