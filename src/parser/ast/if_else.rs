@@ -2,7 +2,7 @@ use either::Either;
 
 use super::{BlockNode, ConditionNode};
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct IfNode<'a> {
     condition: ConditionNode<'a>,
     if_block: BlockNode<'a>,

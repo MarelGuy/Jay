@@ -13,7 +13,7 @@ impl FunctionDeclNode {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct FunctionNode<'a> {
     pub func_details: FunctionDeclNode,
     pub block: BlockNode<'a>,
@@ -28,7 +28,7 @@ impl<'a> FunctionNode<'a> {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct ArgNode<'a> {
     pub value: Node<'a>,
 }
@@ -39,7 +39,7 @@ impl<'a> ArgNode<'a> {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct UseFunctionNode<'a> {
     pub name: String,
     pub args: Vec<Box<ArgNode<'a>>>,
@@ -51,7 +51,7 @@ impl<'a> UseFunctionNode<'a> {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct ReturnNode<'a> {
     pub value: Box<Node<'a>>,
 }
@@ -62,7 +62,7 @@ impl<'a> ReturnNode<'a> {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct ReturnIfNode<'a> {
     pub condition: ConditionNode<'a>,
     pub value: Box<Node<'a>>,

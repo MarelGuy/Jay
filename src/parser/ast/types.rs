@@ -2,7 +2,7 @@ use crate::lexer::token::Token;
 
 use super::{Node, ParamNode};
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct TypeNode {
     name: String,
     fields: Vec<ParamNode>,
@@ -15,18 +15,6 @@ impl TypeNode {
 }
 
 #[derive(PartialEq, Debug, Clone)]
-pub struct SupportTypeNode {
-    pub name: String,
-    pub fields: Vec<String>,
-}
-
-impl SupportTypeNode {
-    pub fn new(name: String, fields: Vec<String>) -> Self {
-        Self { name, fields }
-    }
-}
-
-#[derive(PartialEq, Debug)]
 pub struct NewTypeValueNode<'a> {
     params: Vec<Node<'a>>,
 }
@@ -39,7 +27,7 @@ impl<'a> NewTypeValueNode<'a> {
 
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub struct NumberNode<'a> {
-    token: Token<'a>,
+    pub token: Token<'a>,
 }
 
 impl<'a> NumberNode<'a> {
@@ -59,7 +47,7 @@ impl<'a> FloatNode<'a> {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct CharNode<'a> {
     token: Token<'a>,
 }
@@ -70,7 +58,7 @@ impl<'a> CharNode<'a> {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct BoolNode<'a> {
     token: Token<'a>,
 }
@@ -81,7 +69,7 @@ impl<'a> BoolNode<'a> {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct StringNode<'a> {
     token: Token<'a>,
     length: usize,

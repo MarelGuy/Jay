@@ -13,7 +13,7 @@ impl<'a> IdentifierNode<'a> {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ArrayAccessNode<'a> {
     position: NumberNode<'a>,
 }
@@ -24,7 +24,7 @@ impl<'a> ArrayAccessNode<'a> {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct DotNotationNode<'a> {
     next_node: Box<Node<'a>>,
 }

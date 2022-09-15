@@ -2,7 +2,7 @@ use either::Either;
 
 use super::{math_ops::UnOpNode, BlockNode, ConditionNode};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct WhileNode<'a> {
     condition: ConditionNode<'a>,
     while_block: BlockNode<'a>,
@@ -17,7 +17,7 @@ impl<'a> WhileNode<'a> {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct ForNode<'a> {
     condition: ConditionNode<'a>,
     next: Either<UnOpNode<'a>, ()>,
@@ -38,7 +38,7 @@ impl<'a> ForNode<'a> {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct LoopNode<'a> {
     loop_block: BlockNode<'a>,
 }

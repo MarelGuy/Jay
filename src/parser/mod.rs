@@ -1,4 +1,5 @@
 pub(crate) mod ast;
+mod support_types;
 
 use std::vec;
 
@@ -20,10 +21,9 @@ use self::ast::import_export::{ExportNode, ImportNode};
 use self::ast::loops::{ForNode, LoopNode};
 use self::ast::math_ops::{BinOpNode, OpNode, UnOpNode};
 use self::ast::switch::{CaseNode, DefaultNode, SwitchNode};
-use self::ast::types::{
-    BoolNode, CharNode, FloatNode, NewTypeValueNode, NumberNode, StringNode, SupportTypeNode,
-};
+use self::ast::types::{BoolNode, CharNode, FloatNode, NewTypeValueNode, NumberNode, StringNode};
 use self::ast::{BlockNode, ConditionNode, Node, Nodes, ParamNode};
+use self::support_types::{SupportTypeNode, VarSupportType};
 
 pub struct Parser<'a> {
     pub file_name: String,
@@ -33,7 +33,7 @@ pub struct Parser<'a> {
     pub lines: Vec<String>,
     pub types: Vec<SupportTypeNode>,
     pub functions: Vec<String>,
-    pub variables: Vec<(String, String)>,
+    pub variables: Vec<VarSupportType<'a>>,
     pub ast: Vec<Node<'a>>,
 }
 
@@ -180,15 +180,17 @@ impl<'a> Parser<'a> {
                             self.back();
                         }
 
-                        Node::new(Nodes::AssignNode(self.parse_assign_to_var(true)))
+                        Node::new(Box::new(Nodes::AssignNode(self.parse_assign_to_var(true))))
                     } else {
-                        Node::new(Nodes::ArrayAccessNode(self.parse_array_access()))
+                        Node::new(Box::new(Nodes::ArrayAccessNode(self.parse_array_access())))
                     }
                 }
-                TokenType::Dot => Node::new(Nodes::DotNotationNode(self.parse_dot_notation())),
-                TokenType::OpenBrace => {
-                    Node::new(Nodes::NewTypeValueNode(self.parse_new_type_value()))
+                TokenType::Dot => {
+                    Node::new(Box::new(Nodes::DotNotationNode(self.parse_dot_notation())))
                 }
+                TokenType::OpenBrace => Node::new(Box::new(Nodes::NewTypeValueNode(
+                    self.parse_new_type_value(),
+                ))),
                 TokenType::Assign
                 | TokenType::PlusAssign
                 | TokenType::MinusAssign
@@ -196,31 +198,33 @@ impl<'a> Parser<'a> {
                 | TokenType::DivideAssign
                 | TokenType::ModuloAssign
                 | TokenType::PowerAssign => {
-                    Node::new(Nodes::AssignNode(self.parse_assign_to_var(false)))
+                    Node::new(Box::new(Nodes::AssignNode(self.parse_assign_to_var(false))))
                 }
                 TokenType::Plus
                 | TokenType::Minus
                 | TokenType::Multiply
                 | TokenType::Divide
                 | TokenType::Power
-                | TokenType::Modulo => Node::new(Nodes::OpNode(self.parse_op(true, false))),
-                TokenType::PlusPlus | TokenType::MinusMinus => {
-                    Node::new(Nodes::OpNode(self.parse_op(false, false)))
+                | TokenType::Modulo => {
+                    Node::new(Box::new(Nodes::OpNode(self.parse_op(true, false))))
                 }
-                _ => Node::new(Nodes::IdentifierNode(self.parse_identifier())),
+                TokenType::PlusPlus | TokenType::MinusMinus => {
+                    Node::new(Box::new(Nodes::OpNode(self.parse_op(false, false))))
+                }
+                _ => Node::new(Box::new(Nodes::IdentifierNode(self.parse_identifier()))),
             },
             TokenType::Import | TokenType::Export => {
                 if self.current_token.token_type == TokenType::Import {
-                    return Node::new(Nodes::ImportNode(
+                    return Node::new(Box::new(Nodes::ImportNode(
                         self.parse_import_export().left().unwrap(),
-                    ));
+                    )));
                 } else {
-                    return Node::new(Nodes::ExportNode(
+                    return Node::new(Box::new(Nodes::ExportNode(
                         self.parse_import_export().right().unwrap(),
-                    ));
+                    )));
                 }
             }
-            TokenType::OpenBracket => Node::new(Nodes::ArrayNode(self.parse_array())),
+            TokenType::OpenBracket => Node::new(Box::new(Nodes::ArrayNode(self.parse_array()))),
             _ => {
                 Error::new(
                     self.current_token,
@@ -228,7 +232,7 @@ impl<'a> Parser<'a> {
                     self.file_name.clone(),
                 )
                 .throw_unkown_token();
-                return Node::new(Nodes::NullNode);
+                return Node::new(Box::new(Nodes::NullNode));
             }
         }
     }
@@ -246,8 +250,8 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_val_type(&mut self, val: &str) -> VarType {
-        match val.node {
+    fn parse_val_type(&mut self, val: &Box<Node>) -> VarType {
+        match *val.node {
             Nodes::NumberNode(_) => VarType::new("int".into(), false),
             Nodes::FloatNode(_) => VarType::new("float".into(), false),
             Nodes::BoolNode(_) => VarType::new("bool".into(), false),
@@ -463,20 +467,18 @@ impl<'a> Parser<'a> {
         let name: String = self.current_token.slice.into();
 
         if name.chars().next().unwrap().is_numeric() {
-            // println!("{:?}", self.current_token);
-            // Error::new(
-            //     self.current_token,
-            //     self.get_line(self.current_token.line),
-            //     self.file_name.clone(),
-            // )
-            // .throw_cant_start_var_num();
+            Error::new(
+                self.current_token,
+                self.get_line(self.current_token.line),
+                self.file_name.clone(),
+            )
+            .throw_cant_start_var_num();
         }
 
         self.next();
         self.next();
 
         let ty: VarType = self.parse_ty();
-        self.variables.push((name.clone(), ty.to_string().clone()));
 
         let assign_token: AssignType = self.parse_assign();
 
@@ -491,6 +493,7 @@ impl<'a> Parser<'a> {
         }
 
         value.append(&mut self.parse_value(ty.is_array));
+        self.variables.push(VarSupportType::new(&name, ty, value));
 
         if is_const {
             return Right(ConstDeclNode::new(name, ty, assign_token, value));
@@ -505,8 +508,8 @@ impl<'a> Parser<'a> {
         let mut var_type: String = String::new();
 
         for var_arr in self.variables.clone() {
-            if var_arr.0 == var.token.slice {
-                var_type = var_arr.1.parse().unwrap();
+            if var_arr.name == var.token.slice {
+                var_type = var_arr.name.parse().unwrap();
 
                 did_find = true;
                 break;
@@ -535,18 +538,16 @@ impl<'a> Parser<'a> {
             array_access = Right(());
         }
 
-        println!("{:?}", self.current_token);
-
         let assign: AssignType = self.parse_assign();
-
         self.next();
 
         let val: Box<Node<'a>> = Box::new(self.parse_list(self.current_token));
 
         let val_type: VarType = self.parse_val_type(&val);
 
+        // println!("{:?}", self.current_token);
         for var_arr in self.variables.clone() {
-            if var_arr.1 == val_type.to_string() {
+            if var_arr.ty == val_type {
                 did_find = true;
                 break;
             }
@@ -560,6 +561,8 @@ impl<'a> Parser<'a> {
             )
             .throw_wrong_assign_type(var.token.slice, val_type.to_string(), var_type);
         }
+
+        self.next();
 
         AssignNode::new(var, array_access, assign, val)
     }
@@ -632,15 +635,23 @@ impl<'a> Parser<'a> {
             }
         } else {
             self.next();
+            self.next();
 
-            while self.current_token.token_type != TokenType::CloseBracket {
-                self.skip_comma();
-
-                value.push(self.parse_list(self.current_token));
+            if self.current_token.token_type == TokenType::CloseBracket {
                 self.next();
+            } else {
+                loop {
+                    self.skip_comma();
+
+                    value.push(self.parse_list(self.current_token));
+                    self.next();
+                    if self.current_token.token_type == TokenType::CloseBracket {
+                        self.next();
+                        break;
+                    }
+                }
             }
         }
-
         value
     }
 
@@ -667,7 +678,7 @@ impl<'a> Parser<'a> {
         while self.current_token.token_type != TokenType::CloseBrace {
             let new_node: Node<'a> = self.parse_list(self.current_token);
 
-            if new_node != Node::new(Nodes::NullNode) {
+            if new_node != Node::new(Box::new(Nodes::NullNode)) {
                 block_node.push(new_node);
             }
 
@@ -707,9 +718,10 @@ impl<'a> Parser<'a> {
 
     fn parse_for(&mut self) -> ForNode<'a> {
         let condition: ConditionNode<'a> = self.parse_condition();
-        self.variables.push((
+        self.variables.push(VarSupportType::new(
+            "condition",
+            VarType::new("int".into(), false).to_string(),
             condition.left_node.token.slice,
-            self.parse_val_type(condition.right_token),
         ));
         self.next();
 

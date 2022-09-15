@@ -20,9 +20,8 @@ impl<'a> Error<'a> {
         }
     }
 
-    pub fn print(&self, offset: usize) {
+    pub fn print(&self) {
         let error_counter: String = "^".repeat(self.token.slice.len());
-        // println!("{}", self.token.column);
         println!("{} file: {}", "-".blue(), self.file_name);
         println!("{}", "|".blue());
         println!(
@@ -34,7 +33,7 @@ impl<'a> Error<'a> {
         println!(
             "{}      {}{}",
             "|".blue(),
-            " ".repeat(self.token.column + offset),
+            " ".repeat(self.token.column),
             error_counter.yellow()
         );
         println!("{}", "-".blue());
@@ -45,7 +44,7 @@ impl<'a> Error<'a> {
             "{}: cannot find variable \"{}\" in this scope",
             self.e_str, var_name
         );
-        self.print(1);
+        self.print();
         exit(0)
     }
 
@@ -54,7 +53,7 @@ impl<'a> Error<'a> {
             "{}: cannot assign value of type \"{}\" to variable \"{}\": {}",
             self.e_str, val_type, var_name, var_type
         );
-        self.print(1);
+        self.print();
         exit(0)
     }
 
@@ -63,7 +62,7 @@ impl<'a> Error<'a> {
             "{}, type name: \"{}\" already used in this scope",
             self.e_str, name
         );
-        self.print(1);
+        self.print();
         exit(0)
     }
 
@@ -72,19 +71,19 @@ impl<'a> Error<'a> {
             "{}: type \"{}\" not found in this scope",
             self.e_str, self.token.slice
         );
-        self.print(1);
+        self.print();
         exit(0)
     }
 
     pub fn throw_unkown_token(&self) {
         println!("{}: unknown token: \"{}\"", self.e_str, self.token.slice);
-        self.print(1);
+        self.print();
         exit(0)
     }
 
-    // pub fn throw_cant_start_var_num(&self) {
-    //     println!("{}: cannot start variable name with number", self.e_str);
-    //     self.print(1);
-    //     exit(0)
-    // }
+    pub fn throw_cant_start_var_num(&self) {
+        println!("{}: cannot start variable name with number", self.e_str);
+        self.print();
+        exit(0)
+    }
 }

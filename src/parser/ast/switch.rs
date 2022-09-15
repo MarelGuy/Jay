@@ -2,7 +2,7 @@ use either::Either;
 
 use super::{BlockNode, ConditionNode};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct SwitchNode<'a> {
     pub cases: Vec<CaseNode<'a>>,
     pub default_block: Either<DefaultNode<'a>, ()>,
@@ -17,7 +17,7 @@ impl<'a> SwitchNode<'a> {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct CaseNode<'a> {
     pub condition: ConditionNode<'a>,
     pub block: BlockNode<'a>,
@@ -29,7 +29,7 @@ impl<'a> CaseNode<'a> {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct DefaultNode<'a> {
     pub block: BlockNode<'a>,
 }

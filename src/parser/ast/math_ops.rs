@@ -4,7 +4,7 @@ use crate::lexer::token::{Span, Token, TokenType};
 
 use super::{identifier::IdentifierNode, types::NumberNode};
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct OpNode<'a> {
     operation: Either<BinOpNode<'a>, UnOpNode<'a>>,
 }

@@ -26,15 +26,15 @@ use self::{
     types::{BoolNode, CharNode, FloatNode, NewTypeValueNode, NumberNode, StringNode, TypeNode},
 };
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct ConditionNode<'a> {
-    pub left_node: Node<'a>,
+    pub left_node: NumberNode<'a>,
     op_token: Token<'a>,
-    pub right_node: Node<'a>,
+    pub right_node: NumberNode<'a>,
 }
 
 impl<'a> ConditionNode<'a> {
-    pub fn new(left_node: Node<'a>, op_token: Token<'a>, right_node: Node<'a>) -> Self {
+    pub fn new(left_node: NumberNode<'a>, op_token: Token<'a>, right_node: NumberNode<'a>) -> Self {
         Self {
             left_node,
             op_token,
@@ -43,7 +43,7 @@ impl<'a> ConditionNode<'a> {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct BlockNode<'a> {
     pub block: Vec<Node<'a>>,
 }
@@ -72,7 +72,7 @@ impl Display for ParamNode {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum Nodes<'a> {
     // Declarations
     VarDeclNode(VarDeclNode<'a>),
@@ -120,7 +120,7 @@ pub enum Nodes<'a> {
     NullNode,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct Node<'a> {
     pub node: Box<Nodes<'a>>,
 }

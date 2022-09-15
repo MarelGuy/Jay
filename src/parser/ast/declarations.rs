@@ -23,7 +23,7 @@ impl VarType {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum AssignType {
     Assign,
     AddAssign,
@@ -35,7 +35,7 @@ pub enum AssignType {
     Error,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct VarDeclNode<'a> {
     name: String,
     ty: VarType,
@@ -62,7 +62,7 @@ impl<'a> VarDeclNode<'a> {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct ConstDeclNode<'a> {
     name: String,
     ty: VarType,
@@ -81,7 +81,7 @@ impl<'a> ConstDeclNode<'a> {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct AssignNode<'a> {
     var: IdentifierNode<'a>,
     array_access: Either<ArrayAccessNode<'a>, ()>,
@@ -105,7 +105,7 @@ impl<'a> AssignNode<'a> {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct ArrNode<'a> {
     items: Vec<Node<'a>>,
 }

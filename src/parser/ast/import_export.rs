@@ -2,7 +2,7 @@ use either::Either;
 
 use super::Node;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ImportNode<'a> {
     pub import: Either<Box<Node<'a>>, Vec<Node<'a>>>,
     pub from: Box<Node<'a>>,
@@ -14,7 +14,7 @@ impl<'a> ImportNode<'a> {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ExportNode<'a> {
     pub items: Either<Box<Node<'a>>, Vec<Node<'a>>>,
 }
