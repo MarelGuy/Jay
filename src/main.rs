@@ -37,7 +37,6 @@ fn run(input: &str, file_name: &str) {
     let lines: Vec<String> = input.lines().map(|line| line.to_string()).collect();
 
     let mut parser: Parser = Parser::new(tokens, file_name.into(), lines);
-
     parser.parse();
 
     println!("{:#?}", parser.ast);
