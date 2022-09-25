@@ -10,3 +10,14 @@ impl<'a> NumberNode<'a> {
         Self { token }
     }
 }
+
+#[derive(Debug, PartialEq)]
+pub struct IdentifierNode<'a> {
+    token: Token<'a>,
+}
+
+impl<'a> IdentifierNode<'a> {
+    pub fn new(token: Token<'a>) -> Self {
+        Self { token }
+    }
+}

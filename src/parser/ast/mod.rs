@@ -1,10 +1,11 @@
-use self::primitive_nodes::NumberNode;
+use self::primitive_nodes::{IdentifierNode, NumberNode};
 
 pub mod primitive_nodes;
 
 #[derive(Debug, PartialEq)]
 pub enum Nodes<'a> {
     NumberNode(NumberNode<'a>),
+    IdentifierNode(IdentifierNode<'a>),
 
     NullNode,
 }
