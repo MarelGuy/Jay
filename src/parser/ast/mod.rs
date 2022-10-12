@@ -6,6 +6,8 @@ pub mod primitive_node;
 pub enum Nodes<'a> {
     PrimitiveTypeNode(PrimitiveTypeNode<'a>),
 
+    // Utils
+    EOL,
     NullNode,
 }
 
