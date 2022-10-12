@@ -48,12 +48,11 @@ impl<'a> Parser<'a> {
         self.tok_i += 1;
     }
 
-    fn get_line(&self, line: usize) -> String {
-        self.lines.clone().into_iter().nth(line).unwrap()
-    }
+    #[rustfmt::skip]    fn get_line(&self, line: usize) -> String { self.lines.clone().into_iter().nth(line).unwrap() }
 
     fn parse_list(&mut self, token: Token<'a>) -> Node<'a> {
         match token.token_type {
+            TokenType::Semicolon => Node::new(Nodes::EOL),
             TokenType::Number
             | TokenType::Float
             | TokenType::String
@@ -63,10 +62,6 @@ impl<'a> Parser<'a> {
             | TokenType::NegativeFloat
             | TokenType::NegativeNumber => {
                 Node::new(Nodes::PrimitiveTypeNode(self.parse_primitive_type_node()))
-            }
-            TokenType::Semicolon => {
-                self.next();
-                Node::new(Nodes::NullNode)
             }
             _ => {
                 Error::new(
@@ -80,11 +75,5 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_primitive_type_node(&mut self) -> PrimitiveTypeNode<'a> {
-        let token: Token = self.current_token;
-
-        self.next();
-
-        return PrimitiveTypeNode::new(token);
-    }
+    #[rustfmt::skip]    fn parse_primitive_type_node(&mut self) -> PrimitiveTypeNode<'a> { PrimitiveTypeNode::new(self.current_token) }
 }
