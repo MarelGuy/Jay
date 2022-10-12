@@ -1,9 +1,9 @@
-use crate::{error_handler::Error, parser::ast::primitive_nodes::NumberNode};
+use crate::error_handler::Error;
 use std::vec;
 
 use crate::lexer::token::{Token, TokenType};
 
-use self::ast::{primitive_nodes::IdentifierNode, Node, Nodes};
+use self::ast::{primitive_node::PrimitiveTypeNode, Node, Nodes};
 
 mod ast;
 
@@ -54,8 +54,16 @@ impl<'a> Parser<'a> {
 
     fn parse_list(&mut self, token: Token<'a>) -> Node<'a> {
         match token.token_type {
-            TokenType::Number => Node::new(Nodes::NumberNode(self.parse_int())),
-            TokenType::Identifier => Node::new(Nodes::IdentifierNode(self.parse_identifier())),
+            TokenType::Number
+            | TokenType::Float
+            | TokenType::String
+            | TokenType::Char
+            | TokenType::Bool
+            | TokenType::Identifier
+            | TokenType::NegativeFloat
+            | TokenType::NegativeNumber => {
+                Node::new(Nodes::PrimitiveTypeNode(self.parse_primitive_type_node()))
+            }
             TokenType::Semicolon => {
                 self.next();
                 Node::new(Nodes::NullNode)
@@ -72,15 +80,11 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_int(&mut self) -> NumberNode<'a> {
-        let number_node: Token = self.current_token;
+    fn parse_primitive_type_node(&mut self) -> PrimitiveTypeNode<'a> {
+        let token: Token = self.current_token;
 
-        NumberNode::new(number_node)
-    }
+        self.next();
 
-    fn parse_identifier(&mut self) -> IdentifierNode<'a> {
-        let identifier_node: Token = self.current_token;
-
-        IdentifierNode::new(identifier_node)
+        return PrimitiveTypeNode::new(token);
     }
 }
