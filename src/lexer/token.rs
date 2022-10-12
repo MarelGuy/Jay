@@ -181,11 +181,8 @@ pub enum TokenType {
     #[token("const")]
     Const,
 
-    #[token("true")]
-    True,
-
-    #[token("false")]
-    False,
+    #[regex(r"true|false")]
+    Bool,
 
     #[token("break")]
     Break,
