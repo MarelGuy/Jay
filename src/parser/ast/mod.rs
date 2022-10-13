@@ -1,10 +1,24 @@
-use self::primitive_node::PrimitiveTypeNode;
+use self::{primitive_node::PrimitiveTypeNode, variables::VarNode};
+
+use super::math::{
+    ast::{MathIdNode, MathNumberNode, MathOpTypeNode},
+    ProcessedMathNode,
+};
 
 pub mod primitive_node;
+pub mod variables;
 
 #[derive(Debug, PartialEq)]
 pub enum Nodes<'a> {
+    // AST
     PrimitiveTypeNode(PrimitiveTypeNode<'a>),
+    VarNode(VarNode<'a>),
+
+    // External Math AST
+    ProcessedMathNode(ProcessedMathNode<'a>),
+    MathOpTypeNode(MathOpTypeNode),
+    MathNumberNode(MathNumberNode<'a>),
+    MathIdNode(MathIdNode<'a>),
 
     // Utils
     EOL,
@@ -12,12 +26,4 @@ pub enum Nodes<'a> {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Node<'a> {
-    pub node: Nodes<'a>,
-}
-
-impl<'a> Node<'a> {
-    pub fn new(node: Nodes<'a>) -> Self {
-        Self { node }
-    }
-}
+pub struct Node<'a>(pub Nodes<'a>);
