@@ -81,6 +81,15 @@ impl<'a> Error<'a> {
         exit(0)
     }
 
+    pub fn throw_unkown_token_in_math_expr(&self) {
+        println!(
+            "{}: unknown token in math expression: \"{}\"",
+            self.e_str, self.token.slice
+        );
+        self.print();
+        exit(0)
+    }
+
     pub fn throw_cant_start_var_num(&self) {
         println!("{}: cannot start variable name with number", self.e_str);
         self.print();
