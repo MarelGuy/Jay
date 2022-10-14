@@ -234,8 +234,11 @@ impl<'a> Parser<'a> {
                         break;
                     }
                 }
+
+                break;
             }
 
+            value.push(self.parse_list(self.current_token));
             self.next();
 
             if self.current_token.token_type == TokenType::Semicolon {
