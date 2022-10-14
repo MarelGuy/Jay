@@ -21,6 +21,9 @@ pub struct Parser<'a> {
     current_token: Token<'a>,
     tok_i: usize,
     pub ast: Vec<Node<'a>>,
+
+    // Vectors
+    var_vec: Vec<VarNode<'a>>,
 }
 
 impl<'a> Parser<'a> {
@@ -33,6 +36,7 @@ impl<'a> Parser<'a> {
             tok_i: 0,
             lines,
             ast: vec![],
+            var_vec: vec![],
         }
     }
 
@@ -240,6 +244,10 @@ impl<'a> Parser<'a> {
             }
         }
 
-        VarNode::new(name, ty, value, is_mut)
+        let new_node: VarNode = VarNode::new(name, ty, value, is_mut);
+
+        self.var_vec.push(new_node.clone());
+
+        new_node
     }
 }
