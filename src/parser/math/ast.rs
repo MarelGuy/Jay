@@ -1,6 +1,6 @@
 use crate::lexer::token::Token;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum OpType {
     Plus,
     Minus,
@@ -8,10 +8,10 @@ pub enum OpType {
     Divide,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct MathNumberNode<'a>(pub Token<'a>);
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct MathIdNode<'a> {
     id_name: String,
     id_value: Token<'a>,
@@ -26,7 +26,7 @@ impl<'a> MathIdNode<'a> {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct MathOpTypeNode {
     op: OpType,
     prio: i8,

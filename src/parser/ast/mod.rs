@@ -8,7 +8,7 @@ use super::math::{
 pub mod primitive_node;
 pub mod variables;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Nodes<'a> {
     // AST
     PrimitiveTypeNode(PrimitiveTypeNode<'a>),
@@ -25,5 +25,5 @@ pub enum Nodes<'a> {
     NullNode,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Node<'a>(pub Nodes<'a>);

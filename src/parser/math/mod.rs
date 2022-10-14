@@ -12,7 +12,7 @@ use self::ast::{
 
 use super::ast::{Node, Nodes};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ProcessedMathNode<'a> {
     out_stream: Vec<Node<'a>>,
 }

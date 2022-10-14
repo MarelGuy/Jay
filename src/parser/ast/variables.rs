@@ -2,7 +2,7 @@ use either::Either;
 
 use super::Node;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum VarType {
     Int,
     Float,
@@ -12,7 +12,7 @@ pub enum VarType {
     Type { name: String },
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum ArrayVarType {
     Int { init_num: isize },
     Float { init_num: isize },
@@ -22,7 +22,7 @@ pub enum ArrayVarType {
     Type { name: String, init_num: isize },
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct VarNode<'a> {
     pub name: String,
     pub ty: Either<VarType, ArrayVarType>,
