@@ -20,7 +20,7 @@ impl<'a> Error<'a> {
         }
     }
 
-    pub fn print(&self) {
+    pub fn print(&self, offset: usize) {
         let error_counter: String = "^".repeat(self.token.slice.len());
         println!("{} file: {}", "-".blue(), self.file_name);
         println!("{}", "|".blue());
@@ -33,36 +33,56 @@ impl<'a> Error<'a> {
         println!(
             "{}      {}{}",
             "|".blue(),
-            " ".repeat(self.token.column),
+            " ".repeat(self.token.column + offset),
             error_counter.yellow()
         );
         println!("{}", "-".blue());
     }
 
+    // Var error
     pub fn throw_var_not_defined(&self, var_name: &str) {
         println!(
             "{}: cannot find variable \"{}\" in this scope",
             self.e_str, var_name
         );
-        self.print();
+        self.print(0);
         exit(0)
     }
 
     pub fn throw_wrong_assign_type(&self, var_name: &str, val_type: String, var_type: String) {
         println!(
-            "{}: cannot assign value of type \"{}\" to variable \"{}\": {}",
+            "{}: cannot assign value of type \"{}\" to variable \"{}\" which is of type \"{}\"",
             self.e_str, val_type, var_name, var_type
         );
-        self.print();
+        self.print(0);
         exit(0)
     }
 
+    pub fn throw_cant_start_var_num(&self) {
+        println!("{}: cannot start variable name with number", self.e_str);
+        self.print(0);
+        exit(0)
+    }
+
+    pub fn throw_cant_use_same_var_name(&self) {
+        println!("{}: variable name already used", self.e_str);
+        self.print(0);
+        exit(0)
+    }
+
+    pub fn throw_array_out_of_bounds(&self, arr_len: &isize) {
+        println!("{}: expected an array of size {}", self.e_str, arr_len,);
+        self.print(0);
+        exit(0)
+    }
+
+    // Type errors
     pub fn throw_type_name_already_used(&self, name: String) {
         println!(
             "{}, type name: \"{}\" already used in this scope",
             self.e_str, name
         );
-        self.print();
+        self.print(0);
         exit(0)
     }
 
@@ -71,13 +91,14 @@ impl<'a> Error<'a> {
             "{}: type \"{}\" not found in this scope",
             self.e_str, self.token.slice
         );
-        self.print();
+        self.print(0);
         exit(0)
     }
 
+    // General errors
     pub fn throw_unkown_token(&self) {
         println!("{}: unknown token: \"{}\"", self.e_str, self.token.slice);
-        self.print();
+        self.print(0);
         exit(0)
     }
 
@@ -86,13 +107,7 @@ impl<'a> Error<'a> {
             "{}: unknown token in math expression: \"{}\"",
             self.e_str, self.token.slice
         );
-        self.print();
-        exit(0)
-    }
-
-    pub fn throw_cant_start_var_num(&self) {
-        println!("{}: cannot start variable name with number", self.e_str);
-        self.print();
+        self.print(0);
         exit(0)
     }
 }
