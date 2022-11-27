@@ -1,4 +1,7 @@
-use self::{primitive_node::PrimitiveTypeNode, variables::VarNode};
+use self::{
+    primitive_node::PrimitiveTypeNode,
+    variables::{CallVarArrNode, CallVarNode, VarNode},
+};
 
 use super::math::{
     ast::{MathIdNode, MathNumberNode, MathOpTypeNode},
@@ -13,6 +16,8 @@ pub enum Nodes<'a> {
     // AST
     PrimitiveTypeNode(PrimitiveTypeNode<'a>),
     VarNode(VarNode<'a>),
+    CallVarNode(CallVarNode<'a>),
+    CallVarArrNode(CallVarArrNode<'a>),
 
     // External Math AST
     ProcessedMathNode(ProcessedMathNode<'a>),

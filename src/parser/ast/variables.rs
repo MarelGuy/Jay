@@ -99,3 +99,26 @@ impl<'a> ArrElem<'a> {
         Self { value, index }
     }
 }
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct CallVarNode<'a> {
+    var_to_call: VarNode<'a>,
+}
+
+impl<'a> CallVarNode<'a> {
+    pub fn new(var_to_call: VarNode<'a>) -> Self {
+        Self { var_to_call }
+    }
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct CallVarArrNode<'a> {
+    var_to_call: CallVarNode<'a>,
+    index: isize,
+}
+
+impl<'a> CallVarArrNode<'a> {
+    pub fn new(var_to_call: CallVarNode<'a>, index: isize) -> Self {
+        Self { var_to_call, index }
+    }
+}
