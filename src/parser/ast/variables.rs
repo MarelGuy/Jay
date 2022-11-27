@@ -1,3 +1,9 @@
+use core::fmt;
+use std::{
+    fmt::{Display, Formatter},
+    isize,
+};
+
 use either::Either;
 
 use super::Node;
@@ -12,6 +18,12 @@ pub enum VarType {
     Type { name: String },
 }
 
+impl Display for VarType {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum ArrayVarType {
     Int { init_num: isize },
@@ -22,11 +34,41 @@ pub enum ArrayVarType {
     Type { name: String, init_num: isize },
 }
 
+impl ArrayVarType {
+    pub fn to_var_type(&self) -> VarType {
+        match self {
+            ArrayVarType::Int { init_num: _ } => VarType::Int,
+            ArrayVarType::Float { init_num: _ } => VarType::Float,
+            ArrayVarType::String { init_num: _ } => VarType::String,
+            ArrayVarType::Bool { init_num: _ } => VarType::Bool,
+            ArrayVarType::Char { init_num: _ } => VarType::Char,
+            ArrayVarType::Type {
+                name: _,
+                init_num: _,
+            } => todo!(),
+        }
+    }
+
+    pub fn get_init_num(&self) -> &isize {
+        match self {
+            ArrayVarType::Int { init_num } => init_num,
+            ArrayVarType::Float { init_num } => init_num,
+            ArrayVarType::String { init_num } => init_num,
+            ArrayVarType::Bool { init_num } => init_num,
+            ArrayVarType::Char { init_num } => init_num,
+            ArrayVarType::Type {
+                name: _,
+                init_num: _,
+            } => todo!(),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct VarNode<'a> {
     pub name: String,
     pub ty: Either<VarType, ArrayVarType>,
-    pub val: Vec<Node<'a>>,
+    pub val: Either<Box<Node<'a>>, Vec<ArrElem<'a>>>,
     pub is_mut: bool,
 }
 
@@ -34,7 +76,7 @@ impl<'a> VarNode<'a> {
     pub fn new(
         name: String,
         ty: Either<VarType, ArrayVarType>,
-        val: Vec<Node<'a>>,
+        val: Either<Box<Node<'a>>, Vec<ArrElem<'a>>>,
         is_mut: bool,
     ) -> Self {
         Self {
@@ -43,5 +85,17 @@ impl<'a> VarNode<'a> {
             val,
             is_mut,
         }
+    }
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ArrElem<'a> {
+    value: Box<Node<'a>>,
+    index: isize,
+}
+
+impl<'a> ArrElem<'a> {
+    pub fn new(value: Box<Node<'a>>, index: isize) -> Self {
+        Self { value, index }
     }
 }

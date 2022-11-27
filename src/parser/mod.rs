@@ -7,11 +7,11 @@ use crate::lexer::token::{Token, TokenType};
 
 use self::ast::{
     primitive_node::PrimitiveTypeNode,
-    variables::{ArrayVarType, VarNode, VarType},
+    variables::{ArrElem, ArrayVarType, VarNode, VarType},
     Node, Nodes,
 };
 
-mod ast;
+pub(crate) mod ast;
 mod math;
 
 pub struct Parser<'a> {
@@ -103,6 +103,27 @@ impl<'a> Parser<'a> {
         }
     }
 
+    fn get_ty_from_val(&self) -> VarType {
+        match self.current_token.token_type {
+            TokenType::Number => VarType::Int,
+            TokenType::Float => VarType::Float,
+            TokenType::String => VarType::String,
+            TokenType::Bool => VarType::Bool,
+            TokenType::Char => VarType::Char,
+            _ => {
+                Error::new(
+                    self.current_token,
+                    self.get_line(self.current_token.line),
+                    self.file_name.clone(),
+                )
+                .throw_ty_not_found();
+                return VarType::Type {
+                    name: "Null".to_string(),
+                };
+            }
+        }
+    }
+
     fn get_array_ty(&mut self) -> ArrayVarType {
         let type_token: Token = self.current_token;
 
@@ -158,7 +179,10 @@ impl<'a> Parser<'a> {
 
                         self.next();
 
-                        if self.current_token.token_type == TokenType::Semicolon {
+                        if self.current_token.token_type == TokenType::Semicolon
+                            || self.current_token.token_type == TokenType::Colon
+                            || self.current_token.token_type == TokenType::CloseBracket
+                        {
                             self.back();
                             break;
                         }
@@ -193,13 +217,33 @@ impl<'a> Parser<'a> {
     fn parse_var(&mut self) -> VarNode<'a> {
         let mut is_mut: bool = false;
 
-        if self.current_token.token_type == TokenType::Let {
+        if self.current_token.token_type == TokenType::Var {
             is_mut = true;
         }
 
         self.next();
 
         let name: String = self.current_token.slice.into();
+
+        if name.chars().nth(0).unwrap().is_numeric() {
+            Error::new(
+                self.current_token,
+                self.get_line(self.current_token.line),
+                self.file_name.clone(),
+            )
+            .throw_cant_start_var_num();
+        };
+
+        self.var_vec.clone().into_iter().for_each(|x| {
+            if x.name == name.clone() {
+                Error::new(
+                    self.current_token,
+                    self.get_line(self.current_token.line),
+                    self.file_name.clone(),
+                )
+                .throw_cant_use_same_var_name();
+            }
+        });
 
         self.next();
         self.next();
@@ -217,40 +261,86 @@ impl<'a> Parser<'a> {
         self.next();
         self.next();
 
-        let mut value: Vec<Node> = vec![];
-
         loop {
             if self.current_token.token_type == TokenType::OpenBracket {
+                let mut index: isize = 0;
+                let mut value: Vec<ArrElem<'a>> = vec![];
+
                 self.next();
 
                 loop {
-                    value.push(self.parse_list(self.current_token));
+                    if self.get_ty_from_val() != ty.clone().right().unwrap().to_var_type() {
+                        Error::new(
+                            self.current_token,
+                            self.get_line(self.current_token.line),
+                            self.file_name.clone(),
+                        )
+                        .throw_wrong_assign_type(
+                            &name,
+                            self.get_ty_from_val().to_string(),
+                            ty.clone().right().unwrap().to_var_type().to_string(),
+                        );
+                    }
+
+                    if &index == ty.clone().right().unwrap().get_init_num() {
+                        Error::new(
+                            self.current_token,
+                            self.get_line(self.current_token.line),
+                            self.file_name.clone(),
+                        )
+                        .throw_array_out_of_bounds(ty.clone().right().unwrap().get_init_num());
+                    }
+
+                    value.push(ArrElem::new(
+                        Box::new(self.parse_list(self.current_token)),
+                        index,
+                    ));
 
                     self.next();
 
                     if self.current_token.token_type == TokenType::Comma {
+                        index += 1;
                         self.next();
                     } else if self.current_token.token_type == TokenType::CloseBracket {
                         break;
                     }
                 }
 
-                break;
+                let new_node: VarNode = VarNode::new(name, ty, Either::Right(value), is_mut);
+
+                self.var_vec.push(new_node.clone());
+
+                return new_node;
             }
 
-            value.push(self.parse_list(self.current_token));
+            if self.get_ty_from_val() != ty.clone().left().unwrap() {
+                Error::new(
+                    self.current_token,
+                    self.get_line(self.current_token.line),
+                    self.file_name.clone(),
+                )
+                .throw_wrong_assign_type(
+                    &name,
+                    self.get_ty_from_val().to_string(),
+                    ty.clone().left().unwrap().to_string(),
+                );
+            }
+            let value: Node<'a> = self.parse_list(self.current_token);
+
             self.next();
 
             if self.current_token.token_type == TokenType::Semicolon {
                 self.back();
-                break;
+
+                let new_node: VarNode =
+                    VarNode::new(name, ty, Either::Left(Box::new(value)), is_mut);
+
+                self.var_vec.push(new_node.clone());
+
+                return new_node;
             }
         }
-
-        let new_node: VarNode = VarNode::new(name, ty, value, is_mut);
-
-        self.var_vec.push(new_node.clone());
-
-        new_node
     }
+
+    // fn parse_call_var
 }
