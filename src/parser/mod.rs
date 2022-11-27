@@ -7,7 +7,7 @@ use crate::lexer::token::{Token, TokenType};
 
 use self::ast::{
     primitive_node::PrimitiveTypeNode,
-    variables::{ArrElem, ArrayVarType, VarNode, VarType},
+    variables::{ArrElem, ArrayVarType, CallVarArrNode, CallVarNode, VarNode, VarType},
     Node, Nodes,
 };
 
@@ -153,6 +153,15 @@ impl<'a> Parser<'a> {
         }
     }
 
+    fn search_var_arr(&mut self, string_to_search: String) -> Result<usize, usize> {
+        self.var_vec
+            .clone()
+            .into_iter()
+            .map(|x| -> String { x.name })
+            .collect::<Vec<String>>()
+            .binary_search(&string_to_search)
+    }
+
     #[rustfmt::skip]    fn get_line(&self, line: usize) -> String { self.lines.clone().into_iter().nth(line).unwrap() }
 
     // Parser
@@ -194,7 +203,19 @@ impl<'a> Parser<'a> {
                         self.file_name.clone(),
                     )))
                 } else {
-                    Node(Nodes::PrimitiveTypeNode(self.parse_primitive_type_node()))
+                    return self
+                        .search_var_arr(self.current_token.slice.into())
+                        .is_ok()
+                        .then(|| {
+                            if self.peek().token_type == TokenType::OpenBracket {
+                                Node(Nodes::CallVarArrNode(self.parse_call_var_arr_node()))
+                            } else {
+                                Node(Nodes::CallVarNode(self.parse_call_var_node()))
+                            }
+                        })
+                        .unwrap_or_else(|| {
+                            Node(Nodes::PrimitiveTypeNode(self.parse_primitive_type_node()))
+                        });
                 }
             }
             TokenType::Let | TokenType::Var | TokenType::Const => {
@@ -234,23 +255,17 @@ impl<'a> Parser<'a> {
             .throw_cant_start_var_num();
         };
 
-        self.var_vec
-            .clone()
-            .into_iter()
-            .map(|x| -> String { x.name })
-            .collect::<Vec<String>>()
-            .binary_search(&name)
-            .is_ok()
-            .then(|| {
-                Error::new(
-                    self.current_token,
-                    self.get_line(self.current_token.line),
-                    self.file_name.clone(),
-                )
-                .throw_cant_use_same_var_name();
-            });
+        self.search_var_arr(name.clone()).is_ok().then(|| {
+            Error::new(
+                self.current_token,
+                self.get_line(self.current_token.line),
+                self.file_name.clone(),
+            )
+            .throw_cant_use_same_var_name();
+        });
 
         self.next();
+
         self.next();
 
         let ty: Either<VarType, ArrayVarType>;
@@ -347,5 +362,32 @@ impl<'a> Parser<'a> {
         }
     }
 
-    // fn parse_call_var
+    // TODO: Error Handling for both functions
+    fn parse_call_var_node(&mut self) -> CallVarNode<'a> {
+        let var_to_call: VarNode = self
+            .var_vec
+            .clone()
+            .into_iter()
+            .nth(
+                self.search_var_arr(self.current_token.slice.into())
+                    .unwrap(),
+            )
+            .unwrap();
+
+        self.next();
+
+        CallVarNode::new(var_to_call)
+    }
+
+    fn parse_call_var_arr_node(&mut self) -> CallVarArrNode<'a> {
+        let var_to_call: CallVarNode = self.parse_call_var_node();
+
+        self.next();
+
+        let index: isize = self.current_token.slice.parse().unwrap();
+
+        self.next();
+
+        CallVarArrNode::new(var_to_call, index)
+    }
 }
