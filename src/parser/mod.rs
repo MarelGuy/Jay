@@ -234,16 +234,21 @@ impl<'a> Parser<'a> {
             .throw_cant_start_var_num();
         };
 
-        self.var_vec.clone().into_iter().for_each(|x| {
-            if x.name == name.clone() {
+        self.var_vec
+            .clone()
+            .into_iter()
+            .map(|x| -> String { x.name })
+            .collect::<Vec<String>>()
+            .binary_search(&name)
+            .is_ok()
+            .then(|| {
                 Error::new(
                     self.current_token,
                     self.get_line(self.current_token.line),
                     self.file_name.clone(),
                 )
                 .throw_cant_use_same_var_name();
-            }
-        });
+            });
 
         self.next();
         self.next();
