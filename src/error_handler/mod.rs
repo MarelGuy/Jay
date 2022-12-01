@@ -40,10 +40,10 @@ impl<'a> Error<'a> {
     }
 
     // Var error
-    pub fn throw_var_not_defined(&self, var_name: &str) {
+    pub fn throw_var_not_defined(&self) {
         println!(
             "{}: cannot find variable \"{}\" in this scope",
-            self.e_str, var_name
+            self.e_str, self.token.slice
         );
         self.print(0);
         exit(0)
@@ -72,6 +72,15 @@ impl<'a> Error<'a> {
 
     pub fn throw_array_out_of_bounds(&self, arr_len: &isize) {
         println!("{}: expected an array of size {}", self.e_str, arr_len,);
+        self.print(0);
+        exit(0)
+    }
+
+    pub fn throw_cant_use_num_array(&self, arr_name: &str) {
+        println!(
+            "{}: can't access index {} in {}",
+            self.e_str, self.token.slice, arr_name,
+        );
         self.print(0);
         exit(0)
     }

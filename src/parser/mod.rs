@@ -1,7 +1,7 @@
 use either::Either::{self, Left, Right};
 
 use crate::{error_handler::Error, lexer::token::Span};
-use std::vec;
+use std::{process::exit, vec};
 
 use crate::lexer::token::{Token, TokenType};
 
@@ -214,6 +214,15 @@ impl<'a> Parser<'a> {
                             }
                         })
                         .unwrap_or_else(|| {
+                            if self.current_token.token_type == TokenType::Identifier {
+                                Error::new(
+                                    self.current_token,
+                                    self.get_line(self.current_token.line),
+                                    self.file_name.clone(),
+                                )
+                                .throw_var_not_defined()
+                            }
+
                             Node(Nodes::PrimitiveTypeNode(self.parse_primitive_type_node()))
                         });
                 }
@@ -385,6 +394,27 @@ impl<'a> Parser<'a> {
         self.next();
 
         let index: isize = self.current_token.slice.parse().unwrap();
+
+        if index < 0
+            || var_to_call
+                .var_to_call
+                .clone()
+                .val
+                .right()
+                .unwrap()
+                .into_iter()
+                .last()
+                .unwrap()
+                .index
+                < index
+        {
+            Error::new(
+                self.current_token,
+                self.get_line(self.current_token.line),
+                self.file_name.clone(),
+            )
+            .throw_cant_use_num_array(var_to_call.var_to_call.name.as_str());
+        }
 
         self.next();
 

@@ -91,7 +91,7 @@ impl<'a> VarNode<'a> {
 #[derive(Debug, PartialEq, Clone)]
 pub struct ArrElem<'a> {
     value: Box<Node<'a>>,
-    index: isize,
+    pub index: isize,
 }
 
 impl<'a> ArrElem<'a> {
@@ -102,7 +102,7 @@ impl<'a> ArrElem<'a> {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct CallVarNode<'a> {
-    var_to_call: VarNode<'a>,
+    pub var_to_call: VarNode<'a>,
 }
 
 impl<'a> CallVarNode<'a> {
