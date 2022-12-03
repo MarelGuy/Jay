@@ -1,11 +1,11 @@
-let lmao0: char = 'a';
+let lmao0: int = 2;
 const lmao1: string = "lmao";
 let lmao2: char[3] = ['a', 'b', 'c'];
 var lmao3: int = 2+5;
 lmao0;
 lmao1;
 lmao2[2];
-lmao3;
+lmao2[lmao0];
 
 // lmao1.idk.f[2]:
 // lmao1 = 'a';
