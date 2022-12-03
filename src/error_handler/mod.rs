@@ -76,11 +76,8 @@ impl<'a> Error<'a> {
         exit(0)
     }
 
-    pub fn throw_cant_use_num_array(&self, arr_name: &str) {
-        println!(
-            "{}: can't access index {} in {}",
-            self.e_str, self.token.slice, arr_name,
-        );
+    pub fn throw_cant_use_num_array(&self, arr_name: &str, idx: isize) {
+        println!("{}: can't access index {} in {}", self.e_str, idx, arr_name,);
         self.print(0);
         exit(0)
     }
