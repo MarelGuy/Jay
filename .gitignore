@@ -5,6 +5,6 @@
 /archive
 src/parser_old
 
-#Files
+# Files
 
-/log_file.txt
+/ast.jast
