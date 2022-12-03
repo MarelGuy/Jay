@@ -1,9 +1,8 @@
 use either::Either::{self, Left, Right};
 
-use crate::{error_handler::Error, lexer::token::Span};
-use std::{process::exit, vec};
-
 use crate::lexer::token::{Token, TokenType};
+use crate::{error_handler::Error, lexer::token::Span};
+use std::vec;
 
 use self::ast::{
     primitive_node::PrimitiveTypeNode,
@@ -388,14 +387,58 @@ impl<'a> Parser<'a> {
         CallVarNode::new(var_to_call)
     }
 
+    fn parse_index(&mut self) -> isize {
+        let index_to_return: isize;
+
+        if self.current_token.token_type == TokenType::Identifier {
+            let node_to_parse: Box<Node>;
+
+            if self.peek().token_type == TokenType::OpenBracket {
+                let idk0: CallVarArrNode = self.parse_call_var_arr_node();
+
+                node_to_parse = idk0
+                    .var_to_call
+                    .var_to_call
+                    .val
+                    .right()
+                    .unwrap()
+                    .into_iter()
+                    .nth(idk0.index_to_call as usize)
+                    .unwrap()
+                    .value;
+            } else {
+                node_to_parse = self.parse_call_var_node().var_to_call.val.left().unwrap();
+            }
+
+            index_to_return = node_to_parse
+                .0
+                .get_primitive()
+                .unwrap()
+                .slice
+                .parse()
+                .unwrap();
+        } else {
+            index_to_return = self.current_token.slice.parse().unwrap();
+        }
+
+        index_to_return
+    }
+
     fn parse_call_var_arr_node(&mut self) -> CallVarArrNode<'a> {
         let var_to_call: CallVarNode = self.parse_call_var_node();
 
         self.next();
 
-        let index: isize = self.current_token.slice.parse().unwrap();
+        let index_to_call: isize = self.parse_index();
 
-        if index < 0
+        self.next();
+
+        while self.current_token.token_type == TokenType::CloseBracket {
+            self.next();
+        }
+
+        // TODO: Fix the error message
+        if index_to_call < 0
             || var_to_call
                 .var_to_call
                 .clone()
@@ -406,7 +449,7 @@ impl<'a> Parser<'a> {
                 .last()
                 .unwrap()
                 .index
-                < index
+                < index_to_call
         {
             Error::new(
                 self.current_token,
@@ -416,8 +459,6 @@ impl<'a> Parser<'a> {
             .throw_cant_use_num_array(var_to_call.var_to_call.name.as_str());
         }
 
-        self.next();
-
-        CallVarArrNode::new(var_to_call, index)
+        CallVarArrNode::new(var_to_call, index_to_call)
     }
 }
