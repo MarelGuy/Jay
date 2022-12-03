@@ -1,4 +1,10 @@
+# Folders
+
+.vscode
 /target
 /archive
-.vscode
 src/parser_old
+
+#Files
+
+/log_file.txt
