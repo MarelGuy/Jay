@@ -45,13 +45,16 @@ impl<'a> Parser<'a> {
 
             let new_node: Node<'a> = self.parse_list(self.current_token);
 
-            if new_node != Node(Nodes::NullNode) {
-                self.ast.push(new_node);
-            }
+            self.ast.push(new_node);
         }
     }
 
+    fn get_line(&self, line: usize) -> String {
+        self.lines.clone().into_iter().nth(line).unwrap()
+    }
+
     // Flow functions
+
     fn back(&mut self) {
         self.tok_i -= 1;
 
@@ -66,7 +69,6 @@ impl<'a> Parser<'a> {
         self.tok_i += 1;
     }
 
-    // Utils functions
     fn peek(&self) -> Token<'a> {
         if self.tok_i < self.token_stream.len() {
             self.token_stream[self.tok_i].clone()
@@ -80,6 +82,8 @@ impl<'a> Parser<'a> {
             }
         }
     }
+
+    // Type functions
 
     fn get_ty(&self) -> VarType {
         match self.current_token.token_type {
@@ -152,6 +156,8 @@ impl<'a> Parser<'a> {
         }
     }
 
+    // Search vecs functions
+
     fn search_var_arr(&mut self, string_to_search: String) -> Result<usize, usize> {
         self.var_vec
             .clone()
@@ -160,8 +166,6 @@ impl<'a> Parser<'a> {
             .collect::<Vec<String>>()
             .binary_search(&string_to_search)
     }
-
-    #[rustfmt::skip]    fn get_line(&self, line: usize) -> String { self.lines.clone().into_iter().nth(line).unwrap() }
 
     // Parser
     fn parse_list(&mut self, token: Token<'a>) -> Node<'a> {
@@ -382,8 +386,6 @@ impl<'a> Parser<'a> {
             )
             .unwrap();
 
-        self.next();
-
         CallVarNode::new(var_to_call)
     }
 
@@ -428,6 +430,7 @@ impl<'a> Parser<'a> {
         let var_to_call: CallVarNode = self.parse_call_var_node();
 
         self.next();
+        self.next();
 
         let index_to_call: isize = self.parse_index();
 
@@ -436,6 +439,8 @@ impl<'a> Parser<'a> {
         while self.current_token.token_type == TokenType::CloseBracket {
             self.next();
         }
+
+        self.back();
 
         // TODO: Fix the error message
         if index_to_call < 0
@@ -456,7 +461,7 @@ impl<'a> Parser<'a> {
                 self.get_line(self.current_token.line),
                 self.file_name.clone(),
             )
-            .throw_cant_use_num_array(var_to_call.var_to_call.name.as_str());
+            .throw_cant_use_num_array(var_to_call.var_to_call.name.as_str(), index_to_call);
         }
 
         CallVarArrNode::new(var_to_call, index_to_call)
