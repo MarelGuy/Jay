@@ -50,10 +50,15 @@ fn run(input: &str, file_name: &str) {
         .map(|x| -> String { x.to_string() })
         .collect();
 
-    File::create("./log_file.txt")
-        .unwrap()
-        .write(ast.as_bytes())
-        .unwrap();
+    match args().nth(2) {
+        Some(ref arg) if arg == "--ast" => {
+            File::create("./ast.jast")
+                .unwrap()
+                .write(ast.as_bytes())
+                .unwrap();
+        }
+        _ => {}
+    }
 
     // let compiler: Compiler = Compiler::new(parser.ast);
 
