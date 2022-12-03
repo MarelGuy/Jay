@@ -1,7 +1,12 @@
 // use compiler::Compiler;
 use lexer::Lexer;
 use parser::Parser;
-use std::{env::args, fs::read_to_string, io::Write, path::Path};
+use std::{
+    env::args,
+    fs::{read_to_string, File},
+    io::Write,
+    path::Path,
+};
 
 use crate::lexer::token::{Token, TokenType};
 
@@ -39,7 +44,16 @@ fn run(input: &str, file_name: &str) {
     let mut parser: Parser = Parser::new(tokens, file_name.into(), lines);
     parser.parse();
 
-    println!("{:#?}", parser.ast);
+    let ast: String = parser
+        .ast
+        .into_iter()
+        .map(|x| -> String { x.to_string() })
+        .collect();
+
+    File::create("./log_file.txt")
+        .unwrap()
+        .write(ast.as_bytes())
+        .unwrap();
 
     // let compiler: Compiler = Compiler::new(parser.ast);
 
