@@ -1,8 +1,8 @@
 use either::Either::{self, Left, Right};
+use std::vec;
 
 use crate::lexer::token::{Token, TokenType};
 use crate::{error_handler::Error, lexer::token::Span};
-use std::vec;
 
 use self::ast::{
     primitive_node::PrimitiveTypeNode,
@@ -106,10 +106,12 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn get_ty_from_val(&self) -> VarType {
-        match self.current_token.token_type {
+    fn get_ty_from_val(&self, token: Token) -> VarType {
+        match token.token_type {
             TokenType::Number => VarType::Int,
+            TokenType::NegativeNumber => VarType::Int,
             TokenType::Float => VarType::Float,
+            TokenType::NegativeFloat => VarType::Float,
             TokenType::String => VarType::String,
             TokenType::Bool => VarType::Bool,
             TokenType::Char => VarType::Char,
@@ -301,7 +303,9 @@ impl<'a> Parser<'a> {
                 self.next();
 
                 loop {
-                    if self.get_ty_from_val() != ty.clone().right().unwrap().to_var_type() {
+                    if self.get_ty_from_val(self.current_token)
+                        != ty.clone().right().unwrap().to_var_type()
+                    {
                         Error::new(
                             self.current_token,
                             self.get_line(self.current_token.line),
@@ -309,7 +313,7 @@ impl<'a> Parser<'a> {
                         )
                         .throw_wrong_assign_type(
                             &name,
-                            self.get_ty_from_val().to_string(),
+                            self.get_ty_from_val(self.current_token).to_string(),
                             ty.clone().right().unwrap().to_var_type().to_string(),
                         );
                     }
@@ -345,7 +349,7 @@ impl<'a> Parser<'a> {
                 return new_node;
             }
 
-            if self.get_ty_from_val() != ty.clone().left().unwrap() {
+            if self.get_ty_from_val(self.current_token) != ty.clone().left().unwrap() {
                 Error::new(
                     self.current_token,
                     self.get_line(self.current_token.line),
@@ -353,7 +357,7 @@ impl<'a> Parser<'a> {
                 )
                 .throw_wrong_assign_type(
                     &name,
-                    self.get_ty_from_val().to_string(),
+                    self.get_ty_from_val(self.current_token).to_string(),
                     ty.clone().left().unwrap().to_string(),
                 );
             }
@@ -374,7 +378,6 @@ impl<'a> Parser<'a> {
         }
     }
 
-    // TODO: Error Handling for both functions
     fn parse_call_var_node(&mut self) -> CallVarNode<'a> {
         let var_to_call: VarNode = self
             .var_vec
@@ -395,6 +398,19 @@ impl<'a> Parser<'a> {
         if self.current_token.token_type == TokenType::Identifier {
             let node_to_parse: Box<Node>;
 
+            if self
+                .search_var_arr(self.current_token.slice.into())
+                .is_err()
+                == true
+            {
+                Error::new(
+                    self.current_token,
+                    self.get_line(self.current_token.line),
+                    self.file_name.clone(),
+                )
+                .throw_var_not_defined()
+            }
+
             if self.peek().token_type == TokenType::OpenBracket {
                 let idk0: CallVarArrNode = self.parse_call_var_arr_node();
 
@@ -412,14 +428,30 @@ impl<'a> Parser<'a> {
                 node_to_parse = self.parse_call_var_node().var_to_call.val.left().unwrap();
             }
 
-            index_to_return = node_to_parse
-                .0
-                .get_primitive()
-                .unwrap()
-                .slice
-                .parse()
-                .unwrap();
+            let unpacked_node: Token = node_to_parse.0.get_primitive().unwrap();
+
+            if unpacked_node.token_type != TokenType::Number {
+                Error::new(
+                    self.current_token,
+                    self.get_line(self.current_token.line),
+                    self.file_name.clone(),
+                )
+                .throw_cant_use_val_in_arr_call(self.get_ty_from_val(unpacked_node).to_string());
+            }
+
+            index_to_return = unpacked_node.slice.parse().unwrap();
         } else {
+            if self.current_token.token_type != TokenType::Number {
+                Error::new(
+                    self.current_token,
+                    self.get_line(self.current_token.line),
+                    self.file_name.clone(),
+                )
+                .throw_cant_use_val_in_arr_call(
+                    self.get_ty_from_val(self.current_token).to_string(),
+                );
+            }
+
             index_to_return = self.current_token.slice.parse().unwrap();
         }
 
@@ -442,7 +474,6 @@ impl<'a> Parser<'a> {
 
         self.back();
 
-        // TODO: Fix the error message
         if index_to_call < 0
             || var_to_call
                 .var_to_call
