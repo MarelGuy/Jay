@@ -70,6 +70,8 @@ impl<'a> Error<'a> {
         exit(0)
     }
 
+    // Array errors
+
     pub fn throw_array_out_of_bounds(&self, arr_len: &isize) {
         println!("{}: expected an array of size {}", self.e_str, arr_len,);
         self.print(0);
@@ -78,6 +80,15 @@ impl<'a> Error<'a> {
 
     pub fn throw_cant_use_num_array(&self, arr_name: &str, idx: isize) {
         println!("{}: can't access index {} in {}", self.e_str, idx, arr_name,);
+        self.print(0);
+        exit(0)
+    }
+
+    pub fn throw_cant_use_val_in_arr_call(&self, val: String) {
+        println!(
+            "{}: can't use val of type \"{}\" in array call",
+            self.e_str, val,
+        );
         self.print(0);
         exit(0)
     }
