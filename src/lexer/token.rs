@@ -223,7 +223,7 @@ pub enum TokenType {
     #[regex(r"-[0-9]+\.[0-9]+")]
     NegativeFloat,
 
-    #[regex(r"[0-9]+\...[0-9]+")]
+    #[regex(r"[0-9]+\.\.\.[0-9]+")]
     Range,
 
     // Strings and Chars
