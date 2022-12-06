@@ -140,3 +140,23 @@ impl<'a> AssignToVarNode<'a> {
         }
     }
 }
+
+pub struct AssignToVarArrNode<'a> {
+    pub var_to_call: CallVarArrNode<'a>,
+    pub index: isize,
+    pub val_to_assign: Box<Node<'a>>,
+}
+
+impl<'a> AssignToVarArrNode<'a> {
+    pub fn new(
+        var_to_call: CallVarArrNode<'a>,
+        index: isize,
+        val_to_assign: Box<Node<'a>>,
+    ) -> Self {
+        Self {
+            var_to_call,
+            index,
+            val_to_assign,
+        }
+    }
+}
