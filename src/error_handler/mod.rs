@@ -4,9 +4,9 @@ use std::process::exit;
 use crate::lexer::token::Token;
 
 pub struct Error<'a> {
-    token: Token<'a>,
+    pub token: Token<'a>,
     e_str: ColoredString,
-    line_string: String,
+    pub line_string: String,
     file_name: String,
 }
 
