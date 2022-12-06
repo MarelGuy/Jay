@@ -125,3 +125,18 @@ impl<'a> CallVarArrNode<'a> {
         }
     }
 }
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct AssignToVarNode<'a> {
+    pub var_to_call: CallVarNode<'a>,
+    pub val_to_assign: Box<Node<'a>>,
+}
+
+impl<'a> AssignToVarNode<'a> {
+    pub fn new(var_to_call: CallVarNode<'a>, val_to_assign: Box<Node<'a>>) -> Self {
+        Self {
+            var_to_call,
+            val_to_assign,
+        }
+    }
+}

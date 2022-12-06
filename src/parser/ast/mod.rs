@@ -2,7 +2,7 @@ use crate::lexer::token::Token;
 
 use self::{
     primitive_node::PrimitiveTypeNode,
-    variables::{CallVarArrNode, CallVarNode, VarNode},
+    variables::{AssignToVarNode, CallVarArrNode, CallVarNode, VarNode},
 };
 
 use super::math::{
@@ -17,9 +17,12 @@ pub mod variables;
 pub enum Nodes<'a> {
     // AST
     PrimitiveTypeNode(PrimitiveTypeNode<'a>),
+
+    // Variables
     VarNode(VarNode<'a>),
     CallVarNode(CallVarNode<'a>),
     CallVarArrNode(CallVarArrNode<'a>),
+    AssignToVarNode(AssignToVarNode<'a>),
 
     // External Math AST
     ProcessedMathNode(ProcessedMathNode<'a>),
@@ -36,6 +39,20 @@ impl<'a> Nodes<'a> {
     pub fn get_primitive(&self) -> Option<Token<'a>> {
         match self {
             Nodes::PrimitiveTypeNode(token) => Some(token.0),
+            _ => None,
+        }
+    }
+
+    pub fn get_call_var_node(&self) -> Option<CallVarNode<'a>> {
+        match self {
+            Nodes::CallVarNode(node) => Some(node.to_owned()),
+            _ => None,
+        }
+    }
+
+    pub fn get_call_var_arr_node(&self) -> Option<CallVarArrNode<'a>> {
+        match self {
+            Nodes::CallVarArrNode(node) => Some(node.to_owned()),
             _ => None,
         }
     }

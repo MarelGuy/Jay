@@ -6,7 +6,9 @@ use crate::{error_handler::Error, lexer::token::Span};
 
 use self::ast::{
     primitive_node::PrimitiveTypeNode,
-    variables::{ArrElem, ArrayVarType, CallVarArrNode, CallVarNode, VarNode, VarType},
+    variables::{
+        ArrElem, ArrayVarType, AssignToVarNode, CallVarArrNode, CallVarNode, VarNode, VarType,
+    },
     Node, Nodes,
 };
 
@@ -212,11 +214,26 @@ impl<'a> Parser<'a> {
                         .search_var_arr(self.current_token.slice.into())
                         .is_ok()
                         .then(|| {
+                            let mut call_var_node: Node;
+                            let is_var_node: bool;
+
                             if self.peek().token_type == TokenType::OpenBracket {
-                                Node(Nodes::CallVarArrNode(self.parse_call_var_arr_node()))
+                                call_var_node =
+                                    Node(Nodes::CallVarArrNode(self.parse_call_var_arr_node()));
+                                is_var_node = false;
                             } else {
-                                Node(Nodes::CallVarNode(self.parse_call_var_node()))
+                                call_var_node =
+                                    Node(Nodes::CallVarNode(self.parse_call_var_node()));
+                                is_var_node = true;
                             }
+
+                            if self.peek().token_type == TokenType::Assign {
+                                call_var_node = Node(Nodes::AssignToVarNode(
+                                    self.parse_assign_to_var(call_var_node, is_var_node),
+                                ));
+                            }
+
+                            call_var_node
                         })
                         .unwrap_or_else(|| {
                             if self.current_token.token_type == TokenType::Identifier {
@@ -496,5 +513,14 @@ impl<'a> Parser<'a> {
         }
 
         CallVarArrNode::new(var_to_call, index_to_call)
+    }
+
+    fn parse_assign_to_var(&mut self, var_to_assign: Node, is_var: bool) -> AssignToVarNode<'a> {
+        if is_var == true {
+            println!("{:#?}", var_to_assign.0.get_call_var_node())
+        } else {
+            println!("{:#?}", var_to_assign.0.get_call_var_arr_node())
+        }
+        todo!();
     }
 }
