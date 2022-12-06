@@ -6,6 +6,7 @@ use std::{
     fs::{read_to_string, File},
     io::Write,
     path::Path,
+    time::{Duration, Instant},
 };
 
 use crate::lexer::token::{Token, TokenType};
@@ -106,12 +107,19 @@ fn compiler() {
 }
 
 fn main() {
-    match args().nth(1) {
-        Some(ref arg) if arg == "-v" => version(),
-        Some(ref arg) if arg == "-h" => help(),
-        Some(ref arg) if arg == "--version" => version(),
-        Some(ref arg) if arg == "--help" => help(),
-        Some(ref arg) if arg == "-i" => interpreter(),
-        _ => compiler(),
+    let now: Instant = Instant::now();
+
+    {
+        match args().nth(1) {
+            Some(ref arg) if arg == "-v" => version(),
+            Some(ref arg) if arg == "-h" => help(),
+            Some(ref arg) if arg == "--version" => version(),
+            Some(ref arg) if arg == "--help" => help(),
+            Some(ref arg) if arg == "-i" => interpreter(),
+            _ => compiler(),
+        }
     }
+
+    let elapsed: Duration = now.elapsed();
+    println!("completed in: {:.2?}", elapsed);
 }
