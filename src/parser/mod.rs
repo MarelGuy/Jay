@@ -4,6 +4,7 @@ use std::vec;
 use crate::lexer::token::{Token, TokenType};
 use crate::{error_handler::Error, lexer::token::Span};
 
+use self::ast::variables::AssignToVarArrNode;
 use self::ast::{
     primitive_node::PrimitiveTypeNode,
     variables::{
@@ -63,9 +64,7 @@ impl<'a> Parser<'a> {
     }
 
     fn update_error_handler(&mut self) {
-        self.update_error_handler();
         self.error_handler.token = self.current_token;
-        self.update_error_handler();
         self.error_handler.line_string = self.get_line(self.current_token.line);
     }
 
@@ -196,11 +195,11 @@ impl<'a> Parser<'a> {
                     let mut tok_stream: Vec<Token> = vec![];
 
                     loop {
-                        tok_stream.push(self.current_token);
+                        tok_stream.push(token);
 
                         self.next();
 
-                        if self.current_token.token_type == TokenType::Semicolon
+                        if token.token_type == TokenType::Semicolon
                             || self.current_token.token_type == TokenType::Colon
                             || self.current_token.token_type == TokenType::CloseBracket
                         {
@@ -238,7 +237,9 @@ impl<'a> Parser<'a> {
                                         self.parse_assign_to_var(call_var_node),
                                     ));
                                 } else {
-                                    todo!();
+                                    call_var_node = Node(Nodes::AssignToVarArrNode(
+                                        self.parse_assign_to_var_arr(call_var_node),
+                                    ));
                                 }
                             }
 
@@ -516,5 +517,43 @@ impl<'a> Parser<'a> {
         val = Box::new(self.parse_list(self.current_token));
 
         AssignToVarNode::new(var, val)
+    }
+
+    fn parse_assign_to_var_arr(&mut self, var_to_assign: Node<'a>) -> AssignToVarArrNode<'a> {
+        self.back();
+        self.back();
+
+        let var: CallVarArrNode<'a> = var_to_assign.0.get_call_var_arr_node().unwrap();
+        let index: isize = self.current_token.slice.parse().unwrap();
+
+        for _ in 0..4 {
+            self.next();
+        }
+
+        let var_ty: VarType = var
+            .var_to_call
+            .var_to_call
+            .ty
+            .clone()
+            .right()
+            .unwrap()
+            .to_var_type();
+
+        if var_ty != self.get_ty_from_val(self.current_token) {
+            Error::new(
+                self.current_token,
+                self.get_line(self.current_token.line),
+                self.file_name.clone(),
+            )
+            .throw_wrong_assign_type(
+                &var.var_to_call.var_to_call.name,
+                self.get_ty_from_val(self.current_token).to_string(),
+                var_ty.to_string(),
+            );
+        }
+
+        let val: Box<Node> = Box::new(self.parse_list(self.current_token));
+
+        AssignToVarArrNode::new(var, index, val)
     }
 }

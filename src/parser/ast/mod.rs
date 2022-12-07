@@ -2,7 +2,7 @@ use crate::lexer::token::Token;
 
 use self::{
     primitive_node::PrimitiveTypeNode,
-    variables::{AssignToVarNode, CallVarArrNode, CallVarNode, VarNode},
+    variables::{AssignToVarArrNode, AssignToVarNode, CallVarArrNode, CallVarNode, VarNode},
 };
 
 use super::math::{
@@ -23,6 +23,7 @@ pub enum Nodes<'a> {
     CallVarNode(CallVarNode<'a>),
     CallVarArrNode(CallVarArrNode<'a>),
     AssignToVarNode(AssignToVarNode<'a>),
+    AssignToVarArrNode(AssignToVarArrNode<'a>),
 
     // External Math AST
     ProcessedMathNode(ProcessedMathNode<'a>),

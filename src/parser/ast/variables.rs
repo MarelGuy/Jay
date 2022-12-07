@@ -34,6 +34,12 @@ pub enum ArrayVarType {
     Type { name: String, init_num: isize },
 }
 
+impl Display for ArrayVarType {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
 impl ArrayVarType {
     pub fn to_var_type(&self) -> VarType {
         match self {
@@ -141,6 +147,7 @@ impl<'a> AssignToVarNode<'a> {
     }
 }
 
+#[derive(Debug, PartialEq, Clone)]
 pub struct AssignToVarArrNode<'a> {
     pub var_to_call: CallVarArrNode<'a>,
     pub index: isize,
