@@ -17,8 +17,9 @@ mod parser;
 // mod compiler;
 
 fn help() {
-    println!("-h, --help: show this help message");
+    println!("-h, --help   : show this help message");
     println!("-v, --version: show version");
+    println!("    --ast    : show the jast tree file")
 }
 
 fn version() {
@@ -111,10 +112,8 @@ fn main() {
 
     {
         match args().nth(1) {
-            Some(ref arg) if arg == "-v" => version(),
-            Some(ref arg) if arg == "-h" => help(),
-            Some(ref arg) if arg == "--version" => version(),
-            Some(ref arg) if arg == "--help" => help(),
+            Some(ref arg) if arg == "-v" || arg == "--version" => version(),
+            Some(ref arg) if arg == "-h" || arg == "--help" => help(),
             Some(ref arg) if arg == "-i" => interpreter(),
             _ => compiler(),
         }
