@@ -170,7 +170,7 @@ impl<'a> Parser<'a> {
         self.var_vec
             .clone()
             .into_iter()
-            .map(|x| -> String { x.name })
+            .map(|x| -> String { x.0 })
             .collect::<Vec<String>>()
             .binary_search(&string_to_search)
     }
@@ -336,7 +336,7 @@ impl<'a> Parser<'a> {
                             .throw_array_out_of_bounds(ty.clone().unwrap_right().get_init_num());
                     }
 
-                    value.push(ArrElem::new(
+                    value.push(ArrElem(
                         Box::new(self.parse_list(self.current_token)),
                         index,
                     ));
@@ -351,7 +351,7 @@ impl<'a> Parser<'a> {
                     }
                 }
 
-                let new_node: VarNode = VarNode::new(name, ty, Either::Right(value), is_mut);
+                let new_node: VarNode = VarNode(name, ty, Either::Right(value), is_mut);
 
                 self.var_vec.push(new_node.clone());
 
@@ -369,7 +369,7 @@ impl<'a> Parser<'a> {
                 );
             }
 
-            let new_node: VarNode = VarNode::new(
+            let new_node: VarNode = VarNode(
                 name,
                 ty,
                 Either::Left(Box::new(self.parse_list(self.current_token))),
@@ -393,7 +393,7 @@ impl<'a> Parser<'a> {
             )
             .unwrap();
 
-        CallVarNode::new(var_to_call)
+        CallVarNode(var_to_call)
     }
 
     fn parse_index(&mut self) -> isize {
@@ -415,17 +415,17 @@ impl<'a> Parser<'a> {
                 let idk0: CallVarArrNode = self.parse_call_var_arr_node();
 
                 node_to_parse = idk0
-                    .var_to_call
-                    .var_to_call
-                    .val
+                    .0
+                     .0
+                     .2
                     .right()
                     .unwrap()
                     .into_iter()
-                    .nth(idk0.index_to_call as usize)
+                    .nth(idk0.1 as usize)
                     .unwrap()
-                    .value;
+                    .0;
             } else {
-                node_to_parse = self.parse_call_var_node().var_to_call.val.unwrap_left();
+                node_to_parse = self.parse_call_var_node().0 .2.unwrap_left();
             }
 
             let unpacked_node: Token = node_to_parse.0.get_primitive().unwrap();
@@ -472,15 +472,15 @@ impl<'a> Parser<'a> {
 
         if index_to_call < 0
             || var_to_call
-                .var_to_call
+                .0
                 .clone()
-                .val
+                .2
                 .right()
                 .unwrap()
                 .into_iter()
                 .last()
                 .unwrap()
-                .index
+                .1
                 < index_to_call
         {
             Error::new(
@@ -488,10 +488,10 @@ impl<'a> Parser<'a> {
                 self.get_line(self.current_token.line),
                 self.file_name.clone(),
             )
-            .throw_cant_use_num_array(var_to_call.var_to_call.name.as_str(), index_to_call);
+            .throw_cant_use_num_array(var_to_call.0 .0.as_str(), index_to_call);
         }
 
-        CallVarArrNode::new(var_to_call, index_to_call)
+        CallVarArrNode(var_to_call, index_to_call)
     }
 
     fn parse_assign_to_var(&mut self, var_to_assign: Node<'a>) -> AssignToVarNode<'a> {
@@ -501,7 +501,7 @@ impl<'a> Parser<'a> {
         let var: CallVarNode<'a> = var_to_assign.0.get_call_var_node().unwrap();
         let val: Box<Node<'a>>;
 
-        let var_ty: VarType = var.var_to_call.ty.clone().unwrap_left();
+        let var_ty: VarType = var.0 .1.clone().unwrap_left();
 
         if var_ty != self.get_ty_from_val(self.current_token) {
             Error::new(
@@ -510,7 +510,7 @@ impl<'a> Parser<'a> {
                 self.file_name.clone(),
             )
             .throw_wrong_assign_type(
-                &var.var_to_call.name,
+                &var.0 .0,
                 self.get_ty_from_val(self.current_token).to_string(),
                 var_ty.to_string(),
             );
@@ -518,7 +518,7 @@ impl<'a> Parser<'a> {
 
         val = Box::new(self.parse_list(self.current_token));
 
-        AssignToVarNode::new(var, val)
+        AssignToVarNode(var, val)
     }
 
     fn parse_assign_to_var_arr(&mut self, var_to_assign: Node<'a>) -> AssignToVarArrNode<'a> {
@@ -532,14 +532,7 @@ impl<'a> Parser<'a> {
             self.next();
         }
 
-        let var_ty: VarType = var
-            .var_to_call
-            .var_to_call
-            .ty
-            .clone()
-            .right()
-            .unwrap()
-            .to_var_type();
+        let var_ty: VarType = var.0 .0 .1.clone().right().unwrap().to_var_type();
 
         if var_ty != self.get_ty_from_val(self.current_token) {
             Error::new(
@@ -548,7 +541,7 @@ impl<'a> Parser<'a> {
                 self.file_name.clone(),
             )
             .throw_wrong_assign_type(
-                &var.var_to_call.var_to_call.name,
+                &var.0 .0 .0,
                 self.get_ty_from_val(self.current_token).to_string(),
                 var_ty.to_string(),
             );
@@ -556,6 +549,6 @@ impl<'a> Parser<'a> {
 
         let val: Box<Node> = Box::new(self.parse_list(self.current_token));
 
-        AssignToVarArrNode::new(var, index, val)
+        AssignToVarArrNode(var, index, val)
     }
 }

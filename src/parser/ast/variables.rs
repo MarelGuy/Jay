@@ -71,99 +71,24 @@ impl ArrayVarType {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct VarNode<'a> {
-    pub name: String,
-    pub ty: Either<VarType, ArrayVarType>,
-    pub val: Either<Box<Node<'a>>, Vec<ArrElem<'a>>>,
-    pub is_mut: bool,
-}
-
-impl<'a> VarNode<'a> {
-    pub fn new(
-        name: String,
-        ty: Either<VarType, ArrayVarType>,
-        val: Either<Box<Node<'a>>, Vec<ArrElem<'a>>>,
-        is_mut: bool,
-    ) -> Self {
-        Self {
-            name,
-            ty,
-            val,
-            is_mut,
-        }
-    }
-}
+pub struct VarNode<'a>(
+    pub String,
+    pub Either<VarType, ArrayVarType>,
+    pub Either<Box<Node<'a>>, Vec<ArrElem<'a>>>,
+    pub bool,
+);
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct ArrElem<'a> {
-    pub value: Box<Node<'a>>,
-    pub index: isize,
-}
-
-impl<'a> ArrElem<'a> {
-    pub fn new(value: Box<Node<'a>>, index: isize) -> Self {
-        Self { value, index }
-    }
-}
+pub struct ArrElem<'a>(pub Box<Node<'a>>, pub isize);
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct CallVarNode<'a> {
-    pub var_to_call: VarNode<'a>,
-}
-
-impl<'a> CallVarNode<'a> {
-    pub fn new(var_to_call: VarNode<'a>) -> Self {
-        Self { var_to_call }
-    }
-}
+pub struct CallVarNode<'a>(pub VarNode<'a>);
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct CallVarArrNode<'a> {
-    pub var_to_call: CallVarNode<'a>,
-    pub index_to_call: isize,
-}
-
-impl<'a> CallVarArrNode<'a> {
-    pub fn new(var_to_call: CallVarNode<'a>, index_to_call: isize) -> Self {
-        Self {
-            var_to_call,
-            index_to_call,
-        }
-    }
-}
+pub struct CallVarArrNode<'a>(pub CallVarNode<'a>, pub isize);
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct AssignToVarNode<'a> {
-    pub var_to_call: CallVarNode<'a>,
-    pub val_to_assign: Box<Node<'a>>,
-}
-
-impl<'a> AssignToVarNode<'a> {
-    pub fn new(var_to_call: CallVarNode<'a>, val_to_assign: Box<Node<'a>>) -> Self {
-        Self {
-            var_to_call,
-            val_to_assign,
-        }
-    }
-}
+pub struct AssignToVarNode<'a>(pub CallVarNode<'a>, pub Box<Node<'a>>);
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct AssignToVarArrNode<'a> {
-    pub var_to_call: CallVarArrNode<'a>,
-    pub index: isize,
-    pub val_to_assign: Box<Node<'a>>,
-}
-
-impl<'a> AssignToVarArrNode<'a> {
-    pub fn new(
-        var_to_call: CallVarArrNode<'a>,
-        index: isize,
-        val_to_assign: Box<Node<'a>>,
-    ) -> Self {
-        Self {
-            var_to_call,
-            index,
-            val_to_assign,
-        }
-    }
-}
+pub struct AssignToVarArrNode<'a>(pub CallVarArrNode<'a>, pub isize, pub Box<Node<'a>>);
