@@ -4,7 +4,7 @@ use std::vec;
 use crate::lexer::token::{Token, TokenType};
 use crate::{error_handler::Error, lexer::token::Span};
 
-use self::ast::variables::AssignToVarArrNode;
+use self::ast::variables::{AssignToVarArrNode, DotNotationNode};
 use self::ast::{
     primitive_node::PrimitiveTypeNode,
     variables::{
@@ -195,11 +195,11 @@ impl<'a> Parser<'a> {
                     let mut tok_stream: Vec<Token> = vec![];
 
                     loop {
-                        tok_stream.push(token);
+                        tok_stream.push(self.current_token);
 
                         self.next();
 
-                        if token.token_type == TokenType::Semicolon
+                        if self.current_token.token_type == TokenType::Semicolon
                             || self.current_token.token_type == TokenType::Colon
                             || self.current_token.token_type == TokenType::CloseBracket
                         {
@@ -231,16 +231,23 @@ impl<'a> Parser<'a> {
                                 is_var_node = true;
                             }
 
-                            if self.peek().token_type == TokenType::Assign {
-                                if is_var_node == true {
-                                    call_var_node = Node(Nodes::AssignToVarNode(
-                                        self.parse_assign_to_var(call_var_node),
-                                    ));
-                                } else {
-                                    call_var_node = Node(Nodes::AssignToVarArrNode(
-                                        self.parse_assign_to_var_arr(call_var_node),
-                                    ));
+                            match self.peek().token_type {
+                                TokenType::Assign => {
+                                    if is_var_node == true {
+                                        call_var_node = Node(Nodes::AssignToVarNode(
+                                            self.parse_assign_to_var(call_var_node),
+                                        ));
+                                    } else {
+                                        call_var_node = Node(Nodes::AssignToVarArrNode(
+                                            self.parse_assign_to_var_arr(call_var_node),
+                                        ));
+                                    }
                                 }
+                                TokenType::Dot => {
+                                    call_var_node =
+                                        Node(Nodes::DotNotationNode(self.parse_dot_notation()))
+                                }
+                                _ => (),
                             }
 
                             call_var_node
@@ -268,6 +275,7 @@ impl<'a> Parser<'a> {
 
     #[rustfmt::skip]    fn parse_primitive_type_node(&mut self) -> PrimitiveTypeNode<'a> { PrimitiveTypeNode(self.current_token) }
 
+    // Variables
     fn parse_var(&mut self) -> VarNode<'a> {
         let mut is_mut: bool = false;
 
@@ -555,5 +563,9 @@ impl<'a> Parser<'a> {
         let val: Box<Node> = Box::new(self.parse_list(self.current_token));
 
         AssignToVarArrNode::new(var, index, val)
+    }
+
+    fn parse_dot_notation(&self) -> DotNotationNode<'a> {
+        todo!();
     }
 }
