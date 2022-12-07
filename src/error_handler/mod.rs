@@ -3,6 +3,7 @@ use std::process::exit;
 
 use crate::lexer::token::Token;
 
+#[derive(Debug, PartialEq, Clone)]
 pub struct Error<'a> {
     pub token: Token<'a>,
     e_str: ColoredString,

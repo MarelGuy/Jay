@@ -4,6 +4,7 @@ use std::vec;
 use crate::lexer::token::{Token, TokenType};
 use crate::{error_handler::Error, lexer::token::Span};
 
+use self::ast::functions::{ArgNode, FunctionNode};
 use self::ast::variables::AssignToVarArrNode;
 use self::ast::{
     primitive_node::PrimitiveTypeNode,
@@ -16,6 +17,7 @@ use self::ast::{
 pub(crate) mod ast;
 mod math;
 
+#[derive(Debug, PartialEq, Clone)]
 pub struct Parser<'a> {
     token_stream: Vec<Token<'a>>,
     file_name: String,
@@ -31,7 +33,8 @@ pub struct Parser<'a> {
 }
 
 impl<'a> Parser<'a> {
-    // Main functions
+    // * Main functions
+
     pub fn new(token_stream: Vec<Token<'a>>, file_name: String, lines: Vec<String>) -> Self {
         let init_tok: Token = token_stream[0].clone();
 
@@ -68,7 +71,7 @@ impl<'a> Parser<'a> {
         self.error_handler.line_string = self.get_line(self.current_token.line);
     }
 
-    // Flow functions
+    // * Flow functions
 
     fn back(&mut self) {
         self.tok_i -= 1;
@@ -98,7 +101,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    // Type functions
+    // * Type functions
 
     fn get_ty(&mut self) -> VarType {
         match self.current_token.token_type {
@@ -164,7 +167,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    // Search vecs functions
+    // * Search vecs functions
 
     fn search_var_arr(&mut self, string_to_search: String) -> Result<usize, usize> {
         self.var_vec
@@ -175,7 +178,8 @@ impl<'a> Parser<'a> {
             .binary_search(&string_to_search)
     }
 
-    // Parser
+    // * Parser
+
     fn parse_list(&mut self, token: Token<'a>) -> Node<'a> {
         match token.token_type {
             TokenType::Semicolon => Node(Nodes::EOL),
@@ -261,6 +265,7 @@ impl<'a> Parser<'a> {
             TokenType::Let | TokenType::Var | TokenType::Const => {
                 Node(Nodes::VarNode(self.parse_var()))
             }
+            TokenType::Func => Node(Nodes::FunctionNode(self.parse_function())),
             _ => {
                 self.update_error_handler();
                 self.error_handler.throw_unkown_token();
@@ -273,7 +278,8 @@ impl<'a> Parser<'a> {
         PrimitiveTypeNode(self.current_token)
     }
 
-    // Variables
+    // * Variables
+
     fn parse_var(&mut self) -> VarNode<'a> {
         let mut is_mut: bool = false;
 
@@ -412,6 +418,7 @@ impl<'a> Parser<'a> {
             }
 
             if self.peek().token_type == TokenType::OpenBracket {
+                // * Don't delete this variable.
                 let idk0: CallVarArrNode = self.parse_call_var_arr_node();
 
                 node_to_parse = idk0
@@ -550,5 +557,26 @@ impl<'a> Parser<'a> {
         let val: Box<Node> = Box::new(self.parse_list(self.current_token));
 
         AssignToVarArrNode(var, index, val)
+    }
+
+    // * Functions
+
+    fn parse_function(&mut self) -> FunctionNode<'a> {
+        self.next();
+
+        let func_name: String = self.current_token.slice.into();
+
+        self.next();
+        self.next();
+
+        while self.current_token.token_type != TokenType::CloseParen {
+            self.parse_func_arg();
+        }
+
+        todo!()
+    }
+
+    fn parse_func_arg(&mut self) -> ArgNode {
+        todo!()
     }
 }

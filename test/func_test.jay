@@ -1,7 +1,9 @@
-func yay(lmao: int, peppe: string): string {
-    let lmao: int = 8+1;
+//func yay(lmao: int, peppe: string): string {
+//    let lmao: int = 8+1;
 
-    return_if 2 > 3 lmao;
-}
+//    return_if 2 > 3 lmao;
+//}
 
-let lmao: string = yay(2, "haha");
+//let lmao: string = yay(2, "haha");
+
+func yay(lmao: int): string {}
