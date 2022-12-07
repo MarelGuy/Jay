@@ -93,16 +93,6 @@ impl<'a> Error<'a> {
         exit(0)
     }
 
-    // Type errors
-    pub fn throw_type_name_already_used(&self, name: String) {
-        println!(
-            "{}, type name: \"{}\" already used in this scope",
-            self.e_str, name
-        );
-        self.print(0);
-        exit(0)
-    }
-
     pub fn throw_ty_not_found(&self) {
         println!(
             "{}: type \"{}\" not found in this scope",
