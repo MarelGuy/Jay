@@ -121,5 +121,5 @@ fn main() {
     }
 
     let elapsed: Duration = now.elapsed();
-    println!("completed in: {:.2?}", elapsed);
+    print!("completed in: {:.2?}", elapsed);
 }
