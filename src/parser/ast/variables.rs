@@ -167,14 +167,3 @@ impl<'a> AssignToVarArrNode<'a> {
         }
     }
 }
-
-#[derive(Debug, PartialEq, Clone)]
-pub struct DotNotationNode<'a> {
-    nodes: Vec<Either<CallVarNode<'a>, CallVarArrNode<'a>>>,
-}
-
-impl<'a> DotNotationNode<'a> {
-    pub fn new(nodes: Vec<Either<CallVarNode<'a>, CallVarArrNode<'a>>>) -> Self {
-        Self { nodes }
-    }
-}

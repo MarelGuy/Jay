@@ -8,6 +8,5 @@ lmao2[2];
 lmao2[lmao2[lmao0]];
 lmao2[lmao2[lmao2[lmao0]]];
 
-//lmao1.idk.f[2]:
 lmao0 = 3;
-lmao2[3] = '5';
+lmao2[3] = 3;

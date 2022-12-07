@@ -4,7 +4,7 @@ use std::vec;
 use crate::lexer::token::{Token, TokenType};
 use crate::{error_handler::Error, lexer::token::Span};
 
-use self::ast::variables::{AssignToVarArrNode, DotNotationNode};
+use self::ast::variables::AssignToVarArrNode;
 use self::ast::{
     primitive_node::PrimitiveTypeNode,
     variables::{
@@ -243,10 +243,6 @@ impl<'a> Parser<'a> {
                                         ));
                                     }
                                 }
-                                TokenType::Dot => {
-                                    call_var_node =
-                                        Node(Nodes::DotNotationNode(self.parse_dot_notation()))
-                                }
                                 _ => (),
                             }
 
@@ -273,7 +269,9 @@ impl<'a> Parser<'a> {
         }
     }
 
-    #[rustfmt::skip]    fn parse_primitive_type_node(&mut self) -> PrimitiveTypeNode<'a> { PrimitiveTypeNode(self.current_token) }
+    fn parse_primitive_type_node(&mut self) -> PrimitiveTypeNode<'a> {
+        PrimitiveTypeNode(self.current_token)
+    }
 
     // Variables
     fn parse_var(&mut self) -> VarNode<'a> {
@@ -298,7 +296,6 @@ impl<'a> Parser<'a> {
         });
 
         self.next();
-
         self.next();
 
         let ty: Either<VarType, ArrayVarType>;
@@ -316,27 +313,27 @@ impl<'a> Parser<'a> {
 
         loop {
             if self.current_token.token_type == TokenType::OpenBracket {
+                self.next();
+
                 let mut index: isize = 0;
                 let mut value: Vec<ArrElem<'a>> = vec![];
-
-                self.next();
 
                 loop {
                     let val_ty: VarType = self.get_ty_from_val(self.current_token);
 
-                    if val_ty != ty.clone().right().unwrap().to_var_type() {
+                    if val_ty != ty.clone().unwrap_right().to_var_type() {
                         self.update_error_handler();
                         self.error_handler.throw_wrong_assign_type(
                             &name,
                             val_ty.to_string(),
-                            ty.clone().right().unwrap().to_var_type().to_string(),
+                            ty.clone().unwrap_right().to_var_type().to_string(),
                         );
                     }
 
-                    if &index == ty.clone().right().unwrap().get_init_num() {
+                    if &index == ty.clone().unwrap_right().get_init_num() {
                         self.update_error_handler();
                         self.error_handler
-                            .throw_array_out_of_bounds(ty.clone().right().unwrap().get_init_num());
+                            .throw_array_out_of_bounds(ty.clone().unwrap_right().get_init_num());
                     }
 
                     value.push(ArrElem::new(
@@ -361,30 +358,27 @@ impl<'a> Parser<'a> {
                 return new_node;
             }
 
-            let val_ty = self.get_ty_from_val(self.current_token);
+            let val_ty: VarType = self.get_ty_from_val(self.current_token);
 
-            if val_ty != ty.clone().left().unwrap() {
+            if val_ty != ty.clone().unwrap_left() {
                 self.update_error_handler();
                 self.error_handler.throw_wrong_assign_type(
                     &name,
                     val_ty.to_string(),
-                    ty.clone().left().unwrap().to_string(),
+                    ty.clone().unwrap_left().to_string(),
                 );
             }
-            let value: Node<'a> = self.parse_list(self.current_token);
 
-            self.next();
+            let new_node: VarNode = VarNode::new(
+                name,
+                ty,
+                Either::Left(Box::new(self.parse_list(self.current_token))),
+                is_mut,
+            );
 
-            if self.current_token.token_type == TokenType::Semicolon {
-                self.back();
+            self.var_vec.push(new_node.clone());
 
-                let new_node: VarNode =
-                    VarNode::new(name, ty, Either::Left(Box::new(value)), is_mut);
-
-                self.var_vec.push(new_node.clone());
-
-                return new_node;
-            }
+            return new_node;
         }
     }
 
@@ -431,7 +425,7 @@ impl<'a> Parser<'a> {
                     .unwrap()
                     .value;
             } else {
-                node_to_parse = self.parse_call_var_node().var_to_call.val.left().unwrap();
+                node_to_parse = self.parse_call_var_node().var_to_call.val.unwrap_left();
             }
 
             let unpacked_node: Token = node_to_parse.0.get_primitive().unwrap();
@@ -507,7 +501,7 @@ impl<'a> Parser<'a> {
         let var: CallVarNode<'a> = var_to_assign.0.get_call_var_node().unwrap();
         let val: Box<Node<'a>>;
 
-        let var_ty: VarType = var.var_to_call.ty.clone().left().unwrap();
+        let var_ty: VarType = var.var_to_call.ty.clone().unwrap_left();
 
         if var_ty != self.get_ty_from_val(self.current_token) {
             Error::new(
@@ -563,9 +557,5 @@ impl<'a> Parser<'a> {
         let val: Box<Node> = Box::new(self.parse_list(self.current_token));
 
         AssignToVarArrNode::new(var, index, val)
-    }
-
-    fn parse_dot_notation(&self) -> DotNotationNode<'a> {
-        todo!();
     }
 }
