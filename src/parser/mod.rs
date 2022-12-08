@@ -29,13 +29,18 @@ pub struct Parser<'a> {
     error_handler: Error<'a>,
 
     // Vectors
-    var_vec: Vec<VarNode<'a>>,
+    current_scope: ScopeNode<'a>,
 }
 
 impl<'a> Parser<'a> {
     // * Main functions
 
-    pub fn new(token_stream: Vec<Token<'a>>, file_name: String, lines: Vec<String>) -> Self {
+    pub fn new(
+        token_stream: Vec<Token<'a>>,
+        file_name: String,
+        lines: Vec<String>,
+        current_scope: ScopeNode<'a>,
+    ) -> Self {
         let init_tok: Token = token_stream[0].clone();
 
         Self {
@@ -48,7 +53,7 @@ impl<'a> Parser<'a> {
 
             error_handler: Error::new(init_tok, "".into(), file_name),
 
-            var_vec: vec![],
+            current_scope,
         }
     }
 
@@ -182,7 +187,8 @@ impl<'a> Parser<'a> {
     // * Search vecs functions
 
     fn search_var_arr(&mut self, string_to_search: String) -> Result<usize, usize> {
-        self.var_vec
+        self.current_scope
+            .var_vec
             .clone()
             .into_iter()
             .map(|x| -> String { x.0 })
@@ -361,7 +367,7 @@ impl<'a> Parser<'a> {
 
                 let new_node: VarNode = VarNode(name, ty, Either::Right(value), is_mut);
 
-                self.var_vec.push(new_node.clone());
+                self.current_scope.var_vec.push(new_node.clone());
 
                 return new_node;
             }
@@ -384,7 +390,7 @@ impl<'a> Parser<'a> {
                 is_mut,
             );
 
-            self.var_vec.push(new_node.clone());
+            self.current_scope.var_vec.push(new_node.clone());
 
             return new_node;
         }
@@ -392,6 +398,7 @@ impl<'a> Parser<'a> {
 
     fn parse_call_var_node(&mut self) -> CallVarNode<'a> {
         let var_to_call: VarNode = self
+            .current_scope
             .var_vec
             .clone()
             .into_iter()
@@ -550,6 +557,7 @@ impl<'a> Parser<'a> {
 
     // * Functions
 
+    // TODO: Error handling
     fn parse_function(&mut self) -> FunctionNode<'a> {
         self.next();
 
@@ -573,15 +581,22 @@ impl<'a> Parser<'a> {
         self.next();
         self.next();
 
-        println!("{:?}", self.current_token);
-
         let scope: ScopeNode = self.parse_scope();
 
         FunctionNode::new(name, args, ret_ty, scope)
     }
 
     fn parse_scope(&mut self) -> ScopeNode<'a> {
-        todo!()
+        self.current_scope = ScopeNode::new(vec![], vec![]);
+
+        while self.current_token.token_type != TokenType::CloseBrace {
+            let node: Node = self.parse_list(self.current_token);
+
+            self.current_scope.scope.push(node);
+            self.next();
+        }
+
+        return self.current_scope.clone();
     }
 
     fn parse_func_arg(&mut self) -> ArgNode {

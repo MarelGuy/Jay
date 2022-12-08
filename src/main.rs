@@ -1,6 +1,6 @@
 // use compiler::Compiler;
 use lexer::Lexer;
-use parser::Parser;
+use parser::{ast::functions::ScopeNode, Parser};
 use std::{
     env::args,
     fs::{read_to_string, File},
@@ -43,7 +43,12 @@ fn run(input: &str, file_name: &str) {
 
     let lines: Vec<String> = input.lines().map(|line| line.to_string()).collect();
 
-    let mut parser: Parser = Parser::new(tokens, file_name.into(), lines);
+    let mut parser: Parser = Parser::new(
+        tokens,
+        file_name.into(),
+        lines,
+        ScopeNode::new(vec![], vec![]),
+    );
     parser.parse();
 
     let ast: String = parser

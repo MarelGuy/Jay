@@ -1,7 +1,5 @@
 use either::Either;
 
-use crate::parser::Parser;
-
 use super::{
     variables::{ArrayVarType, VarNode, VarType},
     Node,
@@ -33,7 +31,7 @@ impl<'a> FunctionNode<'a> {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ScopeNode<'a> {
-    scope: Vec<Node<'a>>,
+    pub scope: Vec<Node<'a>>,
     pub var_vec: Vec<VarNode<'a>>,
 }
 

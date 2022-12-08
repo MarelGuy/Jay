@@ -6,7 +6,12 @@
 
 //let lmao: string = yay(2, "haha");
 
-
-func yay(lmao0: int, lmao1: int): string {
+func yay0(lmao0: int, lmao1: int): string {
     let lmao: int = 2;
+
+    1+1;
+}
+
+func yay1(lmao0: int, lmao1: int): string {
+    let lmao: int = 3;
 }
