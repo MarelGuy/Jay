@@ -4,7 +4,7 @@ use std::vec;
 use crate::lexer::token::{Token, TokenType};
 use crate::{error_handler::Error, lexer::token::Span};
 
-use self::ast::functions::{ArgNode, FunctionNode};
+use self::ast::functions::{ArgNode, FunctionNode, ScopeNode};
 use self::ast::variables::AssignToVarArrNode;
 use self::ast::{
     primitive_node::PrimitiveTypeNode,
@@ -102,6 +102,18 @@ impl<'a> Parser<'a> {
     }
 
     // * Type functions
+
+    fn parse_ty(&mut self) -> Either<VarType, ArrayVarType> {
+        if self.peek().token_type == TokenType::OpenBracket {
+            let tmp: ArrayVarType = self.get_array_ty();
+
+            self.next();
+
+            Right(tmp)
+        } else {
+            Left(self.get_ty())
+        }
+    }
 
     fn get_ty(&mut self) -> VarType {
         match self.current_token.token_type {
@@ -222,18 +234,16 @@ impl<'a> Parser<'a> {
                         .search_var_arr(self.current_token.slice.into())
                         .is_ok()
                         .then(|| {
-                            let mut call_var_node: Node;
                             let is_var_node: bool;
 
-                            if self.peek().token_type == TokenType::OpenBracket {
-                                call_var_node =
-                                    Node(Nodes::CallVarArrNode(self.parse_call_var_arr_node()));
-                                is_var_node = false;
-                            } else {
-                                call_var_node =
-                                    Node(Nodes::CallVarNode(self.parse_call_var_node()));
-                                is_var_node = true;
-                            }
+                            let mut call_var_node: Node =
+                                if self.peek().token_type == TokenType::OpenBracket {
+                                    is_var_node = false;
+                                    Node(Nodes::CallVarArrNode(self.parse_call_var_arr_node()))
+                                } else {
+                                    is_var_node = true;
+                                    Node(Nodes::CallVarNode(self.parse_call_var_node()))
+                                };
 
                             match self.peek().token_type {
                                 TokenType::Assign => {
@@ -281,11 +291,11 @@ impl<'a> Parser<'a> {
     // * Variables
 
     fn parse_var(&mut self) -> VarNode<'a> {
-        let mut is_mut: bool = false;
-
-        if self.current_token.token_type == TokenType::Var {
-            is_mut = true;
-        }
+        let is_mut: bool = if self.current_token.token_type == TokenType::Var {
+            true
+        } else {
+            false
+        };
 
         self.next();
 
@@ -304,15 +314,7 @@ impl<'a> Parser<'a> {
         self.next();
         self.next();
 
-        let ty: Either<VarType, ArrayVarType>;
-
-        if self.peek().token_type == TokenType::OpenBracket {
-            ty = Right(self.get_array_ty());
-
-            self.next();
-        } else {
-            ty = Left(self.get_ty());
-        }
+        let ty: Either<VarType, ArrayVarType> = self.parse_ty();
 
         self.next();
         self.next();
@@ -403,8 +405,6 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_index(&mut self) -> isize {
-        let index_to_return: isize;
-
         if self.current_token.token_type == TokenType::Identifier {
             let node_to_parse: Box<Node<'a>>;
 
@@ -445,7 +445,7 @@ impl<'a> Parser<'a> {
                     .throw_cant_use_val_in_arr_call(val_ty.to_string());
             }
 
-            index_to_return = unpacked_node.slice.parse().unwrap();
+            unpacked_node.slice.parse().unwrap()
         } else {
             if self.current_token.token_type != TokenType::Number {
                 let val_ty: VarType = self.get_ty_from_val(self.current_token);
@@ -455,10 +455,8 @@ impl<'a> Parser<'a> {
                     .throw_cant_use_val_in_arr_call(val_ty.to_string());
             }
 
-            index_to_return = self.current_token.slice.parse().unwrap();
+            self.current_token.slice.parse().unwrap()
         }
-
-        index_to_return
     }
 
     fn parse_call_var_arr_node(&mut self) -> CallVarArrNode<'a> {
@@ -490,12 +488,9 @@ impl<'a> Parser<'a> {
                 .1
                 < index_to_call
         {
-            Error::new(
-                self.current_token,
-                self.get_line(self.current_token.line),
-                self.file_name.clone(),
-            )
-            .throw_cant_use_num_array(var_to_call.0 .0.as_str(), index_to_call);
+            self.update_error_handler();
+            self.error_handler
+                .throw_cant_use_num_array(var_to_call.0 .0.as_str(), index_to_call);
         }
 
         CallVarArrNode(var_to_call, index_to_call)
@@ -509,16 +504,13 @@ impl<'a> Parser<'a> {
         let val: Box<Node<'a>>;
 
         let var_ty: VarType = var.0 .1.clone().unwrap_left();
+        let val_ty: VarType = self.get_ty_from_val(self.current_token);
 
-        if var_ty != self.get_ty_from_val(self.current_token) {
-            Error::new(
-                self.current_token,
-                self.get_line(self.current_token.line),
-                self.file_name.clone(),
-            )
-            .throw_wrong_assign_type(
+        if var_ty != val_ty {
+            self.update_error_handler();
+            self.error_handler.throw_wrong_assign_type(
                 &var.0 .0,
-                self.get_ty_from_val(self.current_token).to_string(),
+                val_ty.to_string(),
                 var_ty.to_string(),
             );
         }
@@ -540,16 +532,13 @@ impl<'a> Parser<'a> {
         }
 
         let var_ty: VarType = var.0 .0 .1.clone().right().unwrap().to_var_type();
+        let val_ty: VarType = self.get_ty_from_val(self.current_token);
 
-        if var_ty != self.get_ty_from_val(self.current_token) {
-            Error::new(
-                self.current_token,
-                self.get_line(self.current_token.line),
-                self.file_name.clone(),
-            )
-            .throw_wrong_assign_type(
+        if var_ty != val_ty {
+            self.update_error_handler();
+            self.error_handler.throw_wrong_assign_type(
                 &var.0 .0 .0,
-                self.get_ty_from_val(self.current_token).to_string(),
+                val_ty.to_string(),
                 var_ty.to_string(),
             );
         }
@@ -564,19 +553,47 @@ impl<'a> Parser<'a> {
     fn parse_function(&mut self) -> FunctionNode<'a> {
         self.next();
 
-        let func_name: String = self.current_token.slice.into();
+        let name: String = self.current_token.slice.into();
 
         self.next();
-        self.next();
+
+        let args: Vec<ArgNode> = vec![];
 
         while self.current_token.token_type != TokenType::CloseParen {
+            self.next();
+
             self.parse_func_arg();
         }
 
+        self.next();
+        self.next();
+
+        let ret_ty: Either<VarType, ArrayVarType> = self.parse_ty();
+
+        self.next();
+        self.next();
+
+        println!("{:?}", self.current_token);
+
+        let scope: ScopeNode = self.parse_scope();
+
+        FunctionNode::new(name, args, ret_ty, scope)
+    }
+
+    fn parse_scope(&mut self) -> ScopeNode<'a> {
         todo!()
     }
 
     fn parse_func_arg(&mut self) -> ArgNode {
-        todo!()
+        let name: String = self.current_token.slice.into();
+
+        self.next();
+        self.next();
+
+        let ty: Either<VarType, ArrayVarType> = self.parse_ty();
+
+        self.next();
+
+        ArgNode::new(name, ty)
     }
 }

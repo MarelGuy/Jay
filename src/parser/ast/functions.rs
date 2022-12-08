@@ -2,12 +2,15 @@ use either::Either;
 
 use crate::parser::Parser;
 
-use super::variables::{ArrayVarType, VarNode, VarType};
+use super::{
+    variables::{ArrayVarType, VarNode, VarType},
+    Node,
+};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct FunctionNode<'a> {
     name: String,
-    args: ArgNode,
+    args: Vec<ArgNode>,
     scope: ScopeNode<'a>,
     ret_ty: Either<VarType, ArrayVarType>,
 }
@@ -15,7 +18,7 @@ pub struct FunctionNode<'a> {
 impl<'a> FunctionNode<'a> {
     pub fn new(
         name: String,
-        args: ArgNode,
+        args: Vec<ArgNode>,
         ret_ty: Either<VarType, ArrayVarType>,
         scope: ScopeNode<'a>,
     ) -> Self {
@@ -30,12 +33,12 @@ impl<'a> FunctionNode<'a> {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ScopeNode<'a> {
-    scope: Parser<'a>,
-    var_vec: Vec<VarNode<'a>>,
+    scope: Vec<Node<'a>>,
+    pub var_vec: Vec<VarNode<'a>>,
 }
 
 impl<'a> ScopeNode<'a> {
-    pub fn new(scope: Parser<'a>, var_vec: Vec<VarNode<'a>>) -> Self {
+    pub fn new(scope: Vec<Node<'a>>, var_vec: Vec<VarNode<'a>>) -> Self {
         Self { scope, var_vec }
     }
 }
@@ -43,11 +46,11 @@ impl<'a> ScopeNode<'a> {
 #[derive(Debug, PartialEq, Clone)]
 pub struct ArgNode {
     name: String,
-    ty: VarType,
+    ty: Either<VarType, ArrayVarType>,
 }
 
 impl ArgNode {
-    pub fn new(name: String, ty: VarType) -> Self {
+    pub fn new(name: String, ty: Either<VarType, ArrayVarType>) -> Self {
         Self { name, ty }
     }
 }
