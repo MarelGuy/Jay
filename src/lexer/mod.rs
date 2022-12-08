@@ -28,8 +28,8 @@ impl From<Range<usize>> for Span {
 impl<'a> Lexer<'a> {
     pub fn new(input: &'a str) -> Self {
         Self {
-            logos_iter: TokenType::lexer(&input).spanned().peekable(),
-            input: &input,
+            logos_iter: TokenType::lexer(input).spanned().peekable(),
+            input,
         }
     }
 }

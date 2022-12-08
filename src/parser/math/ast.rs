@@ -34,13 +34,11 @@ pub struct MathOpTypeNode {
 
 impl MathOpTypeNode {
     pub fn new(op: OpType) -> Self {
-        let prio: i8;
-
-        if op == OpType::Plus || op == OpType::Minus {
-            prio = 1
+        let prio: i8 = if op == OpType::Plus || op == OpType::Minus {
+            1
         } else {
-            prio = 2
-        }
+            2
+        };
 
         Self { op, prio }
     }

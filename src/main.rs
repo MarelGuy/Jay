@@ -61,7 +61,7 @@ fn run(input: &str, file_name: &str) {
         Some(ref arg) if arg == "--ast" => {
             File::create("./ast.jast")
                 .unwrap()
-                .write(ast.as_bytes())
+                .write_all(ast.as_bytes())
                 .unwrap();
         }
         _ => {}

@@ -1,3 +1,6 @@
+use core::fmt;
+use std::fmt::{Display, Formatter};
+
 use crate::lexer::token::Token;
 
 use self::{
@@ -37,7 +40,7 @@ pub enum Nodes<'a> {
     MathIdNode(MathIdNode<'a>),
 
     // General
-    EOL,
+    Eol,
     NullNode,
 }
 
@@ -67,8 +70,8 @@ impl<'a> Nodes<'a> {
 #[derive(Debug, PartialEq, Clone)]
 pub struct Node<'a>(pub Nodes<'a>);
 
-impl<'a> Node<'a> {
-    pub fn to_string(&self) -> String {
-        format!("{:#?} \n", self)
+impl<'a> Display for Node<'a> {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
     }
 }
