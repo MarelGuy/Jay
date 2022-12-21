@@ -7,7 +7,7 @@ use super::{
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct FunctionNode<'a> {
-    name: String,
+    pub name: String,
     args: Vec<ArgNode>,
     scope: ScopeNode<'a>,
     ret_ty: Either<VarType, ArrayVarType>,
@@ -33,11 +33,20 @@ impl<'a> FunctionNode<'a> {
 pub struct ScopeNode<'a> {
     pub scope: Vec<Node<'a>>,
     pub var_vec: Vec<VarNode<'a>>,
+    pub func_vec: Vec<FunctionNode<'a>>,
 }
 
 impl<'a> ScopeNode<'a> {
-    pub fn new(scope: Vec<Node<'a>>, var_vec: Vec<VarNode<'a>>) -> Self {
-        Self { scope, var_vec }
+    pub fn new(
+        scope: Vec<Node<'a>>,
+        var_vec: Vec<VarNode<'a>>,
+        func_vec: Vec<FunctionNode<'a>>,
+    ) -> Self {
+        Self {
+            scope,
+            var_vec,
+            func_vec,
+        }
     }
 }
 
@@ -50,5 +59,16 @@ pub struct ArgNode {
 impl ArgNode {
     pub fn new(name: String, ty: Either<VarType, ArrayVarType>) -> Self {
         Self { name, ty }
+    }
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct CallFuncNode {
+    func_node: usize,
+}
+
+impl CallFuncNode {
+    pub fn new(func_node: usize) -> Self {
+        Self { func_node }
     }
 }

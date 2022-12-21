@@ -47,7 +47,7 @@ fn run(input: &str, file_name: &str) {
         tokens,
         file_name.into(),
         lines,
-        ScopeNode::new(vec![], vec![]),
+        ScopeNode::new(vec![], vec![], vec![]),
     );
     parser.parse();
 

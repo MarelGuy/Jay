@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter};
 use crate::lexer::token::Token;
 
 use self::{
-    functions::FunctionNode,
+    functions::{CallFuncNode, FunctionNode},
     primitive_node::PrimitiveTypeNode,
     variables::{AssignToVarArrNode, AssignToVarNode, CallVarArrNode, CallVarNode, VarNode},
 };
@@ -32,6 +32,7 @@ pub enum Nodes<'a> {
 
     // Functions
     FunctionNode(FunctionNode<'a>),
+    CallFuncNode(CallFuncNode),
 
     // External Math AST
     ProcessedMathNode(ProcessedMathNode<'a>),

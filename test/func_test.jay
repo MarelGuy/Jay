@@ -12,6 +12,4 @@ func yay0(lmao0: int, lmao1: int): string {
     1+1;
 }
 
-func yay1(lmao0: int, lmao1: int): string {
-    let lmao: int = 3;
-}
+yay0()
