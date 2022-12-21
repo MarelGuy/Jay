@@ -103,6 +103,17 @@ impl<'a> Error<'a> {
         exit(0)
     }
 
+    // Functions errors
+
+    pub fn throw_arg_alreay_used(&self, arg_name: String) {
+        println!(
+            "{}: argument name: \"{}\" already used",
+            self.e_str, arg_name
+        );
+        self.print(0);
+        exit(0)
+    }
+
     // General errors
     pub fn throw_unkown_token(&self) {
         println!("{}: unknown token: \"{}\"", self.e_str, self.token.slice);
