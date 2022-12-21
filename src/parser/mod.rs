@@ -548,12 +548,15 @@ impl<'a> Parser<'a> {
 
         self.next();
 
-        let args: Vec<ArgNode> = vec![];
+        let mut args: Vec<ArgNode> = vec![];
+        let mut args_name: Vec<String> = vec![];
 
         while self.current_token.token_type != TokenType::CloseParen {
             self.next();
 
-            self.parse_func_arg();
+            let arg: ArgNode = self.parse_func_arg(&mut args_name);
+
+            args.push(arg.clone());
         }
 
         self.next();
@@ -582,8 +585,20 @@ impl<'a> Parser<'a> {
         self.current_scope.clone()
     }
 
-    fn parse_func_arg(&mut self) -> ArgNode {
+    fn parse_func_arg(&mut self, arg_vec: &mut Vec<String>) -> ArgNode {
         let name: String = self.current_token.slice.into();
+
+        if arg_vec
+            .clone()
+            .into_iter()
+            .find(|arg_name: &String| arg_name == &name)
+            .is_none()
+        {
+            arg_vec.push(name.clone());
+        } else {
+            self.update_error_handler();
+            self.error_handler.throw_arg_alreay_used(name.clone());
+        }
 
         self.next();
         self.next();

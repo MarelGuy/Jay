@@ -43,7 +43,7 @@ impl<'a> ScopeNode<'a> {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ArgNode {
-    name: String,
+    pub name: String,
     ty: Either<VarType, ArrayVarType>,
 }
 
