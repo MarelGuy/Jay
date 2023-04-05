@@ -154,26 +154,22 @@ impl<'a> Parser<'a> {
                     let found_node_idx: (Result<usize, usize>, i8) =
                         self.search_node(String::from(token.slice), true, 1);
 
-                    let found_node: FunctionNode<'a>;
-
-                    if found_node_idx.1 == 0 {
-                        found_node = self.global_scope.func_vec[found_node_idx.0.unwrap()].clone();
+                    let found_node: FunctionNode<'a> = if found_node_idx.1 == 0 {
+                        self.global_scope.func_vec[found_node_idx.0.unwrap()].clone()
                     } else {
-                        found_node = self.current_scope.func_vec[found_node_idx.0.unwrap()].clone();
-                    }
+                        self.current_scope.func_vec[found_node_idx.0.unwrap()].clone()
+                    };
 
                     found_node.ret_ty.unwrap_left()
                 } else {
                     let found_node_idx: (Result<usize, usize>, i8) =
                         self.search_node(String::from(token.slice), true, 0);
 
-                    let found_node: VarNode<'a>;
-
-                    if found_node_idx.1 == 0 {
-                        found_node = self.global_scope.var_vec[found_node_idx.0.unwrap()].clone();
+                    let found_node: VarNode<'a> = if found_node_idx.1 == 0 {
+                        self.global_scope.var_vec[found_node_idx.0.unwrap()].clone()
                     } else {
-                        found_node = self.current_scope.var_vec[found_node_idx.0.unwrap()].clone();
-                    }
+                        self.current_scope.var_vec[found_node_idx.0.unwrap()].clone()
+                    };
 
                     found_node.1.unwrap_left()
                 }

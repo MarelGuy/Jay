@@ -5,4 +5,3 @@ func yay(lmao: int, peppe: string): string {
 }
 
 let lmao: string = yay(2, "haha");
-
