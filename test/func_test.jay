@@ -10,6 +10,15 @@ func yay0(lmao0: int, lmao1: int): string {
     let lmao: int = 2;
 
     1+1;
+
+    return 0;
+}
+func yay1(lmao0: int, lmao1: int): string {
+    let lmao: int = 2;
+
+    1+1;
+
+    return 0;
 }
 
-yay0()
+yay1();

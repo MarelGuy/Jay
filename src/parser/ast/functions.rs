@@ -72,3 +72,19 @@ impl CallFuncNode {
         Self { func_node }
     }
 }
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ReturnNode<'a> {
+    ret_val: Box<Node<'a>>,
+}
+
+impl<'a> ReturnNode<'a> {
+    pub fn new(ret_val: Box<Node<'a>>) -> Self {
+        Self { ret_val }
+    }
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ReturnIfNode<'a> {
+    ret_val: Box<Node<'a>>,
+}

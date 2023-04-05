@@ -4,7 +4,9 @@ use std::vec;
 use crate::lexer::token::{Token, TokenType};
 use crate::{error_handler::Error, lexer::token::Span};
 
-use self::ast::functions::{ArgNode, CallFuncNode, FunctionNode, ScopeNode};
+use self::ast::functions::{
+    ArgNode, CallFuncNode, FunctionNode, /*ReturnIfNode,*/ ReturnNode, ScopeNode,
+};
 use self::ast::variables::AssignToVarArrNode;
 use self::ast::{
     primitive_node::PrimitiveTypeNode,
@@ -26,21 +28,18 @@ pub struct Parser<'a> {
     tok_i: usize,
     pub ast: Vec<Node<'a>>,
 
+    use_global_scope: bool,
+
     error_handler: Error<'a>,
 
-    // Vectors
     current_scope: ScopeNode<'a>,
+    global_scope: ScopeNode<'a>,
 }
 
 impl<'a> Parser<'a> {
     // * Main functions
 
-    pub fn new(
-        token_stream: Vec<Token<'a>>,
-        file_name: String,
-        lines: Vec<String>,
-        current_scope: ScopeNode<'a>,
-    ) -> Self {
+    pub fn new(token_stream: Vec<Token<'a>>, file_name: String, lines: Vec<String>) -> Self {
         let init_tok: Token = token_stream[0];
 
         Self {
@@ -51,9 +50,12 @@ impl<'a> Parser<'a> {
             lines,
             ast: vec![],
 
+            use_global_scope: true,
+
             error_handler: Error::new(init_tok, "".into(), file_name),
 
-            current_scope,
+            current_scope: ScopeNode::new(vec![], vec![], vec![]),
+            global_scope: ScopeNode::new(vec![], vec![], vec![]),
         }
     }
 
@@ -195,14 +197,37 @@ impl<'a> Parser<'a> {
             .collect::<Vec<String>>()
             .binary_search(&string_to_search)
     }
-    fn search_func_vec(&mut self, string_to_search: String) -> Result<usize, usize> {
-        self.current_scope
+    fn search_func_vec(
+        &mut self,
+        string_to_search: String,
+        need_func: bool,
+    ) -> Result<usize, usize> {
+        let mut func = self
+            .current_scope
             .func_vec
             .clone()
             .into_iter()
             .map(|x| -> String { x.name })
             .collect::<Vec<String>>()
-            .binary_search(&string_to_search)
+            .binary_search(&string_to_search);
+
+        if func.is_err() {
+            func = self
+                .global_scope
+                .func_vec
+                .clone()
+                .into_iter()
+                .map(|x| -> String { x.name })
+                .collect::<Vec<String>>()
+                .binary_search(&string_to_search);
+        }
+
+        if need_func && func.is_err() {
+            self.update_error_handler();
+            self.error_handler.throw_name_not_defined(1)
+        }
+
+        func
     }
 
     // * Parser
@@ -247,7 +272,7 @@ impl<'a> Parser<'a> {
                 } else {
                     if self.peek().token_type == TokenType::OpenParen {
                         let id: usize = self
-                            .search_func_vec(self.current_token.slice.into())
+                            .search_func_vec(self.current_token.slice.into(), true)
                             .unwrap();
 
                         self.next();
@@ -286,7 +311,7 @@ impl<'a> Parser<'a> {
                         .unwrap_or_else(|| {
                             if self.current_token.token_type == TokenType::Identifier {
                                 self.update_error_handler();
-                                self.error_handler.throw_var_not_defined()
+                                self.error_handler.throw_name_not_defined(0)
                             }
 
                             Nodes::PrimitiveTypeNode(self.parse_primitive_type_node())
@@ -295,6 +320,7 @@ impl<'a> Parser<'a> {
             }
             TokenType::Let | TokenType::Var | TokenType::Const => Nodes::VarNode(self.parse_var()),
             TokenType::Func => Nodes::FunctionNode(self.parse_function()),
+            TokenType::Return => Nodes::ReturnNode(self.parse_return()),
             _ => {
                 self.update_error_handler();
                 self.error_handler.throw_unkown_token();
@@ -323,7 +349,7 @@ impl<'a> Parser<'a> {
 
         self.search_var_vec(name.clone()).is_ok().then(|| {
             self.update_error_handler();
-            self.error_handler.throw_cant_use_same_var_name();
+            self.error_handler.throw_name_already_used(0);
         });
 
         self.next();
@@ -375,7 +401,11 @@ impl<'a> Parser<'a> {
 
             let new_node: VarNode = VarNode(name, ty, Either::Right(value), is_mut);
 
-            self.current_scope.var_vec.push(new_node.clone());
+            if self.use_global_scope {
+                self.global_scope.var_vec.push(new_node.clone());
+            } else {
+                self.current_scope.var_vec.push(new_node.clone());
+            }
 
             return new_node;
         }
@@ -425,7 +455,7 @@ impl<'a> Parser<'a> {
                 .is_err()
             {
                 self.update_error_handler();
-                self.error_handler.throw_var_not_defined()
+                self.error_handler.throw_name_not_defined(0)
             }
             let node_to_parse: Box<Node<'a>> = if self.peek().token_type == TokenType::OpenBracket {
                 // * Don't delete this variable.
@@ -563,6 +593,11 @@ impl<'a> Parser<'a> {
 
         let name: String = self.current_token.slice.into();
 
+        self.search_func_vec(name.clone(), false).is_ok().then(|| {
+            self.update_error_handler();
+            self.error_handler.throw_name_already_used(1);
+        });
+
         self.next();
 
         let mut args: Vec<ArgNode> = vec![];
@@ -584,11 +619,17 @@ impl<'a> Parser<'a> {
         self.next();
         self.next();
 
+        self.use_global_scope = false;
         let scope: ScopeNode = self.parse_scope();
+        self.use_global_scope = true;
 
         let new_node: FunctionNode = FunctionNode::new(name, args, ret_ty, scope);
 
-        self.current_scope.func_vec.push(new_node.clone());
+        if self.use_global_scope {
+            self.global_scope.func_vec.push(new_node.clone());
+        } else {
+            self.current_scope.func_vec.push(new_node.clone());
+        }
 
         new_node
     }
@@ -609,11 +650,10 @@ impl<'a> Parser<'a> {
     fn parse_func_arg(&mut self, arg_vec: &mut Vec<String>) -> ArgNode {
         let name: String = self.current_token.slice.into();
 
-        if arg_vec
+        if !arg_vec
             .clone()
             .into_iter()
-            .find(|arg_name: &String| arg_name == &name)
-            .is_none()
+            .any(|arg_name: String| arg_name == name)
         {
             arg_vec.push(name.clone());
         } else {
@@ -630,4 +670,17 @@ impl<'a> Parser<'a> {
 
         ArgNode::new(name, ty)
     }
+
+    fn parse_return(&mut self) -> ReturnNode<'a> {
+        self.next();
+
+        let ret_val: Node = self.parse_list(self.current_token);
+
+        ReturnNode::new(Box::new(ret_val))
+    }
+
+    // TODO: do after if
+    // fn parse_return_if(&mut self) -> ReturnIfNode<'a> {
+    //     todo!()
+    // }
 }

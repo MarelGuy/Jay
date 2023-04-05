@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter};
 use crate::lexer::token::Token;
 
 use self::{
-    functions::{CallFuncNode, FunctionNode},
+    functions::{CallFuncNode, FunctionNode, /*ReturnIfNode,*/ ReturnNode},
     primitive_node::PrimitiveTypeNode,
     variables::{AssignToVarArrNode, AssignToVarNode, CallVarArrNode, CallVarNode, VarNode},
 };
@@ -33,6 +33,8 @@ pub enum Nodes<'a> {
     // Functions
     FunctionNode(FunctionNode<'a>),
     CallFuncNode(CallFuncNode),
+    ReturnNode(ReturnNode<'a>),
+    // ReturnIfNode(ReturnIfNode<'a>),
 
     // External Math AST
     ProcessedMathNode(ProcessedMathNode<'a>),
@@ -73,6 +75,6 @@ pub struct Node<'a>(pub Nodes<'a>);
 
 impl<'a> Display for Node<'a> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
+        writeln!(f, "{:#?}", self)
     }
 }

@@ -1,4 +1,5 @@
 use colored::{ColoredString, Colorize};
+
 use std::process::exit;
 
 use crate::lexer::token::Token;
@@ -40,15 +41,38 @@ impl<'a> Error<'a> {
         println!("{}", "-".blue());
     }
 
-    // Var error
-    pub fn throw_var_not_defined(&self) {
+    // General errors
+    pub fn throw_name_already_used(&self, e_type: u8) {
         println!(
-            "{}: cannot find variable \"{}\" in this scope",
-            self.e_str, self.token.slice
+            "{}: {} name \"{}\" already used",
+            self.e_str,
+            match e_type {
+                0 => "variable",
+                1 => "function",
+                _ => todo!(),
+            },
+            self.token.slice
         );
         self.print(0);
         exit(0)
     }
+
+    pub fn throw_name_not_defined(&self, e_type: u8) {
+        println!(
+            "{}: cannot find {} name: \"{}\" in current scope",
+            self.e_str,
+            match e_type {
+                0 => "variable",
+                1 => "function",
+                _ => "",
+            },
+            self.token.slice
+        );
+        self.print(0);
+        exit(0)
+    }
+
+    // Var errors
 
     pub fn throw_wrong_assign_type(&self, var_name: &str, val_type: String, var_type: String) {
         println!(
@@ -61,12 +85,6 @@ impl<'a> Error<'a> {
 
     pub fn throw_cant_start_var_num(&self) {
         println!("{}: cannot start variable name with number", self.e_str);
-        self.print(0);
-        exit(0)
-    }
-
-    pub fn throw_cant_use_same_var_name(&self) {
-        println!("{}: variable name already used", self.e_str);
         self.print(0);
         exit(0)
     }

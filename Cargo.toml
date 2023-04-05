@@ -4,9 +4,9 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-llvm-ir = { version = "0.8.2", features = ["llvm-13"] }
+llvm-ir = { version = "0.8.2", features = ["llvm-14"] }
 logos = "0.12.1"
-either = "1.8.0"
+either = "1.8.1"
 colored = "2.0.0"
 
 [profile.release]
