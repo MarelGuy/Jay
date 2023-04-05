@@ -10,7 +10,7 @@ pub struct FunctionNode<'a> {
     pub name: String,
     args: Vec<ArgNode>,
     scope: ScopeNode<'a>,
-    ret_ty: Either<VarType, ArrayVarType>,
+    pub ret_ty: Either<VarType, ArrayVarType>,
 }
 
 impl<'a> FunctionNode<'a> {
@@ -63,13 +63,14 @@ impl ArgNode {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct CallFuncNode {
+pub struct CallFuncNode<'a> {
     func_node: usize,
+    args: Vec<Node<'a>>,
 }
 
-impl CallFuncNode {
-    pub fn new(func_node: usize) -> Self {
-        Self { func_node }
+impl<'a> CallFuncNode<'a> {
+    pub fn new(func_node: usize, args: Vec<Node<'a>>) -> Self {
+        Self { func_node, args }
     }
 }
 

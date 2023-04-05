@@ -32,7 +32,7 @@ pub enum Nodes<'a> {
 
     // Functions
     FunctionNode(FunctionNode<'a>),
-    CallFuncNode(CallFuncNode),
+    CallFuncNode(CallFuncNode<'a>),
     ReturnNode(ReturnNode<'a>),
     // ReturnIfNode(ReturnIfNode<'a>),
 

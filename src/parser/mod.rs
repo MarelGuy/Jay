@@ -28,7 +28,7 @@ pub struct Parser<'a> {
     tok_i: usize,
     pub ast: Vec<Node<'a>>,
 
-    use_global_scope: bool,
+    use_local_scope: bool,
 
     error_handler: Error<'a>,
 
@@ -50,7 +50,7 @@ impl<'a> Parser<'a> {
             lines,
             ast: vec![],
 
-            use_global_scope: true,
+            use_local_scope: false,
 
             error_handler: Error::new(init_tok, "".into(), file_name),
 
@@ -149,7 +149,37 @@ impl<'a> Parser<'a> {
             TokenType::String => VarType::String,
             TokenType::Bool => VarType::Bool,
             TokenType::Char => VarType::Char,
+            TokenType::Identifier => {
+                if self.peek().token_type == TokenType::OpenParen {
+                    let found_node_idx: (Result<usize, usize>, i8) =
+                        self.search_node(String::from(token.slice), true, 1);
+
+                    let found_node: FunctionNode<'a>;
+
+                    if found_node_idx.1 == 0 {
+                        found_node = self.global_scope.func_vec[found_node_idx.0.unwrap()].clone();
+                    } else {
+                        found_node = self.current_scope.func_vec[found_node_idx.0.unwrap()].clone();
+                    }
+
+                    found_node.ret_ty.unwrap_left()
+                } else {
+                    let found_node_idx: (Result<usize, usize>, i8) =
+                        self.search_node(String::from(token.slice), true, 0);
+
+                    let found_node: VarNode<'a>;
+
+                    if found_node_idx.1 == 0 {
+                        found_node = self.global_scope.var_vec[found_node_idx.0.unwrap()].clone();
+                    } else {
+                        found_node = self.current_scope.var_vec[found_node_idx.0.unwrap()].clone();
+                    }
+
+                    found_node.1.unwrap_left()
+                }
+            }
             _ => {
+                println!("{:?}", token);
                 self.update_error_handler();
                 self.error_handler.throw_ty_not_found();
 
@@ -186,48 +216,77 @@ impl<'a> Parser<'a> {
         }
     }
 
-    // * Search vecs functions
+    // * Search vec function
 
-    fn search_var_vec(&mut self, string_to_search: String) -> Result<usize, usize> {
-        self.current_scope
-            .var_vec
-            .clone()
-            .into_iter()
-            .map(|x| -> String { x.0 })
-            .collect::<Vec<String>>()
-            .binary_search(&string_to_search)
-    }
-    fn search_func_vec(
+    fn search_node(
         &mut self,
         string_to_search: String,
-        need_func: bool,
-    ) -> Result<usize, usize> {
-        let mut func = self
-            .current_scope
-            .func_vec
-            .clone()
-            .into_iter()
-            .map(|x| -> String { x.name })
-            .collect::<Vec<String>>()
-            .binary_search(&string_to_search);
+        need_node: bool,
+        vec_to_search: i8,
+    ) -> (Result<usize, usize>, i8) {
+        let mut found_where: i8 = 0;
+        let mut node: Result<usize, usize>;
+        match vec_to_search {
+            0 => {
+                node = self
+                    .global_scope
+                    .var_vec
+                    .clone()
+                    .into_iter()
+                    .map(|x| -> String { x.0 })
+                    .collect::<Vec<String>>()
+                    .binary_search(&string_to_search);
 
-        if func.is_err() {
-            func = self
-                .global_scope
-                .func_vec
-                .clone()
-                .into_iter()
-                .map(|x| -> String { x.name })
-                .collect::<Vec<String>>()
-                .binary_search(&string_to_search);
+                if self.use_local_scope && node.is_err() {
+                    found_where = 1;
+
+                    node = self
+                        .current_scope
+                        .var_vec
+                        .clone()
+                        .into_iter()
+                        .map(|x| -> String { x.0 })
+                        .collect::<Vec<String>>()
+                        .binary_search(&string_to_search);
+                }
+
+                if need_node && node.is_err() {
+                    self.update_error_handler();
+                    self.error_handler.throw_name_not_defined(0)
+                }
+            }
+            1 => {
+                node = self
+                    .global_scope
+                    .func_vec
+                    .clone()
+                    .into_iter()
+                    .map(|x| -> String { x.name })
+                    .collect::<Vec<String>>()
+                    .binary_search(&string_to_search);
+
+                if self.use_local_scope && node.is_err() {
+                    found_where = 1;
+
+                    node = self
+                        .current_scope
+                        .func_vec
+                        .clone()
+                        .into_iter()
+                        .map(|x| -> String { x.name })
+                        .collect::<Vec<String>>()
+                        .binary_search(&string_to_search);
+                }
+
+                if need_node && node.is_err() {
+                    self.update_error_handler();
+                    self.error_handler.throw_name_not_defined(1);
+                }
+            }
+            _ => todo!(),
         }
 
-        if need_func && func.is_err() {
-            self.update_error_handler();
-            self.error_handler.throw_name_not_defined(1)
-        }
-
-        func
+        (node, found_where)
     }
 
     // * Parser
@@ -272,15 +331,31 @@ impl<'a> Parser<'a> {
                 } else {
                     if self.peek().token_type == TokenType::OpenParen {
                         let id: usize = self
-                            .search_func_vec(self.current_token.slice.into(), true)
+                            .search_node(self.current_token.slice.into(), true, 1)
+                            .0
                             .unwrap();
 
                         self.next();
                         self.next();
 
-                        return Node(Nodes::CallFuncNode(CallFuncNode::new(id)));
+                        let mut args_vec: Vec<Node> = vec![];
+
+                        while self.current_token.token_type != TokenType::CloseParen {
+                            args_vec.push(self.parse_list(self.current_token));
+
+                            self.next();
+
+                            if self.current_token.token_type == TokenType::Comma {
+                                self.next();
+                            }
+                        }
+
+                        self.next();
+
+                        return Node(Nodes::CallFuncNode(CallFuncNode::new(id, args_vec)));
                     }
-                    self.search_var_vec(self.current_token.slice.into())
+                    self.search_node(self.current_token.slice.into(), false, 0)
+                        .0
                         .is_ok()
                         .then(|| {
                             let is_var_node: bool;
@@ -309,11 +384,6 @@ impl<'a> Parser<'a> {
                             call_var_node
                         })
                         .unwrap_or_else(|| {
-                            if self.current_token.token_type == TokenType::Identifier {
-                                self.update_error_handler();
-                                self.error_handler.throw_name_not_defined(0)
-                            }
-
                             Nodes::PrimitiveTypeNode(self.parse_primitive_type_node())
                         })
                 }
@@ -347,7 +417,7 @@ impl<'a> Parser<'a> {
             self.error_handler.throw_cant_start_var_num();
         };
 
-        self.search_var_vec(name.clone()).is_ok().then(|| {
+        self.search_node(name.clone(), false, 0).0.is_ok().then(|| {
             self.update_error_handler();
             self.error_handler.throw_name_already_used(0);
         });
@@ -401,10 +471,10 @@ impl<'a> Parser<'a> {
 
             let new_node: VarNode = VarNode(name, ty, Either::Right(value), is_mut);
 
-            if self.use_global_scope {
-                self.global_scope.var_vec.push(new_node.clone());
-            } else {
+            if self.use_local_scope {
                 self.current_scope.var_vec.push(new_node.clone());
+            } else {
+                self.global_scope.var_vec.push(new_node.clone());
             }
 
             return new_node;
@@ -440,7 +510,8 @@ impl<'a> Parser<'a> {
             .clone()
             .into_iter()
             .nth(
-                self.search_var_vec(self.current_token.slice.into())
+                self.search_node(self.current_token.slice.into(), true, 0)
+                    .0
                     .unwrap(),
             )
             .unwrap();
@@ -450,13 +521,6 @@ impl<'a> Parser<'a> {
 
     fn parse_index(&mut self) -> isize {
         if self.current_token.token_type == TokenType::Identifier {
-            if self
-                .search_var_vec(self.current_token.slice.into())
-                .is_err()
-            {
-                self.update_error_handler();
-                self.error_handler.throw_name_not_defined(0)
-            }
             let node_to_parse: Box<Node<'a>> = if self.peek().token_type == TokenType::OpenBracket {
                 // * Don't delete this variable.
                 let idk0: CallVarArrNode = self.parse_call_var_arr();
@@ -593,7 +657,7 @@ impl<'a> Parser<'a> {
 
         let name: String = self.current_token.slice.into();
 
-        self.search_func_vec(name.clone(), false).is_ok().then(|| {
+        self.search_node(name.clone(), false, 1).0.is_ok().then(|| {
             self.update_error_handler();
             self.error_handler.throw_name_already_used(1);
         });
@@ -619,16 +683,16 @@ impl<'a> Parser<'a> {
         self.next();
         self.next();
 
-        self.use_global_scope = false;
+        self.use_local_scope = true;
         let scope: ScopeNode = self.parse_scope();
-        self.use_global_scope = true;
+        self.use_local_scope = false;
 
         let new_node: FunctionNode = FunctionNode::new(name, args, ret_ty, scope);
 
-        if self.use_global_scope {
-            self.global_scope.func_vec.push(new_node.clone());
-        } else {
+        if self.use_local_scope {
             self.current_scope.func_vec.push(new_node.clone());
+        } else {
+            self.global_scope.func_vec.push(new_node.clone());
         }
 
         new_node
