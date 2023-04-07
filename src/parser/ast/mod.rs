@@ -5,7 +5,7 @@ use crate::lexer::token::Token;
 
 use self::{
     functions::{CallFuncNode, FunctionNode, /*ReturnIfNode,*/ ReturnNode},
-    primitive_node::PrimitiveTypeNode,
+    primitive_node::{PrimitiveTypeNode, TypeNode},
     variables::{AssignToVarArrNode, AssignToVarNode, CallVarArrNode, CallVarNode, VarNode},
 };
 
@@ -22,6 +22,7 @@ pub mod variables;
 pub enum Nodes<'a> {
     // AST
     PrimitiveTypeNode(PrimitiveTypeNode<'a>),
+    TypeNode(TypeNode),
 
     // Variables
     VarNode(VarNode<'a>),

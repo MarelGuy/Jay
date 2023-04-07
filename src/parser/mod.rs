@@ -7,6 +7,7 @@ use crate::{error_handler::Error, lexer::token::Span};
 use self::ast::functions::{
     ArgNode, CallFuncNode, FunctionNode, /*ReturnIfNode,*/ ReturnNode, ScopeNode,
 };
+use self::ast::primitive_node::TypeNode;
 use self::ast::variables::AssignToVarArrNode;
 use self::ast::{
     primitive_node::PrimitiveTypeNode,
@@ -387,6 +388,7 @@ impl<'a> Parser<'a> {
             TokenType::Let | TokenType::Var | TokenType::Const => Nodes::VarNode(self.parse_var()),
             TokenType::Func => Nodes::FunctionNode(self.parse_function()),
             TokenType::Return => Nodes::ReturnNode(self.parse_return()),
+            TokenType::Type => Nodes::TypeNode(self.parse_type()),
             _ => {
                 self.update_error_handler();
                 self.error_handler.throw_unkown_token();
@@ -707,6 +709,7 @@ impl<'a> Parser<'a> {
         self.current_scope.clone()
     }
 
+    // TODO function as arguments
     fn parse_func_arg(&mut self, arg_vec: &mut Vec<String>) -> ArgNode {
         let name: String = self.current_token.slice.into();
 
@@ -728,7 +731,7 @@ impl<'a> Parser<'a> {
 
         self.next();
 
-        ArgNode::new(name, ty)
+        ArgNode::new(String::from(name.to_owned()), ty)
     }
 
     fn parse_return(&mut self) -> ReturnNode<'a> {
@@ -737,6 +740,34 @@ impl<'a> Parser<'a> {
         let ret_val: Node = self.parse_list(self.current_token);
 
         ReturnNode::new(Box::new(ret_val))
+    }
+
+    // * Types
+
+    fn parse_type(&mut self) -> TypeNode {
+        self.next();
+
+        let name: String = String::from(self.current_token.slice);
+
+        let mut args_vec: Vec<ArgNode> = vec![];
+        let mut args_vec_names: Vec<String> = vec![];
+
+        self.next();
+        loop {
+            self.next();
+
+            if self.current_token.token_type == TokenType::CloseBrace {
+                break;
+            }
+
+            let arg: ArgNode = self.parse_func_arg(&mut args_vec_names);
+
+            args_vec.push(arg.clone());
+        }
+
+        self.next();
+
+        TypeNode::new(name, args_vec)
     }
 
     // TODO: do after if
