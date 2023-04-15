@@ -71,10 +71,7 @@ impl<'a> Nodes<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
-pub struct Node<'a>(pub Nodes<'a>);
-
-impl<'a> Display for Node<'a> {
+impl<'a> Display for Nodes<'a> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         writeln!(f, "{:#?}", self)
     }

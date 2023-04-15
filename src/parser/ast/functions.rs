@@ -2,7 +2,7 @@ use either::Either;
 
 use super::{
     variables::{ArrayVarType, VarNode, VarType},
-    Node,
+    Nodes,
 };
 
 #[derive(Debug, PartialEq, Clone)]
@@ -31,14 +31,14 @@ impl<'a> FunctionNode<'a> {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ScopeNode<'a> {
-    pub scope: Vec<Node<'a>>,
+    pub scope: Vec<Nodes<'a>>,
     pub var_vec: Vec<VarNode<'a>>,
     pub func_vec: Vec<FunctionNode<'a>>,
 }
 
 impl<'a> ScopeNode<'a> {
     pub fn new(
-        scope: Vec<Node<'a>>,
+        scope: Vec<Nodes<'a>>,
         var_vec: Vec<VarNode<'a>>,
         func_vec: Vec<FunctionNode<'a>>,
     ) -> Self {
@@ -65,27 +65,27 @@ impl ArgNode {
 #[derive(Debug, PartialEq, Clone)]
 pub struct CallFuncNode<'a> {
     func_node: usize,
-    args: Vec<Node<'a>>,
+    args: Vec<Nodes<'a>>,
 }
 
 impl<'a> CallFuncNode<'a> {
-    pub fn new(func_node: usize, args: Vec<Node<'a>>) -> Self {
+    pub fn new(func_node: usize, args: Vec<Nodes<'a>>) -> Self {
         Self { func_node, args }
     }
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ReturnNode<'a> {
-    ret_val: Box<Node<'a>>,
+    ret_val: Box<Nodes<'a>>,
 }
 
 impl<'a> ReturnNode<'a> {
-    pub fn new(ret_val: Box<Node<'a>>) -> Self {
+    pub fn new(ret_val: Box<Nodes<'a>>) -> Self {
         Self { ret_val }
     }
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ReturnIfNode<'a> {
-    ret_val: Box<Node<'a>>,
+    ret_val: Box<Nodes<'a>>,
 }

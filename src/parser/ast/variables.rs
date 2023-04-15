@@ -6,7 +6,7 @@ use std::{
 
 use either::Either;
 
-use super::Node;
+use super::Nodes;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum VarType {
@@ -74,12 +74,12 @@ impl ArrayVarType {
 pub struct VarNode<'a>(
     pub String,
     pub Either<VarType, ArrayVarType>,
-    pub Either<Box<Node<'a>>, Vec<ArrElem<'a>>>,
+    pub Either<Box<Nodes<'a>>, Vec<ArrElem<'a>>>,
     pub bool,
 );
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct ArrElem<'a>(pub Box<Node<'a>>, pub isize);
+pub struct ArrElem<'a>(pub Box<Nodes<'a>>, pub isize);
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct CallVarNode<'a>(pub VarNode<'a>);
@@ -88,7 +88,7 @@ pub struct CallVarNode<'a>(pub VarNode<'a>);
 pub struct CallVarArrNode<'a>(pub CallVarNode<'a>, pub isize);
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct AssignToVarNode<'a>(pub CallVarNode<'a>, pub Box<Node<'a>>);
+pub struct AssignToVarNode<'a>(pub CallVarNode<'a>, pub Box<Nodes<'a>>);
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct AssignToVarArrNode<'a>(pub CallVarArrNode<'a>, pub isize, pub Box<Node<'a>>);
+pub struct AssignToVarArrNode<'a>(pub CallVarArrNode<'a>, pub isize, pub Box<Nodes<'a>>);
