@@ -15,7 +15,7 @@ pub enum VarType {
     String,
     Char,
     Bool,
-    Type { name: String },
+    // Type { name: String },
 }
 
 impl Display for VarType {
@@ -31,7 +31,7 @@ pub enum ArrayVarType {
     String { init_num: isize },
     Char { init_num: isize },
     Bool { init_num: isize },
-    Type { name: String, init_num: isize },
+    // Type { name: String, init_num: isize },
 }
 
 impl Display for ArrayVarType {
@@ -48,10 +48,10 @@ impl ArrayVarType {
             ArrayVarType::String { init_num: _ } => VarType::String,
             ArrayVarType::Bool { init_num: _ } => VarType::Bool,
             ArrayVarType::Char { init_num: _ } => VarType::Char,
-            ArrayVarType::Type {
-                name: _,
-                init_num: _,
-            } => todo!(),
+            // ArrayVarType::Type {
+            //     name: _,
+            //     init_num: _,
+            // } => todo!(),
         }
     }
 
@@ -62,10 +62,10 @@ impl ArrayVarType {
             ArrayVarType::String { init_num } => init_num,
             ArrayVarType::Bool { init_num } => init_num,
             ArrayVarType::Char { init_num } => init_num,
-            ArrayVarType::Type {
-                name: _,
-                init_num: _,
-            } => todo!(),
+            // ArrayVarType::Type {
+            //     name: _,
+            //     init_num: _,
+            // } => todo!(),
         }
     }
 }

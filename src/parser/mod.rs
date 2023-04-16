@@ -70,13 +70,13 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn get_line(&self, line: usize) -> String {
-        self.lines.clone().into_iter().nth(line).unwrap()
+    fn get_line(&self, line: usize) -> &str {
+        &self.lines[line]
     }
 
     fn update_error_handler(&mut self) {
         self.error_handler.token = self.current_token;
-        self.error_handler.line_string = self.get_line(self.current_token.line);
+        self.error_handler.line_string = self.get_line(self.current_token.line).into();
     }
 
     // * Flow functions
@@ -113,81 +113,72 @@ impl<'a> Parser<'a> {
 
     fn parse_ty(&mut self) -> Either<VarType, ArrayVarType> {
         if self.peek().token_type == TokenType::OpenBracket {
-            let tmp: ArrayVarType = self.get_array_ty();
+            let tmp: ArrayVarType = self.get_array_ty().unwrap();
 
             self.next();
 
             Right(tmp)
         } else {
-            Left(self.get_ty())
+            Left(self.get_ty().unwrap())
         }
     }
 
-    fn get_ty(&mut self) -> VarType {
+    fn get_ty(&mut self) -> Option<VarType> {
         match self.current_token.token_type {
-            TokenType::IntType => VarType::Int,
-            TokenType::FloatType => VarType::Float,
-            TokenType::StringType => VarType::String,
-            TokenType::BoolType => VarType::Bool,
-            TokenType::CharType => VarType::Char,
+            TokenType::IntType => Some(VarType::Int),
+            TokenType::FloatType => Some(VarType::Float),
+            TokenType::StringType => Some(VarType::String),
+            TokenType::BoolType => Some(VarType::Bool),
+            TokenType::CharType => Some(VarType::Char),
             _ => {
                 self.update_error_handler();
                 self.error_handler.throw_ty_not_found();
 
-                VarType::Type {
-                    name: "Null".to_string(),
-                }
+                None
             }
         }
     }
 
-    fn get_ty_from_val(&mut self, token: Token) -> VarType {
+    fn get_ty_from_val(&mut self, token: Token) -> Option<VarType> {
         match token.token_type {
-            TokenType::Number => VarType::Int,
-            TokenType::NegativeNumber => VarType::Int,
-            TokenType::Float => VarType::Float,
-            TokenType::NegativeFloat => VarType::Float,
-            TokenType::String => VarType::String,
-            TokenType::Bool => VarType::Bool,
-            TokenType::Char => VarType::Char,
-            TokenType::Identifier => {
-                if self.peek().token_type == TokenType::OpenParen {
-                    let found_node_idx: (Result<usize, usize>, i8) =
-                        self.search_node(String::from(token.slice), true, 1);
+            TokenType::Number | TokenType::NegativeNumber => Some(VarType::Int),
+            TokenType::Float | TokenType::NegativeFloat => Some(VarType::Float),
+            TokenType::String => Some(VarType::String),
+            TokenType::Bool => Some(VarType::Bool),
+            TokenType::Char => Some(VarType::Char),
+            TokenType::Identifier => Some(if self.peek().token_type == TokenType::OpenParen {
+                let found_node_idx: (Result<usize, usize>, i8) =
+                    self.search_node(String::from(token.slice), true, 1);
 
-                    let found_node: FunctionNode<'a> = if found_node_idx.1 == 0 {
-                        self.global_scope.func_vec[found_node_idx.0.unwrap()].clone()
-                    } else {
-                        self.current_scope.func_vec[found_node_idx.0.unwrap()].clone()
-                    };
-
-                    found_node.ret_ty.unwrap_left()
+                let found_node: FunctionNode<'a> = if found_node_idx.1 == 0 {
+                    self.global_scope.func_vec[found_node_idx.0.unwrap()].clone()
                 } else {
-                    let found_node_idx: (Result<usize, usize>, i8) =
-                        self.search_node(String::from(token.slice), true, 0);
+                    self.current_scope.func_vec[found_node_idx.0.unwrap()].clone()
+                };
 
-                    let found_node: VarNode<'a> = if found_node_idx.1 == 0 {
-                        self.global_scope.var_vec[found_node_idx.0.unwrap()].clone()
-                    } else {
-                        self.current_scope.var_vec[found_node_idx.0.unwrap()].clone()
-                    };
+                found_node.ret_ty.unwrap_left()
+            } else {
+                let found_node_idx: (Result<usize, usize>, i8) =
+                    self.search_node(String::from(token.slice), true, 0);
 
-                    found_node.1.unwrap_left()
-                }
-            }
+                let found_node: VarNode<'a> = if found_node_idx.1 == 0 {
+                    self.global_scope.var_vec[found_node_idx.0.unwrap()].clone()
+                } else {
+                    self.current_scope.var_vec[found_node_idx.0.unwrap()].clone()
+                };
+
+                found_node.1.unwrap_left()
+            }),
             _ => {
-                println!("{:?}", token);
                 self.update_error_handler();
                 self.error_handler.throw_ty_not_found();
 
-                VarType::Type {
-                    name: "Null".to_string(),
-                }
+                None
             }
         }
     }
 
-    fn get_array_ty(&mut self) -> ArrayVarType {
+    fn get_array_ty(&mut self) -> Option<ArrayVarType> {
         let type_token: Token = self.current_token;
 
         self.next();
@@ -196,19 +187,16 @@ impl<'a> Parser<'a> {
         let init_num: isize = self.current_token.slice.parse::<isize>().unwrap();
 
         match type_token.token_type {
-            TokenType::IntType => ArrayVarType::Int { init_num },
-            TokenType::FloatType => ArrayVarType::Float { init_num },
-            TokenType::StringType => ArrayVarType::String { init_num },
-            TokenType::BoolType => ArrayVarType::Bool { init_num },
-            TokenType::CharType => ArrayVarType::Char { init_num },
+            TokenType::IntType => Some(ArrayVarType::Int { init_num }),
+            TokenType::FloatType => Some(ArrayVarType::Float { init_num }),
+            TokenType::StringType => Some(ArrayVarType::String { init_num }),
+            TokenType::BoolType => Some(ArrayVarType::Bool { init_num }),
+            TokenType::CharType => Some(ArrayVarType::Char { init_num }),
             _ => {
                 self.update_error_handler();
                 self.error_handler.throw_ty_not_found();
 
-                ArrayVarType::Type {
-                    name: "Null".to_string(),
-                    init_num,
-                }
+                None
             }
         }
     }
@@ -322,7 +310,7 @@ impl<'a> Parser<'a> {
 
                     Nodes::ProcessedMathNode(math::process_math_node(
                         tok_stream,
-                        self.get_line(self.current_token.line),
+                        self.get_line(self.current_token.line).into(),
                         self.file_name.clone(),
                     ))
                 } else {
@@ -435,7 +423,7 @@ impl<'a> Parser<'a> {
             let mut value: Vec<ArrElem<'a>> = vec![];
 
             loop {
-                let val_ty: VarType = self.get_ty_from_val(self.current_token);
+                let val_ty: VarType = self.get_ty_from_val(self.current_token).unwrap();
 
                 if val_ty != ty.clone().unwrap_right().to_var_type() {
                     self.update_error_handler();
@@ -478,7 +466,7 @@ impl<'a> Parser<'a> {
             return new_node;
         }
 
-        let val_ty: VarType = self.get_ty_from_val(self.current_token);
+        let val_ty: VarType = self.get_ty_from_val(self.current_token).unwrap();
 
         if val_ty != ty.clone().unwrap_left() {
             self.update_error_handler();
@@ -502,19 +490,13 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_call_var(&mut self) -> CallVarNode<'a> {
-        let var_to_call: VarNode = self
-            .current_scope
-            .var_vec
-            .clone()
-            .into_iter()
-            .nth(
-                self.search_node(self.current_token.slice.into(), true, 0)
-                    .0
-                    .unwrap(),
-            )
-            .unwrap();
-
-        CallVarNode(var_to_call)
+        CallVarNode(
+            self.current_scope.var_vec.clone()[self
+                .search_node(self.current_token.slice.into(), true, 0)
+                .0
+                .unwrap()]
+            .clone(),
+        )
     }
 
     fn parse_index(&mut self) -> isize {
@@ -524,14 +506,7 @@ impl<'a> Parser<'a> {
                 // * Don't delete this variable.
                 let idk0: CallVarArrNode = self.parse_call_var_arr();
 
-                idk0.0
-                     .0
-                     .2
-                    .unwrap_right()
-                    .into_iter()
-                    .nth(idk0.1 as usize)
-                    .unwrap()
-                    .0
+                idk0.0 .0 .2.unwrap_right()[idk0.1 as usize].0.clone()
             } else {
                 self.parse_call_var().0 .2.unwrap_left()
             };
@@ -539,7 +514,7 @@ impl<'a> Parser<'a> {
             let unpacked_node: Token = node_to_parse.get_primitive().unwrap();
 
             if unpacked_node.token_type != TokenType::Number {
-                let val_ty: VarType = self.get_ty_from_val(unpacked_node);
+                let val_ty: VarType = self.get_ty_from_val(unpacked_node).unwrap();
 
                 self.update_error_handler();
                 self.error_handler
@@ -549,7 +524,7 @@ impl<'a> Parser<'a> {
             unpacked_node.slice.parse().unwrap()
         } else {
             if self.current_token.token_type != TokenType::Number {
-                let val_ty: VarType = self.get_ty_from_val(self.current_token);
+                let val_ty: VarType = self.get_ty_from_val(self.current_token).unwrap();
 
                 self.update_error_handler();
                 self.error_handler
@@ -577,16 +552,7 @@ impl<'a> Parser<'a> {
         self.back();
 
         if index_to_call < 0
-            || var_to_call
-                .0
-                .clone()
-                .2
-                .unwrap_right()
-                .into_iter()
-                .last()
-                .unwrap()
-                .1
-                < index_to_call
+            || var_to_call.0.clone().2.unwrap_right().last().unwrap().1 < index_to_call
         {
             self.update_error_handler();
             self.error_handler
@@ -603,7 +569,7 @@ impl<'a> Parser<'a> {
         let var: CallVarNode<'a> = var_to_assign.get_call_var_node().unwrap();
 
         let var_ty: VarType = var.0 .1.clone().unwrap_left();
-        let val_ty: VarType = self.get_ty_from_val(self.current_token);
+        let val_ty: VarType = self.get_ty_from_val(self.current_token).unwrap();
 
         if var_ty != val_ty {
             self.update_error_handler();
@@ -630,7 +596,7 @@ impl<'a> Parser<'a> {
         }
 
         let var_ty: VarType = var.0 .0 .1.clone().unwrap_right().to_var_type();
-        let val_ty: VarType = self.get_ty_from_val(self.current_token);
+        let val_ty: VarType = self.get_ty_from_val(self.current_token).unwrap();
 
         if var_ty != val_ty {
             self.update_error_handler();
