@@ -49,6 +49,7 @@ impl<'a> Error<'a> {
             match e_type {
                 0 => "variable",
                 1 => "function",
+                2 => "type",
                 _ => todo!(),
             },
             self.token.slice
@@ -64,6 +65,7 @@ impl<'a> Error<'a> {
             match e_type {
                 0 => "variable",
                 1 => "function",
+                2 => "type",
                 _ => "",
             },
             self.token.slice

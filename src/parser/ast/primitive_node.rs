@@ -7,12 +7,12 @@ pub struct PrimitiveTypeNode<'a>(pub Token<'a>);
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct TypeNode {
-    type_name: String,
+    pub name: String,
     args: Vec<ArgNode>,
 }
 
 impl TypeNode {
-    pub fn new(type_name: String, args: Vec<ArgNode>) -> Self {
-        Self { type_name, args }
+    pub fn new(name: String, args: Vec<ArgNode>) -> Self {
+        Self { name, args }
     }
 }

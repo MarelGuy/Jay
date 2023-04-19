@@ -4,7 +4,9 @@ type MyType {
    //func new(a: string, b: int): MyType {
       //return MyType{ a, b };
    //}
-}
+};
 //MyType::new("lmao", 5);
 
-//let lmao: MyType = MyType::new("lmao", 5);
+let lmao0: string = "a";
+//let lmao1: MyType = MyType{"a", 1}
+//let lmao2: MyType = MyType::new("lmao", 5);

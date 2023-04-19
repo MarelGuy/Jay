@@ -1,6 +1,7 @@
 use either::Either;
 
 use super::{
+    primitive_node::TypeNode,
     variables::{ArrayVarType, VarNode, VarType},
     Nodes,
 };
@@ -34,19 +35,61 @@ pub struct ScopeNode<'a> {
     pub scope: Vec<Nodes<'a>>,
     pub var_vec: Vec<VarNode<'a>>,
     pub func_vec: Vec<FunctionNode<'a>>,
+    pub type_vec: Vec<TypeNode>,
 }
 
 impl<'a> ScopeNode<'a> {
-    pub fn new(
-        scope: Vec<Nodes<'a>>,
-        var_vec: Vec<VarNode<'a>>,
-        func_vec: Vec<FunctionNode<'a>>,
-    ) -> Self {
+    pub fn new() -> Self {
         Self {
-            scope,
-            var_vec,
-            func_vec,
+            scope: vec![],
+            var_vec: vec![],
+            func_vec: vec![],
+            type_vec: vec![],
         }
+    }
+
+    pub fn search_node(
+        &mut self,
+        string_to_search: String,
+        need_node: bool,
+        vec_to_search: u8,
+    ) -> (Result<usize, usize>, u8, bool) {
+        let found_where: u8 = 0;
+
+        let node: Result<usize, usize> = match vec_to_search {
+            0 => self
+                .var_vec
+                .clone()
+                .into_iter()
+                .map(|x| -> String { x.0 })
+                .collect::<Vec<String>>()
+                .binary_search(&string_to_search),
+            1 => self
+                .func_vec
+                .clone()
+                .into_iter()
+                .map(|x| -> String { x.name })
+                .collect::<Vec<String>>()
+                .binary_search(&string_to_search),
+            2 => self
+                .type_vec
+                .clone()
+                .into_iter()
+                .map(|x| -> String { x.name })
+                .collect::<Vec<String>>()
+                .binary_search(&string_to_search),
+            _ => todo!(),
+        };
+
+        (
+            node,
+            found_where,
+            if need_node && node.is_err() {
+                true
+            } else {
+                false
+            },
+        )
     }
 }
 
