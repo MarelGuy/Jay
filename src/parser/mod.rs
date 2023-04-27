@@ -209,17 +209,13 @@ impl<'a> Parser<'a> {
         need_node: bool,
         vec_to_search: u8,
     ) -> (Result<usize, usize>, u8) {
-        let result: (Result<usize, usize>, u8, bool);
-
-        if self.use_local_scope {
-            result = self
-                .current_scope
+        let result: (Result<usize, usize>, u8, bool) = if self.use_local_scope {
+            self.current_scope
                 .search_node(string_to_search, need_node, vec_to_search)
         } else {
-            result = self
-                .global_scope
+            self.global_scope
                 .search_node(string_to_search, need_node, vec_to_search)
-        }
+        };
 
         if result.2 {
             self.update_error_handler();

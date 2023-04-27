@@ -281,10 +281,6 @@ pub enum TokenType {
 
     #[token("\0")]
     Null,
-
-    #[error]
-    #[regex(r"[ \t\n\f]+", logos::skip)]
-    Error,
 }
 
 impl Display for TokenType {
@@ -306,4 +302,22 @@ pub struct Token<'a> {
     pub token_type: TokenType,
     pub slice: &'a str,
     pub span: Span,
+}
+
+impl<'a> Token<'a> {
+    pub fn new(
+        line: usize,
+        column: usize,
+        token_type: Result<TokenType, ()>,
+        slice: &'a str,
+        span: Span,
+    ) -> Self {
+        Self {
+            line,
+            column,
+            token_type: token_type.unwrap(),
+            slice,
+            span,
+        }
+    }
 }

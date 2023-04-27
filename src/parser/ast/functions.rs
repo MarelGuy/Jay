@@ -81,15 +81,7 @@ impl<'a> ScopeNode<'a> {
             _ => todo!(),
         };
 
-        (
-            node,
-            found_where,
-            if need_node && node.is_err() {
-                true
-            } else {
-                false
-            },
-        )
+        (node, found_where, need_node && node.is_err())
     }
 }
 
