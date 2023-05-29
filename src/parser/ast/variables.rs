@@ -15,7 +15,7 @@ pub enum VarType {
     String,
     Char,
     Bool,
-    // Type { name: String },
+    Type { name: String },
 }
 
 impl Display for VarType {
@@ -31,7 +31,7 @@ pub enum ArrayVarType {
     String { init_num: isize },
     Char { init_num: isize },
     Bool { init_num: isize },
-    // Type { name: String, init_num: isize },
+    Type { name: String, init_num: isize },
 }
 
 impl Display for ArrayVarType {
@@ -48,10 +48,10 @@ impl ArrayVarType {
             ArrayVarType::String { init_num: _ } => VarType::String,
             ArrayVarType::Bool { init_num: _ } => VarType::Bool,
             ArrayVarType::Char { init_num: _ } => VarType::Char,
-            // ArrayVarType::Type {
-            //     name: _,
-            //     init_num: _,
-            // } => todo!(),
+            ArrayVarType::Type {
+                name: _,
+                init_num: _,
+            } => todo!(),
         }
     }
 
@@ -62,21 +62,22 @@ impl ArrayVarType {
             ArrayVarType::String { init_num } => init_num,
             ArrayVarType::Bool { init_num } => init_num,
             ArrayVarType::Char { init_num } => init_num,
-            // ArrayVarType::Type {
-            //     name: _,
-            //     init_num: _,
-            // } => todo!(),
+            ArrayVarType::Type {
+                name: _,
+                init_num: _,
+            } => todo!(),
         }
     }
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct VarNode<'a>(
-    pub String,
-    pub Either<VarType, ArrayVarType>,
+pub struct ValueNode<'a>(
     pub Either<Box<Nodes<'a>>, Vec<ArrElem<'a>>>,
-    pub bool,
+    pub Either<VarType, ArrayVarType>,
 );
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct VarNode<'a>(pub String, pub ValueNode<'a>, pub bool);
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ArrElem<'a>(pub Box<Nodes<'a>>, pub isize);
@@ -92,3 +93,14 @@ pub struct AssignToVarNode<'a>(pub CallVarNode<'a>, pub Box<Nodes<'a>>);
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct AssignToVarArrNode<'a>(pub CallVarArrNode<'a>, pub isize, pub Box<Nodes<'a>>);
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct InitTypeNode<'a> {
+    fields: Vec<ValueNode<'a>>,
+}
+
+impl<'a> InitTypeNode<'a> {
+    pub fn new(fields: Vec<ValueNode<'a>>) -> Self {
+        Self { fields }
+    }
+}

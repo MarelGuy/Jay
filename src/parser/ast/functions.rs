@@ -1,32 +1,37 @@
 use either::Either;
 
 use super::{
-    primitive_node::TypeNode,
-    variables::{ArrayVarType, VarNode, VarType},
+    types::TypeNode,
+    variables::{ArrayVarType, ValueNode, VarNode, VarType},
     Nodes,
 };
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct FunctionNode<'a> {
+pub struct DefineFunctionNode {
     pub name: String,
     args: Vec<ArgNode>,
-    scope: ScopeNode<'a>,
-    pub ret_ty: Either<VarType, ArrayVarType>,
+    pub ret_ty: Option<Either<VarType, ArrayVarType>>,
 }
 
-impl<'a> FunctionNode<'a> {
+impl DefineFunctionNode {
     pub fn new(
         name: String,
         args: Vec<ArgNode>,
-        ret_ty: Either<VarType, ArrayVarType>,
-        scope: ScopeNode<'a>,
+        ret_ty: Option<Either<VarType, ArrayVarType>>,
     ) -> Self {
-        Self {
-            name,
-            args,
-            ret_ty,
-            scope,
-        }
+        Self { name, args, ret_ty }
+    }
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct FunctionNode<'a> {
+    pub define_node: DefineFunctionNode,
+    pub scope: ScopeNode<'a>,
+}
+
+impl<'a> FunctionNode<'a> {
+    pub fn new(define_node: DefineFunctionNode, scope: ScopeNode<'a>) -> Self {
+        Self { define_node, scope }
     }
 }
 
@@ -35,7 +40,7 @@ pub struct ScopeNode<'a> {
     pub scope: Vec<Nodes<'a>>,
     pub var_vec: Vec<VarNode<'a>>,
     pub func_vec: Vec<FunctionNode<'a>>,
-    pub type_vec: Vec<TypeNode>,
+    pub type_vec: Vec<TypeNode<'a>>,
 }
 
 impl<'a> ScopeNode<'a> {
@@ -51,11 +56,8 @@ impl<'a> ScopeNode<'a> {
     pub fn search_node(
         &mut self,
         string_to_search: String,
-        need_node: bool,
         vec_to_search: u8,
-    ) -> (Result<usize, usize>, u8, bool) {
-        let found_where: u8 = 0;
-
+    ) -> (Result<usize, usize>, bool) {
         let node: Result<usize, usize> = match vec_to_search {
             0 => self
                 .var_vec
@@ -68,7 +70,7 @@ impl<'a> ScopeNode<'a> {
                 .func_vec
                 .clone()
                 .into_iter()
-                .map(|x| -> String { x.name })
+                .map(|x| -> String { x.define_node.name })
                 .collect::<Vec<String>>()
                 .binary_search(&string_to_search),
             2 => self
@@ -81,14 +83,14 @@ impl<'a> ScopeNode<'a> {
             _ => todo!(),
         };
 
-        (node, found_where, need_node && node.is_err())
+        (node, node.is_err())
     }
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ArgNode {
     pub name: String,
-    ty: Either<VarType, ArrayVarType>,
+    pub ty: Either<VarType, ArrayVarType>,
 }
 
 impl ArgNode {
@@ -111,11 +113,11 @@ impl<'a> CallFuncNode<'a> {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ReturnNode<'a> {
-    ret_val: Box<Nodes<'a>>,
+    ret_val: ValueNode<'a>,
 }
 
 impl<'a> ReturnNode<'a> {
-    pub fn new(ret_val: Box<Nodes<'a>>) -> Self {
+    pub fn new(ret_val: ValueNode<'a>) -> Self {
         Self { ret_val }
     }
 }

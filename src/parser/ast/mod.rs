@@ -5,8 +5,10 @@ use crate::lexer::token::Token;
 
 use self::{
     functions::{CallFuncNode, FunctionNode, /*ReturnIfNode,*/ ReturnNode},
-    primitive_node::{PrimitiveTypeNode, TypeNode},
-    variables::{AssignToVarArrNode, AssignToVarNode, CallVarArrNode, CallVarNode, VarNode},
+    types::{PrimitiveTypeNode, TypeNode},
+    variables::{
+        AssignToVarArrNode, AssignToVarNode, CallVarArrNode, CallVarNode, InitTypeNode, VarNode,
+    },
 };
 
 use super::math::{
@@ -15,14 +17,14 @@ use super::math::{
 };
 
 pub mod functions;
-pub mod primitive_node;
+pub mod types;
 pub mod variables;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Nodes<'a> {
     // AST
     PrimitiveTypeNode(PrimitiveTypeNode<'a>),
-    TypeNode(TypeNode),
+    TypeNode(TypeNode<'a>),
 
     // Variables
     VarNode(VarNode<'a>),
@@ -30,6 +32,7 @@ pub enum Nodes<'a> {
     CallVarArrNode(CallVarArrNode<'a>),
     AssignToVarNode(AssignToVarNode<'a>),
     AssignToVarArrNode(AssignToVarArrNode<'a>),
+    InitTypeNode(InitTypeNode<'a>),
 
     // Functions
     FunctionNode(FunctionNode<'a>),
@@ -69,6 +72,24 @@ impl<'a> Nodes<'a> {
             _ => None,
         }
     }
+    // pub fn get_type_node(&self) -> Option<TypeNode> {
+    //     match self {
+    //         Nodes::TypeNode(node) => Some(node.to_owned()),
+    //         _ => None,
+    //     }
+    // }
+    // pub fn get_var_node(&self) -> Option<VarNode> {
+    //     match self {
+    //         Nodes::VarNode(node) => Some(node.to_owned()),
+    //         _ => None,
+    //     }
+    // }
+    // pub fn get_func_node(&self) -> Option<FunctionNode> {
+    //     match self {
+    //         Nodes::FunctionNode(node) => Some(node.to_owned()),
+    //         _ => None,
+    //     }
+    // }
 }
 
 impl<'a> Display for Nodes<'a> {
