@@ -196,6 +196,12 @@ pub enum TokenType {
     #[token("in")]
     In,
 
+    #[token("pub")]
+    Pub,
+
+    #[token("priv")]
+    Priv,
+
     // Switch
     #[token("switch")]
     Switch,

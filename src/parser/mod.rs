@@ -8,7 +8,7 @@ use self::ast::functions::{
     ArgNode, CallFuncNode, DefineFunctionNode, FunctionNode, /*ReturnIfNode,*/ ReturnNode,
     ScopeNode,
 };
-use self::ast::types::TypeNode;
+use self::ast::types::{TypeArgNode, TypeNode};
 use self::ast::variables::{AssignToVarArrNode, InitTypeNode, ValueNode};
 use self::ast::{
     types::PrimitiveTypeNode,
@@ -293,6 +293,7 @@ impl<'a> Parser<'a> {
 
                     return Nodes::CallFuncNode(CallFuncNode::new(id, args_vec));
                 }
+                TokenType::DoubleColon => todo!(),
                 _ => {
                     let vec_to_search: u8 = if self.peek().token_type == TokenType::OpenBrace {
                         2
@@ -660,14 +661,7 @@ impl<'a> Parser<'a> {
         self.current_scope.clone()
     }
 
-    // TODO function as arguments
     fn parse_func_arg(&mut self, arg_vec: &mut Vec<String>) -> ArgNode {
-        if self.current_token.token_type == TokenType::Func {
-            let node: FunctionNode = self.parse_function();
-
-            return ArgNode::new(node.define_node.name, node.define_node.ret_ty.unwrap());
-        }
-
         let name: String = self.current_token.slice.to_owned();
 
         if !arg_vec
@@ -710,7 +704,7 @@ impl<'a> Parser<'a> {
             self.error_handler.throw_name_already_used(2);
         });
 
-        let mut args_vec: Vec<Either<ArgNode, FunctionNode<'a>>> = vec![];
+        let mut args_vec: Vec<TypeArgNode<'a>> = vec![];
         let mut args_vec_names: Vec<String> = vec![];
 
         let mut node: TypeNode = TypeNode::new(name, vec![]);
@@ -726,12 +720,7 @@ impl<'a> Parser<'a> {
                 break;
             }
 
-            let arg: Either<ArgNode, FunctionNode<'a>> =
-                if self.current_token.token_type == TokenType::Identifier {
-                    Left(self.parse_func_arg(&mut args_vec_names))
-                } else {
-                    Right(self.parse_function())
-                };
+            let arg: TypeArgNode<'a> = self.parse_type_arg(&mut args_vec_names);
 
             args_vec.push(arg.clone());
             self.current_scope
@@ -749,6 +738,56 @@ impl<'a> Parser<'a> {
         node
     }
 
+    fn parse_type_arg(&mut self, arg_vec: &mut Vec<String>) -> TypeArgNode<'a> {
+        let visibility: bool = self.current_token.token_type == TokenType::Priv;
+
+        if self.current_token.token_type == TokenType::Func {
+            self.next(1);
+
+            let name: String = self.current_token.slice.to_owned();
+
+            if !arg_vec
+                .clone()
+                .into_iter()
+                .any(|arg_name: String| arg_name == name)
+            {
+                arg_vec.push(name.clone());
+            } else {
+                self.update_error_handler();
+                self.error_handler.throw_arg_alreay_used(name.clone());
+            }
+
+            self.back();
+
+            let val: Either<Either<VarType, ArrayVarType>, FunctionNode<'a>> =
+                Right(self.parse_function());
+
+            TypeArgNode::new(name, val, visibility)
+        } else {
+            let name: String = self.current_token.slice.to_owned();
+
+            if !arg_vec
+                .clone()
+                .into_iter()
+                .any(|arg_name: String| arg_name == name)
+            {
+                arg_vec.push(name.clone());
+            } else {
+                self.update_error_handler();
+                self.error_handler.throw_arg_alreay_used(name.clone());
+            }
+
+            self.next(2);
+
+            let val: Either<Either<VarType, ArrayVarType>, FunctionNode<'a>> =
+                Left(self.parse_ty());
+
+            self.next(1);
+
+            TypeArgNode::new(name, val, visibility)
+        }
+    }
+
     fn parse_type_init(&mut self) -> InitTypeNode<'a> {
         let idx: (Result<usize, usize>, bool) =
             self.search_node(self.current_token.slice.to_owned(), true, 2);
@@ -761,10 +800,19 @@ impl<'a> Parser<'a> {
         let mut i: usize = 0;
 
         while self.current_token.token_type != TokenType::CloseBrace {
-            fields.push(self.parse_value(
-                "".to_owned(),
-                found_node.args[i].clone().unwrap_left().ty.clone(),
-            ));
+            fields.push(
+                self.parse_value(
+                    "".to_owned(),
+                    either::Left(
+                        found_node.args[i]
+                            .clone()
+                            .val
+                            .unwrap_left()
+                            .unwrap_left()
+                            .clone(),
+                    ),
+                ),
+            );
 
             self.next(if self.peek().token_type == TokenType::Comma {
                 2
