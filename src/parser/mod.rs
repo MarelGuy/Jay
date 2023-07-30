@@ -454,19 +454,6 @@ impl<'a> Parser<'a> {
         let a: CallVarNode = CallVarNode(self.current_scope.var_vec[idk.0.unwrap()].clone());
 
         a
-        // CallVarNode(if self.use_local_scope {
-        //     self.current_scope.var_vec.clone()[self
-        //         .search_node(self.current_token.slice.to_owned(), true, 0)
-        //         .0
-        //         .unwrap()]
-        //     .clone()
-        // } else {
-        //     self.global_scope.var_vec.clone()[self
-        //         .search_node(self.current_token.slice.to_owned(), true, 0)
-        //         .0
-        //         .unwrap()]
-        //     .clone()
-        // })
     }
 
     fn parse_index(&mut self) -> isize {
