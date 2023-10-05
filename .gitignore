@@ -1,9 +1,10 @@
 # Folders
 
-.vscode
+/.vscode
 /target
 /archive
-src/parser_old
+/src/parser_old
+/test
 
 # Files
 
