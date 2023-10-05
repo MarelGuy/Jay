@@ -15,7 +15,6 @@ use std::{
     fs::{read_to_string, remove_file, File},
     io::Write,
     path::Path,
-    process::Command,
     time::{Duration, Instant},
 };
 
@@ -72,6 +71,7 @@ fn init_target(codegen: &Codegen) -> TargetMachine {
         .module
         .set_triple(&TargetTriple::create("x86_64-pc-windows-msvc19.37.32824"));
 
+    // Hardcoded target
     let target = Target::from_name("x86-64").unwrap();
 
     target
@@ -132,36 +132,22 @@ fn check_props(props: RunProps, parser: Parser) {
         .build_return(Some(&i32_t.const_int(0, false)))
         .unwrap();
 
-    let mut did_compile: bool = false;
-
     target_machine
         .write_to_file(
             &compiler.module,
             inkwell::targets::FileType::Assembly,
             Path::new("./output.s").as_ref(),
         )
-        .and_then(|_| {
-            Ok({
-                Command::new("clang")
-                    .args(["output.s", "-o", "output.exe"])
-                    .spawn()
-                    .unwrap();
-                did_compile = true;
-            })
-        })
         .unwrap();
 
     if props.want_run {
         todo!()
     }
     if !props.want_asm {
-        while did_compile == false {}
         remove_file("./output.s").unwrap();
     }
     if props.want_llvm {
         compiler.module.print_to_file("./output.ll").unwrap();
-    } else {
-        remove_file("./output.ll").unwrap();
     }
 }
 
