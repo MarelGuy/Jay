@@ -4,10 +4,9 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-# llvm-ir = { version = "0.8.2", features = ["llvm-14"] }
+inkwell = {git = "https://github.com/TheDan64/inkwell", features = ["llvm16-0"] }
 logos = "0.13.0"
-either = "1.8.1"
-colored = "2.0.0"
+colored = "2.0.4"
 
 [profile.release]
 opt-level = 3

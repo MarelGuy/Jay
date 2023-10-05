@@ -1,4 +1,0 @@
-import { lmao1, lmao2 } from lmao;
-import lmao0 from lmao;
-export { lmao4, lmao5 };
-export lmao3;

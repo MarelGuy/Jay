@@ -9,3 +9,5 @@ src/parser_old
 
 /ast.jast
 /run.bat
+/test.sh
+/output.exe

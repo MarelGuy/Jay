@@ -1,95 +1,33 @@
-use core::fmt;
-use std::fmt::{Display, Formatter};
+pub mod math;
 
-use crate::lexer::token::Token;
+use core::fmt::{self, Display, Formatter};
 
-use self::{
-    functions::{CallFuncNode, FunctionNode, /*ReturnIfNode,*/ ReturnNode},
-    types::{PrimitiveTypeNode, TypeNode},
-    variables::{
-        AssignToVarArrNode, AssignToVarNode, CallVarArrNode, CallVarNode, InitTypeNode, VarNode,
-    },
-};
+use self::math::{Int, Operation};
 
-use super::math::{
-    ast::{MathIdNode, MathNumberNode, MathOpTypeNode},
-    ProcessedMathNode,
-};
-
-pub mod functions;
-pub mod types;
-pub mod variables;
-
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Nodes<'a> {
     // AST
-    PrimitiveTypeNode(PrimitiveTypeNode<'a>),
-    TypeNode(TypeNode<'a>),
-
-    // Variables
-    VarNode(VarNode<'a>),
-    CallVarNode(CallVarNode<'a>),
-    CallVarArrNode(CallVarArrNode<'a>),
-    AssignToVarNode(AssignToVarNode<'a>),
-    AssignToVarArrNode(AssignToVarArrNode<'a>),
-    InitTypeNode(InitTypeNode<'a>),
-
-    // Functions
-    FunctionNode(FunctionNode<'a>),
-    CallFuncNode(CallFuncNode<'a>),
-    ReturnNode(ReturnNode<'a>),
-    // ReturnIfNode(ReturnIfNode<'a>),
-
-    // External Math AST
-    ProcessedMathNode(ProcessedMathNode<'a>),
-    MathOpTypeNode(MathOpTypeNode),
-    MathNumberNode(MathNumberNode<'a>),
-    MathIdNode(MathIdNode<'a>),
+    Int(Int<'a>),
+    Op(Operation<'a>),
 
     // General
-    Eol,
-    NullNode,
+    Null,
 }
 
 impl<'a> Nodes<'a> {
-    pub fn get_primitive(&self) -> Option<Token<'a>> {
+    pub(crate) fn _get_int(self) -> Option<Int<'a>> {
         match self {
-            Nodes::PrimitiveTypeNode(token) => Some(token.0),
+            Nodes::Int(int) => Some(int),
             _ => None,
         }
     }
 
-    pub fn get_call_var_node(&self) -> Option<CallVarNode<'a>> {
+    pub(crate) fn get_op(self) -> Option<Operation<'a>> {
         match self {
-            Nodes::CallVarNode(node) => Some(node.to_owned()),
+            Nodes::Op(op) => Some(op),
             _ => None,
         }
     }
-
-    pub fn get_call_var_arr_node(&self) -> Option<CallVarArrNode<'a>> {
-        match self {
-            Nodes::CallVarArrNode(node) => Some(node.to_owned()),
-            _ => None,
-        }
-    }
-    // pub fn get_type_node(&self) -> Option<TypeNode> {
-    //     match self {
-    //         Nodes::TypeNode(node) => Some(node.to_owned()),
-    //         _ => None,
-    //     }
-    // }
-    // pub fn get_var_node(&self) -> Option<VarNode> {
-    //     match self {
-    //         Nodes::VarNode(node) => Some(node.to_owned()),
-    //         _ => None,
-    //     }
-    // }
-    // pub fn get_func_node(&self) -> Option<FunctionNode> {
-    //     match self {
-    //         Nodes::FunctionNode(node) => Some(node.to_owned()),
-    //         _ => None,
-    //     }
-    // }
 }
 
 impl<'a> Display for Nodes<'a> {

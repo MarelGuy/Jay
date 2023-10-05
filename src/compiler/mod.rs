@@ -1,163 +1,90 @@
-use crate::parser::ast::{
-    declarations::{AssignNode, ConstDeclNode, VarDeclNode},
-    functions::{FunctionNode, ReturnIfNode, ReturnNode, UseFunctionNode},
-    identifier::{ArrayAccessNode, DotNotationNode, IdentifierNode},
-    if_else::IfNode,
-    import_export::{ExportNode, ImportNode},
-    loops::{ForNode, LoopNode, WhileNode},
-    math_ops::{BinOpNode, UnOpNode},
-    switch::SwitchNode,
-    types::{BoolNode, CharNode, NewTypeValueNode, NumberNode, StringNode, TypeNode},
-    Node, Nodes,
+use std::error::Error;
+
+use inkwell::{
+    basic_block::BasicBlock,
+    builder::Builder,
+    context::Context,
+    module::Module,
+    types::IntType,
+    values::{IntValue, PointerValue},
 };
 
-pub struct Compiler<'a> {
-    ast: Vec<Node<'a>>,
+use crate::parser::ast::{
+    math::{Operation, Operator},
+    Nodes,
+};
+
+pub struct Codegen<'a> {
+    // pub(super) context: &'a Context,
+    pub(super) module: Module<'a>,
+    pub(super) builder: Builder<'a>,
+    // pub(super) main: FunctionValue<'a>,
+    pub(super) main_block: BasicBlock<'a>,
+    ast: Vec<Nodes<'a>>,
+
+    // Types
+    i32_t: IntType<'a>,
 }
 
-impl<'a> Compiler<'a> {
-    pub fn new(ast: Vec<Node<'a>>) -> Self {
-        Self { ast }
+impl<'a> Codegen<'a> {
+    pub fn new(
+        context: &'a Context,
+        module: Module<'a>,
+        builder: Builder<'a>,
+        // main: FunctionValue<'a>,
+        main_block: BasicBlock<'a>,
+        ast: Vec<Nodes<'a>>,
+    ) -> Self {
+        Self {
+            // context,
+            module,
+            builder,
+            // main,
+            ast,
+            main_block,
+            i32_t: context.i32_type(),
+        }
     }
 
     pub fn compile(&self) {
+        self.builder.position_at_end(self.main_block);
+
         for node in &self.ast {
-            self.visit_node(&&node.node);
+            self.visit_node(*node);
         }
     }
 
-    pub fn visit_node(&self, node: &&Nodes) {
+    pub fn visit_node(&self, node: Nodes) {
         match node {
-            Nodes::VarDeclNode(node) => self.visit_var_decl_node(node),
-            Nodes::ConstDeclNode(node) => self.visit_const_decl_node(node),
-            Nodes::AssignNode(node) => self.visit_assign_node(node),
-            Nodes::IdentifierNode(node) => self.visit_identifier_node(node),
-            Nodes::ArrayAccessNode(node) => self.visit_array_access_node(node),
-            Nodes::DotNotationNode(node) => self.visit_dot_notation_node(node),
-            Nodes::IfNode(node) => self.visit_if_node(node),
-            Nodes::SwitchNode(node) => self.visit_switch_node(node),
-            Nodes::BinOpNode(node) => self.visit_binop_node(node),
-            Nodes::UnOpNode(node) => self.visit_unop_node(node),
-            Nodes::NumberNode(node) => self.visit_number_node(node),
-            Nodes::StringNode(node) => self.visit_string_node(node),
-            Nodes::CharNode(node) => self.visit_char_node(node),
-            Nodes::BoolNode(node) => self.visit_bool_node(node),
-            Nodes::TypeNode(node) => self.visit_type_node(node),
-            Nodes::NewTypeValueNode(node) => self.visit_new_type_value_node(node),
-            Nodes::WhileNode(node) => self.visit_while_node(node),
-            Nodes::ForNode(node) => self.visit_for_node(node),
-            Nodes::LoopNode(node) => self.visit_loop_node(node),
-            Nodes::FunctionNode(node) => self.visit_function_node(node),
-            Nodes::UseFunctionNode(node) => self.visit_use_function_node(node),
-            Nodes::ReturnNode(node) => self.visit_return_node(node),
-            Nodes::ReturnIfNode(node) => self.visit_return_if_node(node),
-            Nodes::ImportNode(node) => self.visit_import_node(node),
-            Nodes::ExportNode(node) => self.visit_export_node(node),
-            Nodes::NullNode => self.visit_null_node(node),
-        }
+            Nodes::Op(_) => self.visit_op(&node).unwrap(),
+            _ => panic!(),
+        };
     }
 
-    fn visit_var_decl_node(&self, node: &VarDeclNode) {
-        println!("Found var decl node.")
-    }
+    fn visit_op(&self, node: &Nodes) -> Result<(), Box<dyn Error>> {
+        let op: Operation = Nodes::get_op(*node).unwrap();
 
-    fn visit_const_decl_node(&self, node: &ConstDeclNode) {
-        println!("Found const decl node.")
-    }
+        let lhs: u64 = op.lhs.val.parse::<u64>()?;
+        let rhs: u64 = op.rhs.val.parse::<u64>()?;
 
-    fn visit_assign_node(&self, node: &AssignNode) {
-        println!("Found assign node.")
-    }
+        let store_lhs: IntValue<'_> = self.i32_t.const_int(lhs, false);
+        let store_rhs: IntValue<'_> = self.i32_t.const_int(rhs, false);
 
-    fn visit_identifier_node(&self, node: &IdentifierNode) {
-        println!("Found identifier node.")
-    }
+        let add_res: IntValue<'_> = match op.op {
+            Operator::Plus => self.builder.build_int_add(store_lhs, store_rhs, "result"),
+            Operator::Minus => self.builder.build_int_sub(store_lhs, store_rhs, "result"),
+            Operator::Multiply => self.builder.build_int_mul(store_lhs, store_rhs, "result"),
+            Operator::Divide => self
+                .builder
+                .build_int_signed_div(store_lhs, store_rhs, "result"),
+            Operator::Modulo => self
+                .builder
+                .build_int_signed_rem(store_lhs, store_rhs, "result"),
+        }?;
 
-    fn visit_array_access_node(&self, node: &ArrayAccessNode) {
-        println!("Found array access node.")
-    }
+        let result: PointerValue<'_> = self.builder.build_alloca(self.i32_t, "result")?;
+        self.builder.build_store(result, add_res)?;
 
-    fn visit_dot_notation_node(&self, node: &DotNotationNode) {
-        println!("Found dot notation node.")
-    }
-
-    fn visit_if_node(&self, node: &IfNode) {
-        println!("Found if node.")
-    }
-
-    fn visit_switch_node(&self, node: &SwitchNode) {
-        println!("Found switch node.")
-    }
-
-    fn visit_binop_node(&self, node: &BinOpNode) {
-        println!("Found binop node.")
-    }
-
-    fn visit_unop_node(&self, node: &UnOpNode) {
-        println!("Found unop node.")
-    }
-
-    fn visit_number_node(&self, node: &NumberNode) {
-        println!("Found number node.")
-    }
-
-    fn visit_string_node(&self, node: &StringNode) {
-        println!("Found string node.")
-    }
-
-    fn visit_char_node(&self, node: &CharNode) {
-        println!("Found char node.")
-    }
-
-    fn visit_bool_node(&self, node: &BoolNode) {
-        println!("Found bool node.")
-    }
-
-    fn visit_type_node(&self, node: &TypeNode) {
-        println!("Found type node.")
-    }
-
-    fn visit_new_type_value_node(&self, node: &NewTypeValueNode) {
-        println!("Found new type value node.")
-    }
-
-    fn visit_while_node(&self, node: &WhileNode) {
-        println!("Found while node.")
-    }
-
-    fn visit_for_node(&self, node: &ForNode) {
-        println!("Found for node.")
-    }
-
-    fn visit_loop_node(&self, node: &LoopNode) {
-        println!("Found loop node.")
-    }
-
-    fn visit_function_node(&self, node: &FunctionNode) {
-        println!("Found function node.")
-    }
-
-    fn visit_use_function_node(&self, node: &UseFunctionNode) {
-        println!("Found use function node.")
-    }
-
-    fn visit_return_node(&self, node: &ReturnNode) {
-        println!("Found return node.")
-    }
-
-    fn visit_return_if_node(&self, node: &ReturnIfNode) {
-        println!("Found return if node.")
-    }
-
-    fn visit_import_node(&self, node: &ImportNode) {
-        println!("Found import node.")
-    }
-
-    fn visit_export_node(&self, node: &ExportNode) {
-        println!("Found export node.")
-    }
-
-    fn visit_null_node(&self, node: &Nodes) {
-        println!("Found null node.")
+        Ok(())
     }
 }

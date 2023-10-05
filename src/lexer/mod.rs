@@ -25,6 +25,24 @@ impl From<Range<usize>> for Span {
     }
 }
 
+impl<'a> From<Lexer<'a>> for Vec<Token<'a>> {
+    fn from(val: Lexer<'a>) -> Self {
+        let mut processed_vec: Vec<Token<'a>> = vec![];
+
+        val.into_iter().for_each(|tok| {
+            if tok.token_type != TokenType::BlockComment
+                && tok.token_type != TokenType::Comment
+                && tok.token_type != TokenType::CarriageReturn
+                && tok.token_type != TokenType::LineFeed
+            {
+                processed_vec.push(tok);
+            }
+        });
+
+        processed_vec
+    }
+}
+
 impl<'a> Lexer<'a> {
     pub fn new(input: &'a str) -> Self {
         Self {
