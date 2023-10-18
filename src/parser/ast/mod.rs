@@ -1,33 +1,33 @@
 pub mod math;
-
 use core::fmt::{self, Display, Formatter};
 
-use self::math::{Int, Operation};
+use self::math::{Int, ProcessedMathNode};
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Nodes<'a> {
     // AST
     Int(Int<'a>),
-    Op(Operation<'a>),
+    ProcessedMathNode(ProcessedMathNode<'a>),
 
     // General
+    NextLine,
     Null,
 }
 
 impl<'a> Nodes<'a> {
-    pub(crate) fn _get_int(self) -> Option<Int<'a>> {
-        match self {
-            Nodes::Int(int) => Some(int),
-            _ => None,
-        }
-    }
+    // pub(crate) fn get_int(self) -> Option<Int<'a>> {
+    //     match self {
+    //         Nodes::Int(int) => Some(int),
+    //         _ => None,
+    //     }
+    // }
 
-    pub(crate) fn get_op(self) -> Option<Operation<'a>> {
-        match self {
-            Nodes::Op(op) => Some(op),
-            _ => None,
-        }
-    }
+    // pub(crate) fn get_math_node(&self) -> Option<MathNode<'a>> {
+    //     match self {
+    //         Nodes::MathNode(op) => Some(op.clone()),
+    //         _ => None,
+    //     }
+    // }
 }
 
 impl<'a> Display for Nodes<'a> {

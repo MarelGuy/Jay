@@ -1,26 +1,27 @@
-use compiler::Codegen;
-use inkwell::{
-    basic_block::BasicBlock,
-    context::Context,
-    module::Module,
-    targets::{CodeModel, InitializationConfig, RelocMode, Target, TargetMachine, TargetTriple},
-    types::{FunctionType, IntType},
-    values::FunctionValue,
-    OptimizationLevel,
-};
+// use compiler::Codegen;
+// use inkwell::{
+//     basic_block::BasicBlock,
+//     context::Context,
+//     module::Module,
+//     targets::{CodeModel, InitializationConfig, RelocMode, Target, TargetMachine, TargetTriple},
+//     types::{FunctionType, IntType},
+//     values::FunctionValue,
+//     OptimizationLevel,
+// };
 use lexer::Lexer;
 use parser::Parser;
 use std::{
     env::args,
-    fs::{read_to_string, remove_file, File},
+    fs::{read_to_string, File},
     io::Write,
+    // io::Write,
     path::Path,
     time::{Duration, Instant},
 };
 
 use crate::lexer::token::Token;
 
-mod compiler;
+// mod compiler;
 mod lexer;
 mod parser;
 
@@ -60,31 +61,27 @@ fn help() {
     println!("    --no-compiler : DEBUG ONLY - don't run the compiler");
 }
 
-fn version() {
-    println!("Jay v0.0.0 (2022-016-03)");
-}
+// fn init_target(codegen: &Codegen) -> TargetMachine {
+//     Target::initialize_x86(&InitializationConfig::default());
 
-fn init_target(codegen: &Codegen) -> TargetMachine {
-    Target::initialize_x86(&InitializationConfig::default());
+//     codegen
+//         .module
+//         .set_triple(&TargetTriple::create("x86_64-pc-windows-msvc19.37.32824"));
 
-    codegen
-        .module
-        .set_triple(&TargetTriple::create("x86_64-pc-windows-msvc19.37.32824"));
+//     // Hardcoded target
+//     let target = Target::from_name("x86-64").unwrap();
 
-    // Hardcoded target
-    let target = Target::from_name("x86-64").unwrap();
-
-    target
-        .create_target_machine(
-            &codegen.module.get_triple(),
-            "x86-64",
-            "+avx2",
-            OptimizationLevel::None,
-            RelocMode::Default,
-            CodeModel::Default,
-        )
-        .unwrap()
-}
+//     target
+//         .create_target_machine(
+//             &codegen.module.get_triple(),
+//             "x86-64",
+//             "+avx2",
+//             OptimizationLevel::None,
+//             RelocMode::Default,
+//             CodeModel::Default,
+//         )
+//         .unwrap()
+// }
 
 fn check_props(props: RunProps, parser: Parser) {
     if props.want_ast {
@@ -101,54 +98,54 @@ fn check_props(props: RunProps, parser: Parser) {
             .unwrap()
     }
 
-    if !props.want_compile {
-        return;
-    }
+    // if !props.want_compile {
+    //     return;
+    // }
 
-    let context: Context = Context::create();
-    let module: Module = context.create_module(&props.file_name[0..props.file_name.len() - 4]);
+    // let context: Context = Context::create();
+    // let module: Module = context.create_module(&props.file_name[0..props.file_name.len() - 4]);
 
-    let i32_t: IntType<'_> = context.i32_type();
-    let fn_type: FunctionType<'_> = i32_t.fn_type(&[], false);
+    // let i32_t: IntType<'_> = context.i32_type();
+    // let fn_type: FunctionType<'_> = i32_t.fn_type(&[], false);
 
-    let fn_main: FunctionValue<'_> = module.add_function("main", fn_type, None);
-    let fn_main_basic_block: BasicBlock<'_> = context.append_basic_block(fn_main, "entry");
+    // let fn_main: FunctionValue<'_> = module.add_function("main", fn_type, None);
+    // let fn_main_basic_block: BasicBlock<'_> = context.append_basic_block(fn_main, "entry");
 
-    let compiler: Codegen = Codegen::new(
-        &context,
-        module,
-        context.create_builder(),
-        // fn_main,
-        fn_main_basic_block,
-        parser.ast.clone(),
-    );
-    let target_machine = init_target(&compiler);
+    // let compiler: Codegen = Codegen::new(
+    //     &context,
+    //     module,
+    //     context.create_builder(),
+    //     // fn_main,
+    //     fn_main_basic_block,
+    //     parser.ast.clone(),
+    // );
+    // let target_machine = init_target(&compiler);
 
-    compiler.compile();
+    // compiler.compile();
 
-    compiler.builder.position_at_end(compiler.main_block);
-    compiler
-        .builder
-        .build_return(Some(&i32_t.const_int(0, false)))
-        .unwrap();
+    // compiler.builder.position_at_end(compiler.main_block);
+    // compiler
+    //     .builder
+    //     .build_return(Some(&i32_t.const_int(0, false)))
+    //     .unwrap();
 
-    target_machine
-        .write_to_file(
-            &compiler.module,
-            inkwell::targets::FileType::Assembly,
-            Path::new("./output.s").as_ref(),
-        )
-        .unwrap();
+    // target_machine
+    //     .write_to_file(
+    //         &compiler.module,
+    //         inkwell::targets::FileType::Assembly,
+    //         Path::new("./output.s").as_ref(),
+    //     )
+    //     .unwrap();
 
-    if props.want_run {
-        todo!()
-    }
-    if !props.want_asm {
-        remove_file("./output.s").unwrap();
-    }
-    if props.want_llvm {
-        compiler.module.print_to_file("./output.ll").unwrap();
-    }
+    // if props.want_run {
+    //     todo!()
+    // }
+    // if !props.want_asm {
+    //     remove_file("./output.s").unwrap();
+    // }
+    // if props.want_llvm {
+    //     compiler.module.print_to_file("./output.ll").unwrap();
+    // }
 }
 
 fn run(props: RunProps) {
@@ -229,7 +226,9 @@ fn main() {
     // TODO: Add commands
     {
         match args().nth(1) {
-            Some(ref arg) if arg == "-v" || arg == "--version" => version(),
+            Some(ref arg) if arg == "-v" || arg == "--version" => {
+                println!("Jay v0.0.0 (2022-016-03)")
+            }
             Some(ref arg) if arg == "-h" || arg == "--help" => help(),
             // Some(ref arg) if arg == "-i" => interpreter(),
             _ => compiler(),

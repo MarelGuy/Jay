@@ -18,18 +18,14 @@ pub enum TokenType {
     #[token("/")]
     Divide,
 
-    #[token("%")]
-    Modulo,
-
     // Numbers
     #[regex(r"[0-9]+")]
     Number,
 
     // #[regex(r"[0-9]+\.[0-9]+")]
     // Float,
-
-    // #[regex(r"-[0-9]+")]
-    // NegativeNumber,
+    #[regex(r"-[0-9]+")]
+    NegativeNumber,
 
     // #[regex(r"-[0-9]+\.[0-9]+")]
     // NegativeFloat,
@@ -40,6 +36,9 @@ pub enum TokenType {
 
     #[regex(r"/\*[^*]*\*+(?:[^/*][^*]*\*+)*/")]
     BlockComment,
+
+    #[token(";")]
+    Semicolon,
 
     // Whitespace
     #[token("\r")]

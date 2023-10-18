@@ -10,7 +10,7 @@ use inkwell::{
 };
 
 use crate::parser::ast::{
-    math::{Operation, Operator},
+    math::{MathNode, Operator},
     Nodes,
 };
 
@@ -50,40 +50,40 @@ impl<'a> Codegen<'a> {
         self.builder.position_at_end(self.main_block);
 
         for node in &self.ast {
-            self.visit_node(*node);
+            self.visit_node(node);
         }
     }
 
-    pub fn visit_node(&self, node: Nodes) {
+    pub fn visit_node(&self, node: &Nodes<'a>) {
         match node {
-            Nodes::Op(_) => self.visit_op(&node).unwrap(),
+            Nodes::MathNode(_) => self.visit_op(&node).unwrap(),
             _ => panic!(),
         };
     }
 
-    fn visit_op(&self, node: &Nodes) -> Result<(), Box<dyn Error>> {
-        let op: Operation = Nodes::get_op(*node).unwrap();
+    fn visit_op(&self, node: &Nodes<'a>) -> Result<(), Box<dyn Error>> {
+        let op: MathNode<'a> = Nodes::get_mathnode(node).unwrap();
 
-        let lhs: u64 = op.lhs.val.parse::<u64>()?;
-        let rhs: u64 = op.rhs.val.parse::<u64>()?;
+        // let lhs: u64 = op.lhs.val.parse::<u64>()?;
+        // let rhs: u64 = op.rhs.val.parse::<u64>()?;
 
-        let store_lhs: IntValue<'_> = self.i32_t.const_int(lhs, false);
-        let store_rhs: IntValue<'_> = self.i32_t.const_int(rhs, false);
+        // let store_lhs: IntValue<'_> = self.i32_t.const_int(lhs, false);
+        // let store_rhs: IntValue<'_> = self.i32_t.const_int(rhs, false);
 
-        let add_res: IntValue<'_> = match op.op {
-            Operator::Plus => self.builder.build_int_add(store_lhs, store_rhs, "result"),
-            Operator::Minus => self.builder.build_int_sub(store_lhs, store_rhs, "result"),
-            Operator::Multiply => self.builder.build_int_mul(store_lhs, store_rhs, "result"),
-            Operator::Divide => self
-                .builder
-                .build_int_signed_div(store_lhs, store_rhs, "result"),
-            Operator::Modulo => self
-                .builder
-                .build_int_signed_rem(store_lhs, store_rhs, "result"),
-        }?;
+        // let add_res: IntValue<'_> = match op.op {
+        //     Operator::Plus => self.builder.build_int_add(store_lhs, store_rhs, "result"),
+        //     Operator::Minus => self.builder.build_int_sub(store_lhs, store_rhs, "result"),
+        //     Operator::Multiply => self.builder.build_int_mul(store_lhs, store_rhs, "result"),
+        //     Operator::Divide => self
+        //         .builder
+        //         .build_int_signed_div(store_lhs, store_rhs, "result"),
+        //     Operator::Modulo => self
+        //         .builder
+        //         .build_int_signed_rem(store_lhs, store_rhs, "result"),
+        // }?;
 
-        let result: PointerValue<'_> = self.builder.build_alloca(self.i32_t, "result")?;
-        self.builder.build_store(result, add_res)?;
+        // let result: PointerValue<'_> = self.builder.build_alloca(self.i32_t, "result")?;
+        // self.builder.build_store(result, add_res)?;
 
         Ok(())
     }
