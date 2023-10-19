@@ -3,7 +3,7 @@
 ## BASIC RULES
 
  - The main file should have a main function (see "FUNCTIONS")
- - Every line should end with a ``;``
+ - Every line should end with a `;`
 
 ## FUNCTIONS
 
