@@ -30,7 +30,7 @@ impl<'a> From<Lexer<'a>> for Vec<Token<'a>> {
         let mut processed_vec: Vec<Token<'a>> = vec![];
 
         val.into_iter().for_each(|tok| {
-            if tok.token_type != TokenType::BlockComment
+            if tok.token_type != TokenType::CommentBlock
                 && tok.token_type != TokenType::Comment
                 && tok.token_type != TokenType::CarriageReturn
                 && tok.token_type != TokenType::LineFeed

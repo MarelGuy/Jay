@@ -9,15 +9,15 @@ pub enum OpType {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct NumberNode<'a>(pub Token<'a>);
+pub struct NodeNumber<'a>(pub Token<'a>);
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct BinOpTypeNode {
+pub struct NodeBinOpType {
     pub op: OpType,
     pub prio: usize,
 }
 
-impl BinOpTypeNode {
+impl NodeBinOpType {
     pub fn new(op: OpType) -> Self {
         let prio: usize = if op == OpType::Plus || op == OpType::Minus {
             1

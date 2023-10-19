@@ -1,17 +1,24 @@
+pub mod functions;
 pub mod math;
+pub mod types;
+
 use core::fmt::{self, Display, Formatter};
 
-use self::math::{
-    ast::{BinOpTypeNode, NumberNode},
-    ProcessedBinOpNode,
+use self::{
+    functions::NodeFunctionDecl,
+    math::{
+        ast::{NodeBinOpType, NodeNumber},
+        NodeProcessedBinOp,
+    },
 };
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Nodes<'a> {
     // AST
-    ProcessedBinOpNode(ProcessedBinOpNode<'a>),
-    NumberNode(NumberNode<'a>),
-    BinOpTypeNode(BinOpTypeNode),
+    ProcessedBinOpNode(NodeProcessedBinOp<'a>),
+    NodeNumber(NodeNumber<'a>),
+    NodeBinOpType(NodeBinOpType),
+    NodeFunctionDecl(NodeFunctionDecl<'a>),
 
     // General
     NextLine,

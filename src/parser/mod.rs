@@ -3,7 +3,7 @@ use crate::{
     parser::ast::math,
 };
 
-use self::ast::Nodes;
+use self::ast::{functions::NodeFunctionDecl, Nodes};
 
 pub(crate) mod ast;
 
@@ -24,12 +24,24 @@ impl<'a> Parser<'a> {
         let init_tok: Token = token_stream[0];
 
         Self {
-            file_name: file_name.clone(),
+            file_name: file_name,
             current_token: init_tok,
             token_stream,
             tok_i: 0,
             lines,
             ast: vec![],
+        }
+    }
+
+    pub fn parse(&mut self) {
+        while self.tok_i < self.token_stream.len() {
+            self.next(1);
+
+            let new_node: Nodes<'a> = self.parse_list(self.current_token);
+
+            if &new_node != &Nodes::NextLine {
+                self.ast.push(new_node);
+            }
         }
     }
 
@@ -42,6 +54,7 @@ impl<'a> Parser<'a> {
             self.tok_i += count;
         }
     }
+
     fn back(&mut self, count: usize) {
         self.tok_i -= count;
 
@@ -86,18 +99,13 @@ impl<'a> Parser<'a> {
 
                 todo!()
             }
+            TokenType::FunctionDecl => Nodes::NodeFunctionDecl(self.parse_function()),
             TokenType::Semicolon => Nodes::NextLine,
             _ => Nodes::Null,
         }
     }
 
-    pub fn parse(&mut self) {
-        while self.tok_i < self.token_stream.len() {
-            self.next(1);
-
-            let new_node: Nodes<'a> = self.parse_list(self.current_token);
-
-            self.ast.push(new_node);
-        }
+    fn parse_function(&mut self) -> NodeFunctionDecl<'a> {
+        todo!()
     }
 }

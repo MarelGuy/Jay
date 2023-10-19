@@ -5,6 +5,9 @@ use logos::Logos;
 
 #[derive(Logos, Debug, PartialEq, Copy, Clone)]
 pub enum TokenType {
+    #[regex(r"[a-zA-Z_][a-zA-Z0-9_]*")]
+    Identifier,
+
     // Binary operators
     #[token("+")]
     Plus,
@@ -25,19 +28,35 @@ pub enum TokenType {
     #[regex(r"[0-9]+\.[0-9]+")]
     Float,
 
+    // Functions
+    #[token("fn")]
+    FunctionDecl,
+
+    #[token("return")]
+    Return,
+
+    #[token("return_if")]
+    ReturnIf,
+
     // Parenthesis
     #[token("(")]
-    OpenParen,
+    ParenOpen,
 
     #[token(")")]
-    CloseParen,
+    ParenClose,
+
+    #[token("{")]
+    BlockStart,
+
+    #[token("}")]
+    BlockEnd,
 
     // Comments
     #[regex(r"//[^\n]*")]
     Comment,
 
     #[regex(r"/\*[^*]*\*+(?:[^/*][^*]*\*+)*/")]
-    BlockComment,
+    CommentBlock,
 
     #[token(";")]
     Semicolon,
@@ -88,6 +107,7 @@ impl<'a> Token<'a> {
         slice: &'a str,
         span: Span,
     ) -> Self {
+        println!("{:?}", token_type.clone());
         Self {
             line,
             column,
