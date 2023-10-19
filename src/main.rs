@@ -160,6 +160,7 @@ fn run(props: RunProps) {
         .collect();
 
     let mut parser: Parser = Parser::new(tokens, props.file_name.into(), lines);
+
     parser.parse();
 
     check_props(props, parser);

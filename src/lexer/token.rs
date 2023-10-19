@@ -22,13 +22,15 @@ pub enum TokenType {
     #[regex(r"[0-9]+")]
     Number,
 
-    // #[regex(r"[0-9]+\.[0-9]+")]
-    // Float,
-    #[regex(r"-[0-9]+")]
-    NegativeNumber,
+    #[regex(r"[0-9]+\.[0-9]+")]
+    Float,
 
-    // #[regex(r"-[0-9]+\.[0-9]+")]
-    // NegativeFloat,
+    // Parenthesis
+    #[token("(")]
+    OpenParen,
+
+    #[token(")")]
+    CloseParen,
 
     // Comments
     #[regex(r"//[^\n]*")]

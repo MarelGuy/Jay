@@ -1,105 +1,38 @@
+pub mod ast;
+
 use crate::lexer::token::{Token, TokenType};
 
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub struct Int<'a> {
-    pub(crate) val: &'a str,
-}
+use self::ast::{
+    BinOpTypeNode, NumberNode,
+    OpType::{Divide, Minus, Multiply, Plus},
+};
 
-impl<'a> Int<'a> {
-    pub fn new(val: &'a str) -> Self {
-        Self { val }
-    }
-
-    pub fn neg_to_minus(&self) -> Vec<Token> {
-        // let base: Vec<char> = self.val.chars();
-        let ret_value: Vec<Token> = vec![];
-
-        // ret_value.push(Token::new(
-        //     0,
-        //     0,
-        //     Ok(TokenType::Minus),
-        //     EitherCharOrStr::Char(self.val.chars().nth(0).unwrap()),
-        //     Span { start: 0, end: 0 },
-        // ));
-        // ret_value.push(Token::new(
-        //     0,
-        //     0,
-        //     Ok(TokenType::Number),
-        //     EitherCharOrStr::Char(self.val.chars().nth(1).unwrap()),
-        //     Span { start: 0, end: 0 },
-        // ));
-
-        ret_value
-    }
-}
-
-// TODO: Add Floating point numbers
-
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub enum Operator {
-    Plus,
-    Minus,
-    Multiply,
-    Divide,
-}
-
-impl Operator {
-    pub fn get_op(tok: TokenType) -> Operator {
-        match tok {
-            TokenType::Plus => Operator::Plus,
-            TokenType::Minus => Operator::Minus,
-            TokenType::Multiply => Operator::Multiply,
-            TokenType::Divide => Operator::Divide,
-            _ => panic!("the operator: {:?} doesn't exist!", tok),
-        }
-    }
-}
+use super::Nodes;
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum EitherIntOrMathNode<'a> {
-    MathNode(MathNode<'a>),
-    Int(Int<'a>),
+pub struct ProcessedBinOpNode<'a> {
+    out_stream: Vec<Nodes<'a>>,
 }
 
-#[derive(Debug, PartialEq, Clone)]
-pub struct MathNode<'a> {
-    pub(crate) lhs: Int<'a>,
-    pub(crate) op: Operator,
-    pub(crate) rhs: Box<EitherIntOrMathNode<'a>>,
-}
-
-impl<'a> MathNode<'a> {
-    pub fn new(lhs: Int<'a>, op: Operator, rhs: EitherIntOrMathNode<'a>) -> Self {
-        Self {
-            lhs,
-            op,
-            rhs: Box::new(rhs),
-        }
+impl<'a> ProcessedBinOpNode<'a> {
+    pub fn new(out_stream: Vec<Nodes<'a>>) -> Self {
+        Self { out_stream }
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
-pub struct OpNode<'a> {
-    pub(crate) math_node: MathNode<'a>,
-    pub(crate) priority: usize,
-}
+pub fn process_math_node(tok_stream: Vec<Token<'_>>) -> ProcessedBinOpNode {
+    let mut out_stream: Vec<Nodes> = vec![];
 
-impl<'a> OpNode<'a> {
-    pub fn new(priority: usize, math_node: MathNode<'a>) -> Self {
-        Self {
-            math_node,
-            priority,
-        }
-    }
-}
+    tok_stream.into_iter().for_each(|tok| {
+        out_stream.push(match tok.token_type {
+            TokenType::Number => Nodes::NumberNode(NumberNode(tok)),
+            TokenType::Plus => Nodes::BinOpTypeNode(BinOpTypeNode::new(Plus)),
+            TokenType::Minus => Nodes::BinOpTypeNode(BinOpTypeNode::new(Minus)),
+            TokenType::Multiply => Nodes::BinOpTypeNode(BinOpTypeNode::new(Multiply)),
+            TokenType::Divide => Nodes::BinOpTypeNode(BinOpTypeNode::new(Divide)),
+            _ => Nodes::Null,
+        })
+    });
 
-#[derive(Debug, PartialEq, Clone)]
-pub struct ProcessedMathNode<'a> {
-    pub(crate) op_node: Vec<OpNode<'a>>,
-}
-
-impl<'a> ProcessedMathNode<'a> {
-    pub fn new(op_node: Vec<OpNode<'a>>) -> Self {
-        Self { op_node }
-    }
+    ProcessedBinOpNode::new(out_stream)
 }

@@ -1,9 +1,9 @@
-use crate::lexer::token::{Token, TokenType};
-
-use self::ast::{
-    math::{EitherIntOrMathNode, Int, MathNode, OpNode, Operator, ProcessedMathNode},
-    Nodes,
+use crate::{
+    lexer::token::{Token, TokenType},
+    parser::ast::math,
 };
+
+use self::ast::Nodes;
 
 pub(crate) mod ast;
 
@@ -21,7 +21,7 @@ impl<'a> Parser<'a> {
     // * Main functions
 
     pub fn new(token_stream: Vec<Token<'a>>, file_name: String, lines: Vec<String>) -> Self {
-        let init_tok: Token = token_stream[0].clone();
+        let init_tok: Token = token_stream[0];
 
         Self {
             file_name: file_name.clone(),
@@ -36,31 +36,55 @@ impl<'a> Parser<'a> {
     fn next(&mut self, count: usize) {
         for _ in 0..count {
             if self.tok_i < self.token_stream.len() {
-                self.current_token = self.token_stream[self.tok_i].clone();
+                self.current_token = self.token_stream[self.tok_i];
             }
 
-            self.tok_i += 1;
+            self.tok_i += count;
         }
+    }
+    fn back(&mut self, count: usize) {
+        self.tok_i -= count;
+
+        self.current_token = self.token_stream[self.tok_i];
     }
 
     fn peek(&self, add: usize) -> Token {
-        self.token_stream[self.tok_i + add].clone()
+        self.token_stream[self.tok_i + add]
     }
 
     fn parse_list(&mut self, token: Token) -> Nodes<'a> {
         match token.token_type {
-            TokenType::Number | TokenType::NegativeNumber => {
+            TokenType::Number | TokenType::Float => {
                 if self.peek(0).token_type == TokenType::Plus
                     || self.peek(0).token_type == TokenType::Minus
                     || self.peek(0).token_type == TokenType::Multiply
                     || self.peek(0).token_type == TokenType::Divide
                 {
-                    return Nodes::ProcessedMathNode(self.parse_math());
+                    match self.peek(0).token_type {
+                        TokenType::Plus
+                        | TokenType::Minus
+                        | TokenType::Divide
+                        | TokenType::Multiply => {
+                            let mut tok_stream: Vec<Token<'a>> = vec![];
+
+                            loop {
+                                tok_stream.push(self.current_token);
+
+                                self.next(1);
+
+                                if self.current_token.token_type == TokenType::Semicolon {
+                                    self.back(1);
+                                    break;
+                                }
+                            }
+
+                            return Nodes::ProcessedBinOpNode(math::process_math_node(tok_stream));
+                        }
+                        _ => todo!(),
+                    }
                 }
 
-                println!("{:?}", Int::new(&self.current_token.slice).neg_to_minus());
-
-                return Nodes::Int(Int::new(&self.current_token.slice));
+                todo!()
             }
             TokenType::Semicolon => Nodes::NextLine,
             _ => Nodes::Null,
@@ -71,57 +95,9 @@ impl<'a> Parser<'a> {
         while self.tok_i < self.token_stream.len() {
             self.next(1);
 
-            let new_node: Nodes = self.parse_list(self.current_token.clone()).clone();
+            let new_node: Nodes<'a> = self.parse_list(self.current_token);
 
             self.ast.push(new_node);
         }
-    }
-
-    // Math
-
-    fn parse_math(&mut self) -> ProcessedMathNode<'a> {
-        let mut operations: Vec<OpNode<'a>> = vec![];
-        let mut prio: usize = 1;
-
-        loop {
-            let math_node: MathNode<'a> = self.parse_math_node();
-
-            match &math_node.op {
-                Operator::Multiply | Operator::Divide => prio += 1,
-                _ => (),
-            }
-
-            operations.push(OpNode::new(prio, math_node));
-            self.next(1);
-
-            if self.current_token.token_type == TokenType::Semicolon {
-                break;
-            }
-        }
-
-        ProcessedMathNode::new(operations)
-    }
-
-    fn parse_math_node(&mut self) -> MathNode<'a> {
-        let lhs: Int<'_> = Int::new(&self.current_token.slice);
-
-        self.next(1);
-
-        let op: Operator = Operator::get_op(self.current_token.token_type);
-
-        self.next(1);
-
-        let rhs: EitherIntOrMathNode = if (self.peek(0).token_type == TokenType::Plus
-            || self.peek(0).token_type == TokenType::Minus
-            || self.peek(0).token_type == TokenType::Multiply
-            || self.peek(0).token_type == TokenType::Divide)
-            && (self.peek(2).token_type == TokenType::Semicolon)
-        {
-            EitherIntOrMathNode::MathNode(self.parse_math_node())
-        } else {
-            EitherIntOrMathNode::Int(Int::new(&self.current_token.slice))
-        };
-
-        return MathNode::new(lhs, op, rhs);
     }
 }
