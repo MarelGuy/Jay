@@ -1,4 +1,4 @@
-use crate::lexer::token::Token;
+use crate::lexer::token::{Token, TokenType};
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum OpType {
@@ -6,6 +6,19 @@ pub enum OpType {
     Minus,
     Multiply,
     Divide,
+    UnPlus,
+    UnMinus,
+}
+
+impl From<TokenType> for OpType {
+    fn from(value: TokenType) -> Self {
+        match value {
+            TokenType::UnMinus => OpType::UnMinus,
+            TokenType::UnPlus => OpType::UnPlus,
+            TokenType::Minus => OpType::Minus,
+            _ => panic!(),
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -18,11 +31,11 @@ pub struct NodeBinOpType {
 }
 
 impl NodeBinOpType {
-    pub fn new(op: OpType) -> Self {
+    pub fn new(op: OpType, add: usize) -> Self {
         let prio: usize = if op == OpType::Plus || op == OpType::Minus {
-            1
+            1 + add
         } else {
-            2
+            2 + add
         };
 
         Self { op, prio }

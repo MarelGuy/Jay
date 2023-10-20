@@ -5,23 +5,30 @@ pub mod types;
 use core::fmt::{self, Display, Formatter};
 
 use self::{
-    functions::NodeFunctionDecl,
+    functions::{NodeFunction, NodeReturn},
     math::{
         ast::{NodeBinOpType, NodeNumber},
-        NodeProcessedBinOp,
+        NodeProcessedBinOp, NodeProcessedUnOp,
     },
 };
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Nodes<'a> {
     // AST
-    ProcessedBinOpNode(NodeProcessedBinOp<'a>),
+    NodeProcessedBinOp(NodeProcessedBinOp<'a>),
+    NodeProcessedUnOp(NodeProcessedUnOp<'a>),
+
+    // Math
     NodeNumber(NodeNumber<'a>),
     NodeBinOpType(NodeBinOpType),
-    NodeFunctionDecl(NodeFunctionDecl<'a>),
+
+    // Functions
+    NodeFunction(NodeFunction<'a>),
+    NodeReturn(NodeReturn<'a>),
 
     // General
     NextLine,
+    NullValue,
     Null,
 }
 
