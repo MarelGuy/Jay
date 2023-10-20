@@ -5,8 +5,41 @@ use logos::Logos;
 
 #[derive(Logos, Debug, PartialEq, Copy, Clone)]
 pub enum TokenType {
+    // Types
+    #[token("int")]
+    TypeInt,
+
+    #[token("void")]
+    TypeVoid,
+
+    #[token("u_int")]
+    TypeUint,
+
+    #[token("float")]
+    TypeFloat,
+
+    #[token("char")]
+    TypeChar,
+
+    #[token("str")]
+    TypeStr,
+
+    #[token("string")]
+    TypeString,
+
+    #[token("bool")]
+    TypeBool,
+
+    // Id
     #[regex(r"[a-zA-Z_][a-zA-Z0-9_]*")]
     Identifier,
+
+    // Unary operations
+    #[token("++")]
+    UnPlus,
+
+    #[token("--")]
+    UnMinus,
 
     // Binary operators
     #[token("+")]
@@ -58,8 +91,14 @@ pub enum TokenType {
     #[regex(r"/\*[^*]*\*+(?:[^/*][^*]*\*+)*/")]
     CommentBlock,
 
+    #[token(":")]
+    Colon,
+
     #[token(";")]
     Semicolon,
+
+    #[token(",")]
+    Comma,
 
     // Whitespace
     #[token("\r")]
@@ -107,13 +146,22 @@ impl<'a> Token<'a> {
         slice: &'a str,
         span: Span,
     ) -> Self {
-        println!("{:?}", token_type.clone());
         Self {
             line,
             column,
             token_type: token_type.unwrap(),
             slice,
             span,
+        }
+    }
+
+    pub fn placeholder() -> Self {
+        Self {
+            line: 0,
+            column: 0,
+            token_type: TokenType::Null,
+            slice: "",
+            span: Span { start: 0, end: 0 },
         }
     }
 }

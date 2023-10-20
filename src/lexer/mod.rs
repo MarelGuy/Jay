@@ -34,6 +34,7 @@ impl<'a> From<Lexer<'a>> for Vec<Token<'a>> {
                 && tok.token_type != TokenType::Comment
                 && tok.token_type != TokenType::CarriageReturn
                 && tok.token_type != TokenType::LineFeed
+                && tok.token_type != TokenType::Space
             {
                 processed_vec.push(tok);
             }
