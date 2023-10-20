@@ -149,6 +149,8 @@ fn check_props(props: RunProps, parser: Parser) {
 }
 
 fn run(props: RunProps) {
+    let now: Instant = Instant::now();
+
     let lexer: Lexer = Lexer::new(props.file_content);
 
     let tokens: Vec<Token> = lexer.into();
@@ -163,13 +165,16 @@ fn run(props: RunProps) {
 
     parser.parse();
 
+    let elapsed: Duration = now.elapsed();
+    println!("completed in: {:.2?}", elapsed);
+
     check_props(props, parser);
 }
 
 fn compiler() {
     let mut args: Vec<String> = args().collect();
 
-    println!("Jay version 0.0.0 (c) 2022");
+    println!("Jay version 0.0.0 (c) 2023");
 
     let mut props: RunProps = RunProps::new();
 
@@ -222,8 +227,6 @@ fn compiler() {
 }
 
 fn main() {
-    let now: Instant = Instant::now();
-
     // TODO: Add commands
     {
         match args().nth(1) {
@@ -235,9 +238,6 @@ fn main() {
             _ => compiler(),
         }
     }
-
-    let elapsed: Duration = now.elapsed();
-    println!("completed in: {:.2?}", elapsed);
 }
 
 #[cfg(test)]
