@@ -1,27 +1,16 @@
-// use compiler::Codegen;
-// use inkwell::{
-//     basic_block::BasicBlock,
-//     context::Context,
-//     module::Module,
-//     targets::{CodeModel, InitializationConfig, RelocMode, Target, TargetMachine, TargetTriple},
-//     types::{FunctionType, IntType},
-//     values::FunctionValue,
-//     OptimizationLevel,
-// };
+use bumpalo::Bump;
 use lexer::Lexer;
 use parser::Parser;
 use std::{
     env::args,
     fs::{read_to_string, File},
     io::Write,
-    // io::Write,
     path::Path,
     time::{Duration, Instant},
 };
 
-use crate::lexer::token::Token;
+use crate::{lexer::token::Token, parser::ast::Nodes};
 
-// mod compiler;
 mod lexer;
 mod parser;
 
@@ -55,128 +44,49 @@ fn help() {
     println!("-v, --version : show version");
     println!("-r, --run     : runs the program after compiling");
     println!(" --- DEBUG OPTIONS --- ");
-    println!("    --ast         : DEBUG ONLY - show the jast tree file");
-    println!("    --llvm-output : DEBUG ONLY - show the generated LLVM-IR file");
-    println!("    --asm-output  : DEBUG ONLY - show the generated ASM file");
-    println!("    --no-compiler : DEBUG ONLY - don't run the compiler");
+    println!("    --ast         : show the jast tree file");
+    println!("    --llvm-output : show the generated LLVM-IR file");
+    println!("    --asm-output  : show the generated ASM file");
+    println!("    --no-compiler : don't run the compiler");
 }
 
-// fn init_target(codegen: &Codegen) -> TargetMachine {
-//     Target::initialize_x86(&InitializationConfig::default());
-
-//     codegen
-//         .module
-//         .set_triple(&TargetTriple::create("x86_64-pc-windows-msvc19.37.32824"));
-
-//     // Hardcoded target
-//     let target = Target::from_name("x86-64").unwrap();
-
-//     target
-//         .create_target_machine(
-//             &codegen.module.get_triple(),
-//             "x86-64",
-//             "+avx2",
-//             OptimizationLevel::None,
-//             RelocMode::Default,
-//             CodeModel::Default,
-//         )
-//         .unwrap()
-// }
-
-fn check_props(props: RunProps, parser: Parser) {
+fn check_props(props: RunProps, ast: Vec<Nodes<'_>>) {
     if props.want_ast {
-        let ast: String = parser
-            .ast
-            .clone()
+        let ast_a: String = ast
             .into_iter()
             .map(|x| -> String { x.to_string() })
             .collect();
 
         File::create("./ast.jast")
             .unwrap()
-            .write_all(ast.as_bytes())
+            .write_all(ast_a.as_bytes())
             .unwrap()
     }
-
-    // if !props.want_compile {
-    //     return;
-    // }
-
-    // let context: Context = Context::create();
-    // let module: Module = context.create_module(&props.file_name[0..props.file_name.len() - 4]);
-
-    // let i32_t: IntType<'_> = context.i32_type();
-    // let fn_type: FunctionType<'_> = i32_t.fn_type(&[], false);
-
-    // let fn_main: FunctionValue<'_> = module.add_function("main", fn_type, None);
-    // let fn_main_basic_block: BasicBlock<'_> = context.append_basic_block(fn_main, "entry");
-
-    // let compiler: Codegen = Codegen::new(
-    //     &context,
-    //     module,
-    //     context.create_builder(),
-    //     // fn_main,
-    //     fn_main_basic_block,
-    //     parser.ast.clone(),
-    // );
-    // let target_machine = init_target(&compiler);
-
-    // compiler.compile();
-
-    // compiler.builder.position_at_end(compiler.main_block);
-    // compiler
-    //     .builder
-    //     .build_return(Some(&i32_t.const_int(0, false)))
-    //     .unwrap();
-
-    // target_machine
-    //     .write_to_file(
-    //         &compiler.module,
-    //         inkwell::targets::FileType::Assembly,
-    //         Path::new("./output.s").as_ref(),
-    //     )
-    //     .unwrap();
-
-    // if props.want_run {
-    //     todo!()
-    // }
-    // if !props.want_asm {
-    //     remove_file("./output.s").unwrap();
-    // }
-    // if props.want_llvm {
-    //     compiler.module.print_to_file("./output.ll").unwrap();
-    // }
 }
 
-fn run(props: RunProps) {
+fn lex_and_parse(props: RunProps) {
     let now: Instant = Instant::now();
 
     let lexer: Lexer = Lexer::new(props.file_content);
 
-    let tokens: Vec<Token> = lexer.into();
+    let tokens: Vec<Token<'_>> = lexer.into();
 
-    let lines: Vec<String> = props
-        .file_content
-        .lines()
-        .map(|line| line.to_string())
-        .collect();
+    let mut parser: Parser = Parser::new(tokens);
 
-    let mut parser: Parser = Parser::new(tokens, props.file_name.into(), lines);
+    let arena: Bump = Bump::new();
 
-    parser.parse();
+    let ast: Vec<Nodes<'_>> = parser.parse(&arena);
 
     let elapsed: Duration = now.elapsed();
     println!("completed in: {:.2?}", elapsed);
 
-    check_props(props, parser);
+    check_props(props, ast);
 }
 
-fn compiler() {
-    let mut args: Vec<String> = args().collect();
-
-    println!("Jay version 0.0.0 (c) 2023");
-
+fn main() {
     let mut props: RunProps = RunProps::new();
+
+    let mut args: Vec<String> = args().collect::<Vec<String>>();
 
     args.remove(0);
 
@@ -185,10 +95,9 @@ fn compiler() {
         return;
     }
 
-    let file_path: &Path = Path::new(&args[0]);
+    let binding: String = args[0].clone();
+    let file_path: &Path = Path::new(binding.as_str());
     props.file_name = file_path.file_name().unwrap().to_str().unwrap();
-
-    let did_find_file: bool = true;
 
     if !file_path.exists() {
         println!("Error: file does not exist");
@@ -198,7 +107,9 @@ fn compiler() {
     let binding: String = read_to_string(file_path).expect("Error: failed to read file");
     props.file_content = binding.as_str();
 
-    args.clone().into_iter().for_each(|arg| match arg.as_str() {
+    args.remove(0);
+
+    args.into_iter().for_each(|arg| match arg.as_str() {
         "-r" | "--run" => {
             props.want_run = true;
         }
@@ -214,33 +125,12 @@ fn compiler() {
         "--no-compiler" => {
             props.want_compile = false;
         }
-        _ => {
-            let file_path: &Path = Path::new(&arg);
-
-            if file_path.exists() && !did_find_file {
-                println!("Error: the input file needs to be the first argument");
-            }
+        "v" | "--version" => {
+            println!("Jay v0.0.0 (2022-016-03)")
         }
+        "-h" | "--help" => help(),
+        _ => todo!("{}", arg),
     });
 
-    run(props);
-}
-
-fn main() {
-    // TODO: Add commands
-    {
-        match args().nth(1) {
-            Some(ref arg) if arg == "-v" || arg == "--version" => {
-                println!("Jay v0.0.0 (2022-016-03)")
-            }
-            Some(ref arg) if arg == "-h" || arg == "--help" => help(),
-            // Some(ref arg) if arg == "-i" => interpreter(),
-            _ => compiler(),
-        }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    // TODO: Addition and subtraction tests
+    lex_and_parse(props)
 }
