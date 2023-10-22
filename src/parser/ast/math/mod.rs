@@ -1,5 +1,7 @@
 pub mod ast;
 
+use bumpalo::Bump;
+
 use crate::lexer::token::{Token, TokenType};
 
 use self::ast::{
@@ -9,13 +11,13 @@ use self::ast::{
 
 use super::Nodes;
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq)]
 pub struct NodeProcessedBinOp<'a> {
     out_stream: Vec<Nodes<'a>>,
 }
 
 impl<'a> NodeProcessedBinOp<'a> {
-    pub fn new(tok_stream: Vec<Token<'a>>) -> Self {
+    pub fn new(tok_stream: Vec<Token<'a>>, arena: &'a Bump) -> Self {
         let mut out_stream: Vec<Nodes<'a>> = vec![];
         let mut old_tok: Token<'a> = Token::placeholder();
         let mut is_un_op: bool = false;
@@ -23,14 +25,16 @@ impl<'a> NodeProcessedBinOp<'a> {
         tok_stream.into_iter().for_each(|tok| {
             if is_un_op {
                 out_stream.pop();
-                out_stream.push(Nodes::NodeProcessedUnOp(NodeProcessedUnOp::new(vec![
-                    old_tok, tok,
-                ])));
+                out_stream.push(Nodes::NodeProcessedUnOp(
+                    arena.alloc(NodeProcessedUnOp::new(vec![old_tok, tok])),
+                ));
                 is_un_op = false;
             } else {
                 out_stream.push(match tok.token_type {
-                    TokenType::Number => Nodes::NodeNumber(NodeNumber(tok)),
-                    TokenType::Plus => Nodes::NodeBinOpType(NodeBinOpType::new(Plus, 0)),
+                    TokenType::Number => Nodes::NodeNumber(arena.alloc(NodeNumber(tok))),
+                    TokenType::Plus => {
+                        Nodes::NodeBinOpType(arena.alloc(NodeBinOpType::new(Plus, 0)))
+                    }
                     TokenType::Minus => {
                         if old_tok.token_type == TokenType::Plus
                             || old_tok.token_type == TokenType::Minus
@@ -38,13 +42,15 @@ impl<'a> NodeProcessedBinOp<'a> {
                             || old_tok.token_type == TokenType::Divide
                         {
                             is_un_op = true;
-                            Nodes::NodeBinOpType(NodeBinOpType::new(Minus, 0))
-                        } else {
-                            Nodes::NodeBinOpType(NodeBinOpType::new(Minus, 0))
                         }
+                        Nodes::NodeBinOpType(arena.alloc(NodeBinOpType::new(Minus, 0)))
                     }
-                    TokenType::Multiply => Nodes::NodeBinOpType(NodeBinOpType::new(Multiply, 0)),
-                    TokenType::Divide => Nodes::NodeBinOpType(NodeBinOpType::new(Divide, 0)),
+                    TokenType::Multiply => {
+                        Nodes::NodeBinOpType(arena.alloc(NodeBinOpType::new(Multiply, 0)))
+                    }
+                    TokenType::Divide => {
+                        Nodes::NodeBinOpType(arena.alloc(NodeBinOpType::new(Divide, 0)))
+                    }
                     _ => Nodes::Null,
                 });
                 old_tok = tok;
@@ -55,7 +61,7 @@ impl<'a> NodeProcessedBinOp<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq)]
 pub struct NodeProcessedUnOp<'a> {
     op: OpType,
     rhs: NodeNumber<'a>,

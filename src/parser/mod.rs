@@ -1,23 +1,22 @@
 use std::vec;
 
-use crate::{
-    lexer::token::{Token, TokenType},
-    parser::ast::functions::NodeArg,
-};
+use bumpalo::Bump;
+
+use crate::lexer::token::{Token, TokenType};
 
 use self::ast::{
-    functions::{NodeFunction, NodeFunctionDecl, NodeReturn, NodeScope},
+    functions::{NodeArg, NodeFunction, NodeFunctionDecl, NodeReturn, NodeScope},
     math::{ast::NodeNumber, NodeProcessedBinOp, NodeProcessedUnOp},
     Nodes,
 };
 
 pub(crate) mod ast;
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug)]
 pub struct Parser<'a> {
     token_stream: Vec<Token<'a>>,
-    file_name: String,
-    lines: Vec<String>,
+    // file_name: String,
+    // lines: Vec<String>,
     current_token: Token<'a>,
     tok_i: usize,
     pub ast: Vec<Nodes<'a>>,
@@ -26,27 +25,66 @@ pub struct Parser<'a> {
 impl<'a> Parser<'a> {
     // * Main functions
 
-    pub fn new(token_stream: Vec<Token<'a>>, file_name: String, lines: Vec<String>) -> Self {
+    pub fn new(token_stream: Vec<Token<'a>>, /*file_name: String, lines: Vec<String>*/) -> Self {
         let init_tok: Token = token_stream[0];
 
         Self {
-            file_name,
+            // file_name,
             current_token: init_tok,
             token_stream,
             tok_i: 0,
-            lines,
+            // lines,
             ast: vec![],
         }
     }
 
-    pub fn parse(&mut self) {
+    pub fn parse(&mut self, arena: &'a Bump) -> Vec<Nodes<'a>> {
+        let mut ast: Vec<Nodes> = vec![];
+
         while self.tok_i < self.token_stream.len() {
             self.next(1);
 
-            let new_node: Nodes<'a> = self.parse_list(self.current_token);
+            let new_node: Nodes = self.parse_list(self.current_token, arena);
 
             if new_node != Nodes::NextLine {
-                self.ast.push(new_node);
+                ast.push(new_node);
+            }
+        }
+
+        ast
+    }
+
+    fn parse_list(&mut self, token: Token<'a>, arena: &'a Bump) -> Nodes<'a> {
+        match token.token_type {
+            TokenType::Minus | TokenType::Number | TokenType::Float => {
+                let peek_token: Token<'a> = self.peek(0);
+
+                if peek_token.token_type == TokenType::Plus
+                    || peek_token.token_type == TokenType::Minus
+                    || peek_token.token_type == TokenType::Multiply
+                    || peek_token.token_type == TokenType::Divide
+                {
+                    // BinOp
+                    return Nodes::NodeProcessedBinOp(arena.alloc(self.parse_bin_op(arena)));
+                }
+
+                if token.token_type == TokenType::Minus
+                    || (peek_token.token_type == TokenType::UnMinus
+                        || peek_token.token_type == TokenType::UnPlus)
+                {
+                    return Nodes::NodeProcessedUnOp(arena.alloc(self.parse_un_op()));
+                }
+
+                return Nodes::NodeNumber(arena.alloc(NodeNumber(self.current_token)));
+            }
+            TokenType::FunctionDecl => {
+                Nodes::NodeFunction(arena.alloc(self.parse_function_decl(arena)))
+            }
+            TokenType::Return => Nodes::NodeReturn(arena.alloc(self.parse_return(arena))),
+            TokenType::Semicolon => Nodes::NextLine,
+            _ => {
+                println!("Unknown token: {}", self.current_token.slice);
+                Nodes::Null
             }
         }
     }
@@ -71,61 +109,23 @@ impl<'a> Parser<'a> {
         self.token_stream[self.tok_i + add]
     }
 
-    fn parse_list(&mut self, token: Token) -> Nodes<'a> {
-        match token.token_type {
-            TokenType::Minus | TokenType::Number | TokenType::Float => {
-                let peek_token: Token<'a> = self.peek(0);
+    // // Operations
 
-                if peek_token.token_type == TokenType::Plus
-                    || peek_token.token_type == TokenType::Minus
-                    || peek_token.token_type == TokenType::Multiply
-                    || peek_token.token_type == TokenType::Divide
-                {
-                    // BinOp
-                    return Nodes::NodeProcessedBinOp(self.parse_bin_op());
-                }
+    fn parse_bin_op(&mut self, arena: &'a Bump) -> NodeProcessedBinOp<'a> {
+        let mut tok_stream: Vec<Token<'a>> = vec![];
 
-                if self.current_token.token_type == TokenType::Minus
-                    || (peek_token.token_type == TokenType::UnMinus
-                        || peek_token.token_type == TokenType::UnPlus)
-                {
-                    return Nodes::NodeProcessedUnOp(self.parse_un_op());
-                }
+        loop {
+            tok_stream.push(self.current_token);
 
-                Nodes::NodeNumber(NodeNumber(self.current_token))
-            }
-            TokenType::FunctionDecl => Nodes::NodeFunction(self.parse_function_decl()),
-            TokenType::Return => Nodes::NodeReturn(self.parse_return()),
-            TokenType::Semicolon => Nodes::NextLine,
-            _ => {
-                println!("Unknown token: {}", self.current_token.slice);
-                Nodes::Null
+            self.next(1);
+
+            if self.current_token.token_type == TokenType::Semicolon {
+                self.back(1);
+                break;
             }
         }
-    }
 
-    // Operations
-
-    fn parse_bin_op(&mut self) -> NodeProcessedBinOp<'a> {
-        match self.peek(0).token_type {
-            TokenType::Plus | TokenType::Minus | TokenType::Divide | TokenType::Multiply => {
-                let mut tok_stream: Vec<Token<'a>> = vec![];
-
-                loop {
-                    tok_stream.push(self.current_token);
-
-                    self.next(1);
-
-                    if self.current_token.token_type == TokenType::Semicolon {
-                        self.back(1);
-                        break;
-                    }
-                }
-
-                return NodeProcessedBinOp::new(tok_stream);
-            }
-            _ => panic!(),
-        }
+        NodeProcessedBinOp::new(tok_stream, arena)
     }
 
     fn parse_un_op(&mut self) -> NodeProcessedUnOp<'a> {
@@ -166,7 +166,7 @@ impl<'a> Parser<'a> {
 
     // Functions
 
-    fn parse_function_decl(&mut self) -> NodeFunction<'a> {
+    fn parse_function_decl(&mut self, arena: &'a Bump) -> NodeFunction<'a> {
         self.next(1);
 
         let name: &str = self.current_token.slice;
@@ -181,10 +181,10 @@ impl<'a> Parser<'a> {
 
         self.next(1);
 
-        self.parse_function(NodeFunctionDecl::new(name, ty, args))
+        self.parse_function(NodeFunctionDecl::new(name, ty, args), arena)
     }
 
-    fn parse_function(&mut self, decl: NodeFunctionDecl<'a>) -> NodeFunction<'a> {
+    fn parse_function(&mut self, decl: NodeFunctionDecl<'a>, arena: &'a Bump) -> NodeFunction<'a> {
         let mut vec_scope: Vec<Nodes<'a>> = vec![];
 
         loop {
@@ -193,19 +193,19 @@ impl<'a> Parser<'a> {
                 break;
             }
 
-            vec_scope.push(self.parse_list(self.current_token));
+            vec_scope.push(self.parse_list(self.current_token, arena));
         }
 
         NodeFunction::new(decl, NodeScope::new(vec_scope))
     }
 
-    fn parse_return(&mut self) -> NodeReturn<'a> {
+    fn parse_return(&mut self, arena: &'a Bump) -> NodeReturn<'a> {
         self.next(1);
 
         let val: Nodes<'a> = if self.current_token.token_type == TokenType::Semicolon {
             Nodes::NullValue
         } else {
-            self.parse_list(self.current_token)
+            self.parse_list(self.current_token, arena)
         };
 
         NodeReturn::new(val)

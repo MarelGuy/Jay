@@ -2,7 +2,7 @@ use crate::lexer::token::TokenType;
 
 use super::{types::ASTTypes, Nodes};
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq)]
 pub struct NodeScope<'a> {
     nodes: Vec<Nodes<'a>>,
 }
@@ -45,7 +45,7 @@ impl<'a> NodeFunctionDecl<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq)]
 pub struct NodeFunction<'a> {
     decl: NodeFunctionDecl<'a>,
     scope: NodeScope<'a>,
@@ -57,7 +57,7 @@ impl<'a> NodeFunction<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq)]
 pub struct NodeReturn<'a> {
     ty: ASTTypes,
     val: Box<Nodes<'a>>,
